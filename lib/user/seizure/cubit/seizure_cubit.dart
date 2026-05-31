@@ -19,7 +19,6 @@ class SeizureCubit extends Cubit<SeizureStates> {
   List<String> seizureTypes = [];
   int durationMinutes = 0;
   int durationSeconds = 0;
-  List<String> triggers = [];
   String? notes;
 
   // Validation Errors
@@ -47,17 +46,6 @@ class SeizureCubit extends Cubit<SeizureStates> {
   // Update Duration Seconds
   void updateDurationSeconds(int value) {
     durationSeconds = value;
-    emit(SeizureUpdateState());
-  }
-
-  // Update Triggers
-  void updateTrigger(String trigger) {
-    if (triggers.contains(trigger)) {
-      triggers.remove(trigger);
-    } else {
-      triggers.add(trigger);
-    }
-
     emit(SeizureUpdateState());
   }
 
@@ -92,7 +80,6 @@ class SeizureCubit extends Cubit<SeizureStates> {
         seizureTypes: List<String>.from(seizureTypes),
         durationMinutes: durationMinutes,
         durationSeconds: durationSeconds,
-        triggers: List<String>.from(triggers),
         notes: notes,
         isAutoDetected: isAutoDetected,
         createdAt: DateTime.now(),
@@ -189,7 +176,6 @@ class SeizureCubit extends Cubit<SeizureStates> {
     seizureTypes = [];
     durationMinutes = 0;
     durationSeconds = 0;
-    triggers = [];
     notes = null;
     seizureTypesError = null;
   }

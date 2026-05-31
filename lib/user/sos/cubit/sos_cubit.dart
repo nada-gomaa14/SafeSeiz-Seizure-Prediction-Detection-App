@@ -10,7 +10,7 @@ import 'package:safeseiz/user/sos/service/sos_service.dart';
 
 class SOSCubit extends Cubit<SOSStates> {
   SOSCubit() : super(SOSLoadedState(
-    secondsRemaining: 10,
+    secondsRemaining: 5,
     countdownStarted: false,
     alertSent: false,
     alertCancelled: false,
@@ -157,40 +157,41 @@ class SOSCubit extends Cubit<SOSStates> {
     if (alertCancelled || isSending) return;
 
     isSending = true;
-
     emitLoadedState();
 
     try {
-      await fetchLocation();
+      final granted = await sosService.requestSMSPermission();
 
+      if (!granted) {
+        emit(SOSErrorState('SMS permission denied.'));
+        return;
+      }
+
+      await fetchLocation();
       if (isClosed) return;
 
       final message = buildSOSMessage(patientName: patientName);
 
+      final phones = contacts.map((c) => c.phone).toList();
+
+      final success = await sosService.sendSOS(phones: phones, message: message);
+
+       if (isClosed) return;
+
+      // Mark all contacts with the same result
       for (final contact in contacts) {
-        if (isClosed || alertCancelled) break;
-
-        final success = await sosService.sendSOS(phone: contact.phone, message: message);
-
-        if (isClosed) return;
-
         notifiedContacts[contact.phone] = success;
-
-        emitLoadedState();
       }
 
       if (!alertCancelled) {
         alertSent = true;
       }
       isSending = false;
-
       if (isClosed) return;
-
       emitLoadedState();
 
     } catch (e) {
       isSending = false;
-
       if (isClosed) return;
 
       emit(SOSErrorState('Failed to send SOS alert.'));
@@ -238,18 +239,18 @@ class SOSCubit extends Cubit<SOSStates> {
   // Build Message
   String buildSOSMessage({required String patientName}) {
     final mapsURL = currentPosition != null
-      ? 'https://maps.google.com/?q=${currentPosition!.latitude},${currentPosition!.longitude}'
+      ? 'google.com/maps?q=${currentPosition!.latitude},${currentPosition!.longitude}'
       : 'Location unavailable';
 
     return 
-'''🚨 SOS Alert from SafeSeiz
+'''SOS Alert from SafeSeiz
 
 $patientName may be experiencing a seizure.
 
-📍 Current Location:
+- Current Location:
 $mapsURL
 
-🕒 Time:
+- Time:
 ${DateFormat('hh:mm a').format(DateTime.now())}
 
 Please contact or assist them immediately.''';

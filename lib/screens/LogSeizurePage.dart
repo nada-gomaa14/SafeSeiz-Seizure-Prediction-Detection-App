@@ -166,6 +166,15 @@ class LogSeizurePage extends StatelessWidget {
                     ],
                     SizedBox(height: 20.h),
                     // Duration
+                    Text(
+                      'DURATION',
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
+                    ),
+                    SizedBox(height: 10.h),
                     Row(
                       children: [
                         Expanded(
@@ -190,32 +199,6 @@ class LogSeizurePage extends StatelessWidget {
                           ),
                         ),
                       ],
-                    ),
-                    SizedBox(height: 20.h),
-                    // Triggers
-                    Text(
-                      'POSSIBLE TRIGGER',
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.tertiary,
-                      ),
-                    ), 
-                    SizedBox(height: 10.h),
-                    Wrap(
-                      spacing: 12.w,
-                      runSpacing: 12.h,
-                      children: triggers.map((trigger) {
-                        final isSelected = seizureCubit.triggers.contains(trigger);
-
-                        return buildChip(
-                          label: trigger,
-                          selected: isSelected,
-                          onTap: () {
-                            seizureCubit.updateTrigger(trigger);
-                          },
-                        );
-                      }).toList(),
                     ),
                     SizedBox(height: 20.h),
                     // Notes

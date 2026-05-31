@@ -224,11 +224,6 @@ class _EditEmergencyContactState extends State<EditEmergencyContact> {
             text: 'Delete Contact',
             color: Theme.of(context).colorScheme.error,
             onTap: () async {
-              if (contactCubit.contacts.length <= 2) {
-                contactCubit.showError('At least 2 emergency contacts are required.');
-                return;
-              }
-      
               showDialog(
                 context: context,
                 useRootNavigator: true,

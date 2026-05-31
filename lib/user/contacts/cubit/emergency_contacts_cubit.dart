@@ -22,6 +22,15 @@ class EmergencyContactsCubit extends Cubit<EmergencyContactsStates> {
     return RegExp(r'^01[0-9]{9}$').hasMatch(phone);
   }
 
+  // Phone Number Format
+  String formatEgyptianPhone(String phone) {
+    final cleaned = phone.trim().replaceAll(' ', '').replaceAll('-', '');
+    if (cleaned.startsWith('+2')) return cleaned;
+    if (cleaned.startsWith('2')) return '+$cleaned';
+    if (cleaned.startsWith('0')) return '+2${cleaned.substring(0)}';
+    return '+2$cleaned';
+  }
+
   // Add Contact
   bool addContact({required String name, required String relationship, required String phone}) {
     name = name.trim();
@@ -50,7 +59,7 @@ class EmergencyContactsCubit extends Cubit<EmergencyContactsStates> {
         id: uuid.v4(),
         name: name,
         relationship: relationship,
-        phone: phone,
+        phone: formatEgyptianPhone(phone),
       ),
     );
 
@@ -100,7 +109,7 @@ class EmergencyContactsCubit extends Cubit<EmergencyContactsStates> {
       id: id,
       name: name,
       relationship: relationship,
-      phone: phone,
+      phone: formatEgyptianPhone(phone),
     );
 
     emit(EmergencyContactsLoadedState(contacts: List.from(contacts), hasMinimumContacts: hasMinimumContacts));

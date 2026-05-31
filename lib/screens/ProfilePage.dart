@@ -53,35 +53,37 @@ class _ProfilePageState extends State<ProfilePage> {
               child: ReturnButton(),
             ),
           leadingWidth: 60.w,
-          actions: [
-            Padding(
-              padding: EdgeInsets.only(right: 20.w),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(20.0.r),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const SettingsPage()
-                    )
-                  );
-                },
-                child: Container(
-                  height: 40.0.r,
-                  width: 40.0.r,
-                  padding: EdgeInsets.all(10.r),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
+          actions: isLocked
+            ? null
+            : [
+              Padding(
+                padding: EdgeInsets.only(right: 20.w),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(20.0.r),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const SettingsPage()
+                      )
+                    );
+                  },
+                  child: Container(
+                    height: 40.0.r,
+                    width: 40.0.r,
+                    padding: EdgeInsets.all(10.r),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
+                    ),
+                    child: Icon(
+                      Icons.settings,
+                      size: 20.sp,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   ),
-                  child: Icon(
-                    Icons.settings,
-                    size: 20.sp,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),          
-                ),  
+                ),
               ),
-            ),
           ],
           bottom: PreferredSize(
             preferredSize: Size.fromHeight(10.h), 

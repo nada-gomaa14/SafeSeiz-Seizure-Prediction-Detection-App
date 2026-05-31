@@ -21,21 +21,18 @@ class SeizureModel {
   final int durationSeconds;
 
   @HiveField(5)
-  final List<String> triggers;
-
-  @HiveField(6)
   final String? notes;
 
-  @HiveField(7)
+  @HiveField(6)
   final bool isAutoDetected;
 
-  @HiveField(8)
+  @HiveField(7)
   final bool isSynced;
 
-  @HiveField(9)
+  @HiveField(8)
   final DateTime createdAt;
 
-  @HiveField(10)
+  @HiveField(9)
   final DateTime updatedAt;
 
   SeizureModel({
@@ -44,7 +41,6 @@ class SeizureModel {
     required this.seizureTypes,
     required this.durationMinutes,
     required this.durationSeconds,
-    required this.triggers,
     this.notes,
     required this.isAutoDetected,
     this.isSynced = false,
@@ -71,7 +67,6 @@ class SeizureModel {
       seizureTypes: seizureTypes ?? this.seizureTypes,
       durationMinutes: durationMinutes ?? this.durationMinutes,
       durationSeconds: durationSeconds ?? this.durationSeconds,
-      triggers: triggers ?? this.triggers,
       notes: notes ?? this.notes,
       isAutoDetected: isAutoDetected ?? this.isAutoDetected,
       isSynced: isSynced ?? this.isSynced,

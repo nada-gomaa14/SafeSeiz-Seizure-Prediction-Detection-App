@@ -22,19 +22,18 @@ class SeizureModelAdapter extends TypeAdapter<SeizureModel> {
       seizureTypes: (fields[2] as List).cast<String>(),
       durationMinutes: fields[3] as int,
       durationSeconds: fields[4] as int,
-      triggers: (fields[5] as List).cast<String>(),
-      notes: fields[6] as String?,
-      isAutoDetected: fields[7] as bool,
-      isSynced: fields[8] as bool,
-      createdAt: fields[9] as DateTime,
-      updatedAt: fields[10] as DateTime,
+      notes: fields[5] as String?,
+      isAutoDetected: fields[6] as bool,
+      isSynced: fields[7] as bool,
+      createdAt: fields[8] as DateTime,
+      updatedAt: fields[9] as DateTime,
     );
   }
 
   @override
   void write(BinaryWriter writer, SeizureModel obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -46,16 +45,14 @@ class SeizureModelAdapter extends TypeAdapter<SeizureModel> {
       ..writeByte(4)
       ..write(obj.durationSeconds)
       ..writeByte(5)
-      ..write(obj.triggers)
-      ..writeByte(6)
       ..write(obj.notes)
-      ..writeByte(7)
+      ..writeByte(6)
       ..write(obj.isAutoDetected)
-      ..writeByte(8)
+      ..writeByte(7)
       ..write(obj.isSynced)
-      ..writeByte(9)
+      ..writeByte(8)
       ..write(obj.createdAt)
-      ..writeByte(10)
+      ..writeByte(9)
       ..write(obj.updatedAt);
   }
 
