@@ -17,15 +17,9 @@ class LogSeizurePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final seizureCubit = context.read<SeizureCubit>();
     
-    final List<String> triggers = [
-      'Sleep deprivation',
-      'Stress',
-      'Missed med',
-      'Unknown',
-    ];
-
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         scrolledUnderElevation: 0,
         title: Text(
           'Log Seizure',

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:safeseiz/functions/notify.dart';
-import 'package:safeseiz/navigation/navigation_layout.dart';
+import 'package:safeseiz/navigation/auth_gate.dart';
 import 'package:safeseiz/screens/PersonalInfoPage.dart';
 import 'package:safeseiz/user/medical/cubit/medical_cubit.dart';
 import 'package:safeseiz/user/medical/cubit/medical_states.dart';
@@ -40,7 +40,7 @@ class _MedicalInfoPageState extends State<MedicalInfoPage> {
 
                   Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
-                      builder : (context) => const NavigationLayout()
+                      builder : (context) => const AuthGate()
                     ),
                     (route) => false
                   );

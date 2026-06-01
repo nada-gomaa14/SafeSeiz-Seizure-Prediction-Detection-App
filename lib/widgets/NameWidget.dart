@@ -40,9 +40,21 @@ class NameWidget extends StatelessWidget {
       maxLines: 1,
       textCapitalization: TextCapitalization.words,
       inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]'))
+        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
       ],
-      onChanged: onChanged,
+      onChanged: (value) {
+        if (value.isEmpty) return;
+
+        final capitalized = value[0].toUpperCase() + value.substring(1).toLowerCase();
+
+        if (capitalized != value) {
+          nameController.value = TextEditingValue(
+            text: capitalized,
+            selection: TextSelection.collapsed(offset: capitalized.length),
+          );
+        }
+        onChanged?.call(capitalized);
+      },
       style: TextStyle(
         color: Theme.of(context).colorScheme.primary,
         fontSize: 16.sp

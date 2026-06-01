@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:safeseiz/functions/showPopup.dart';
 import 'package:safeseiz/functions/notify.dart';
+import 'package:safeseiz/screens/HomePage.dart';
 import 'package:safeseiz/screens/SettingsPage.dart';
 import 'package:safeseiz/user/contacts/cubit/emergency_contacts_cubit.dart';
 import 'package:safeseiz/user/medical/cubit/medical_cubit.dart';
@@ -16,7 +17,6 @@ import 'package:safeseiz/widgets/EditEmergencyContact.dart';
 import 'package:safeseiz/widgets/EditHealthInfo.dart';
 import 'package:safeseiz/widgets/EditMedicalInfo.dart';
 import 'package:safeseiz/widgets/EditProfile.dart';
-import 'package:safeseiz/widgets/ReturnButton.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -36,6 +36,7 @@ class _ProfilePageState extends State<ProfilePage> {
       canPop: !isLocked,
       child: Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           scrolledUnderElevation: 0,
           title: Text(
             'Profile',
@@ -49,9 +50,33 @@ class _ProfilePageState extends State<ProfilePage> {
           leading: isLocked
             ? null
             : Padding(
-              padding: EdgeInsets.only(left: 20.w),
-              child: ReturnButton(),
-            ),
+                padding: EdgeInsets.only(left: 20.w),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(20.0.r),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const HomePage()
+                      ),
+                    );
+                  },
+                  child: Container(
+                    height: 40.0.r,
+                    width: 40.0.r,
+                    padding: EdgeInsets.all(10.r),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
+                    ),
+                    child: Icon(
+                      Icons.home,
+                      size: 20.sp,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ),
+              ),
           leadingWidth: 60.w,
           actions: isLocked
             ? null

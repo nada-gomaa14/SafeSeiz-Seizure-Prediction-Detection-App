@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:safeseiz/user/contacts/cubit/emergency_contacts_cubit.dart';
@@ -46,11 +47,36 @@ class _EditEmergencyContactState extends State<EditEmergencyContact> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Name
           TextField(
-            // Name
             controller: nameController,
             keyboardType: TextInputType.text,
             textInputAction: TextInputAction.next,
+            textCapitalization: TextCapitalization.words,
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
+            ],
+            onChanged: (value) {
+              if (value.isEmpty) return;
+
+              final capitalized = value
+                  .split(' ')
+                  .map((word) {
+                    if (word.isEmpty) return '';
+                    return word[0].toUpperCase() +
+                        word.substring(1).toLowerCase();
+                  })
+                  .join(' ');
+
+              if (capitalized != value) {
+                nameController.value = TextEditingValue(
+                  text: capitalized,
+                  selection: TextSelection.collapsed(
+                    offset: capitalized.length,
+                  ),
+                );
+              }
+            },
             maxLines: 1,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               fontSize: 16.sp,

@@ -2,10 +2,10 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:safeseiz/navigation/auth_gate.dart';
 import 'package:safeseiz/user/authentication/auth_cubit.dart';
 import 'package:safeseiz/user/authentication/auth_states.dart';
 import 'package:safeseiz/functions/notify.dart';
-import 'package:safeseiz/navigation/navigation_layout.dart';
 import 'package:safeseiz/screens/RegistrationPage.dart';
 import 'package:safeseiz/widgets/CustomButton.dart';
 import 'package:safeseiz/widgets/EmailWidget.dart';
@@ -41,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
 
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(
-                    builder: (context) => const NavigationLayout()
+                    builder: (context) => const AuthGate()
                   ),
                   (route) => false
                 );

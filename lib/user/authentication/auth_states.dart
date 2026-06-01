@@ -4,6 +4,7 @@ class AuthInitialState extends AuthStates {}
 class AuthUpdateState extends AuthStates {}
 
 class AuthAuthenticatedState extends AuthStates {}
+class AuthLoadingState extends AuthStates {}
 class AuthUnauthenticatedState extends AuthStates {}
 
 // Password

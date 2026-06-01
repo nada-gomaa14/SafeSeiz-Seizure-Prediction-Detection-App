@@ -158,6 +158,13 @@ class EmergencyContactsCubit extends Cubit<EmergencyContactsStates> {
       }
 
       final data = contactsLocalRepo.getEmergencyContacts(user.id);
+
+      debugPrint(
+        'CONTACTS FETCH => '
+        'user=${user.id}, '
+        'count=${data?.length ?? 0}',
+      );
+
       contacts = data ?? [];
 
       emit(EmergencyContactsLoadedState(contacts: List.from(contacts), hasMinimumContacts: hasMinimumContacts));

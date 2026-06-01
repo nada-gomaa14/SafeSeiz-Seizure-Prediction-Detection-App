@@ -50,6 +50,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         scrolledUnderElevation: 0,
         title: Text(
           'Settings',

@@ -24,18 +24,63 @@ class AuthCubit extends Cubit<AuthStates> {
       emit(AuthUnauthenticatedState());
     }
 
-    authSubscription = supabase.auth.onAuthStateChange.listen((data) {
+    authSubscription = supabase.auth.onAuthStateChange.listen((data) async{
+      debugPrint(
+        'AUTH EVENT => ${data.event}, '
+        'session=${data.session != null}',
+      );
+
+      if (data.event == AuthChangeEvent.initialSession) {
+        return;
+      }
+
       final session = data.session;
 
-      if (session != null) {
-        emit(AuthAuthenticatedState());
-      } else {
+      if (session == null) {
         emit(AuthUnauthenticatedState());
+        return;
+      }
+
+      try {
+        emit(AuthLoadingState());
+
+        await _loadUserData(session.user.id);
+
+        if (state is! AuthAuthenticatedState) {
+          emit(AuthAuthenticatedState());
+        }
+      } catch (e) {
+        debugPrint('Auth state change error: $e');
+        emit(AuthUnauthenticatedState());  
       }
     });
   }
 
   bool isObscure = true;
+
+  // Load Data Helper
+  Future<void> _loadUserData(String userId) async {
+    await profileCubit.fetchProfile(userId);
+    await medicalCubit.fetchMedicalInfo();
+    await contactsCubit.fetchEmergencyContacts();
+    await seizureCubit.loadSeizures();
+  }
+
+  // Profile Creation Delay
+  Future<bool> waitForProfile(String userId) async {
+    for (int i = 0; i < 10; i++) {
+      final profile = await supabase.from('profiles').select('id').eq('id', userId).maybeSingle();
+
+      if (profile != null) {
+        debugPrint('Profile found after ${i + 1} attempts');
+        return true;
+      }
+
+      await Future.delayed(const Duration(milliseconds: 500));
+    }
+
+    return false;
+  }
 
   // Password 
   void changePasswordVisibility() {
@@ -81,13 +126,18 @@ class AuthCubit extends Cubit<AuthStates> {
     return (4, 'Very strong');
   }
 
-  // User registration
+  // User Registration
   Future<void> register({
     required String email,
     required String password,
     required String username
   }) async {
     emit(RegisterLoadingState());
+
+    profileCubit.resetState();
+    medicalCubit.resetState();
+    contactsCubit.resetState();
+    seizureCubit.resetState();
 
     try {
       final response = await supabase.auth.signUp(
@@ -111,12 +161,14 @@ class AuthCubit extends Cubit<AuthStates> {
         email: user.email ?? email,
       );
 
-      await profileCubit.fetchProfile(user.id);
-      await medicalCubit.fetchMedicalInfo();
-      await contactsCubit.fetchEmergencyContacts();
-      await seizureCubit.loadSeizures();
+      if (!await waitForProfile(user.id)) {
+        emit(RegisterErrorState(error: 'Profile creation failed.'));
+        return;
+      }  
 
       emit(RegisterSuccessState());
+      emit(AuthAuthenticatedState());
+
     } on AuthException catch (e) {
       if (e.statusCode == '422' && e.message.toLowerCase().contains('already')){
         emit(RegisterErrorState(error: 'Account already exists.'));
@@ -176,13 +228,6 @@ class AuthCubit extends Cubit<AuthStates> {
       throw AppException('Login failed.');
     }
 
-    await profileCubit.fetchProfile(user.id);
-    await medicalCubit.fetchMedicalInfo();
-    await contactsCubit.fetchEmergencyContacts();
-    await seizureCubit.loadSeizures();
-
-    emit(AuthAuthenticatedState());
-
     } on AuthException catch (e) {
       final message = e.message.toLowerCase();
 
@@ -226,6 +271,8 @@ class AuthCubit extends Cubit<AuthStates> {
 
   // Validate Session
   Future<void> validateSession() async {
+    emit(AuthLoadingState());
+
     try {
       final currentUser = supabase.auth.currentUser;
 
@@ -249,10 +296,7 @@ class AuthCubit extends Cubit<AuthStates> {
       }
 
       // User valid
-      await profileCubit.fetchProfile(currentUser.id);
-      await medicalCubit.fetchMedicalInfo();
-      await contactsCubit.fetchEmergencyContacts();
-      await seizureCubit.loadSeizures();
+      await _loadUserData(currentUser.id);
 
       emit(AuthAuthenticatedState());
 

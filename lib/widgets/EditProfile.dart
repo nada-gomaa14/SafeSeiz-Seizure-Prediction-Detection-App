@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
@@ -62,6 +63,23 @@ class _EditProfileState extends State<EditProfile> {
           TextField(
             controller: firstNameController,
             keyboardType: TextInputType.text,
+            textCapitalization: TextCapitalization.words,
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
+            ],
+            onChanged: (value) {
+              if (value.isEmpty) return;
+
+              final capitalized = value[0].toUpperCase() + value.substring(1).toLowerCase();
+
+              if (capitalized != value) {
+                firstNameController.value = TextEditingValue(
+                  text: capitalized,
+                  selection: TextSelection.collapsed(offset: capitalized.length),
+                );
+              }
+            },
+            maxLines: 1,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               fontSize: 16.sp,
               color: Theme.of(context).colorScheme.primary,
@@ -91,6 +109,23 @@ class _EditProfileState extends State<EditProfile> {
           TextField(
             controller: lastNameController,
             keyboardType: TextInputType.text,
+            textCapitalization: TextCapitalization.words,
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
+            ],
+            onChanged: (value) {
+              if (value.isEmpty) return;
+
+              final capitalized = value[0].toUpperCase() + value.substring(1).toLowerCase();
+
+              if (capitalized != value) {
+                lastNameController.value = TextEditingValue(
+                  text: capitalized,
+                  selection: TextSelection.collapsed(offset: capitalized.length),
+                );
+              }
+            },
+            maxLines: 1,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               fontSize: 16.sp,
               color: Theme.of(context).colorScheme.primary,

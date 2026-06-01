@@ -40,7 +40,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
               listener: (context, state) {
                 if (state is RegisterSuccessState) {
                   FocusScope.of(context).unfocus();
-                  log('Registration & Profile success');
+                  log('Registration success');
                   notify(context, 'Account created successfully');
       
                   if (!context.mounted) return;
