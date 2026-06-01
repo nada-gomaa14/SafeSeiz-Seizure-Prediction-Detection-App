@@ -8,15 +8,21 @@ import android.content.IntentFilter
 import android.telephony.SmsManager
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
-    private val CHANNEL = "com.example.safeseiz/sms"
-    private val CHANNEL = "com.example.safeseiz/smartwatch"
+    private val SMS_CHANNEL = "com.example.safeseiz/sms"
+    private val WATCH_EVENT_CHANNEL = "com.example.safeseiz/watch_events"
+
+    private var watchEventSink: EventChannel.EventSink? = null
+    private var watchBroadcastReceiver: BroadcastReceiver? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
+
+        // ─── SMS Channel ───────────────────────────────────────────────
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, SMS_CHANNEL)
             .setMethodCallHandler { call, result ->
                 if (call.method == "sendSMS") {
                     val phones = call.argument<List<String>>("phones")
@@ -56,7 +62,6 @@ class MainActivity : FlutterActivity() {
                                     PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                                 )
 
-                                // Register sent receiver
                                 registerReceiver(
                                     object : BroadcastReceiver() {
                                         override fun onReceive(ctx: Context?, intent: Intent?) {
@@ -78,10 +83,9 @@ class MainActivity : FlutterActivity() {
                                         }
                                     },
                                     IntentFilter("SMS_SENT_$phone"),
-                                    Context.RECEIVER_NOT_EXPORTED  // ← inside the call
+                                    Context.RECEIVER_NOT_EXPORTED
                                 )
 
-                                // Register delivery receiver
                                 registerReceiver(
                                     object : BroadcastReceiver() {
                                         override fun onReceive(ctx: Context?, intent: Intent?) {
@@ -95,7 +99,7 @@ class MainActivity : FlutterActivity() {
                                         }
                                     },
                                     IntentFilter("SMS_DELIVERED_$phone"),
-                                    Context.RECEIVER_NOT_EXPORTED  // ← inside the call
+                                    Context.RECEIVER_NOT_EXPORTED
                                 )
 
                                 android.util.Log.d("SMS_DEBUG", "Calling sendTextMessage to $phone")
@@ -121,5 +125,61 @@ class MainActivity : FlutterActivity() {
                     }
                 }
             }
+
+        // ─── Watch Event Channel ────────────────────────────────────────
+        EventChannel(flutterEngine.dartExecutor.binaryMessenger, WATCH_EVENT_CHANNEL)
+            .setStreamHandler(object : EventChannel.StreamHandler {
+                override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                    watchEventSink = events
+                    registerWatchReceiver()
+                }
+                override fun onCancel(arguments: Any?) {
+                    watchEventSink = null
+                    unregisterWatchReceiver()
+                }
+            })
+    }
+
+    private fun registerWatchReceiver() {
+        watchBroadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                when (intent?.action) {
+                    WearableService.ACTION_SENSOR_DATA -> {
+                        val data = mapOf(
+                            "type" to "sensor_data",
+                            "hr" to (intent.getStringExtra("hr") ?: ""),
+                            "spo2" to (intent.getStringExtra("spo2") ?: ""),
+                            "accel_x" to (intent.getStringExtra("accel_x") ?: ""),
+                            "accel_y" to (intent.getStringExtra("accel_y") ?: ""),
+                            "accel_z" to (intent.getStringExtra("accel_z") ?: ""),
+                            "gyro_x" to (intent.getStringExtra("gyro_x") ?: ""),
+                            "gyro_y" to (intent.getStringExtra("gyro_y") ?: ""),
+                            "gyro_z" to (intent.getStringExtra("gyro_z") ?: ""),
+                            "timestamp" to intent.getLongExtra("timestamp", 0L).toString()
+                        )
+                        watchEventSink?.success(data)
+                    }
+                    WearableService.ACTION_SOS -> {
+                        watchEventSink?.success(mapOf("type" to "sos"))
+                    }
+                }
+            }
+        }
+
+        val filter = IntentFilter().apply {
+            addAction(WearableService.ACTION_SENSOR_DATA)
+            addAction(WearableService.ACTION_SOS)
+        }
+        registerReceiver(watchBroadcastReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+    }
+
+    private fun unregisterWatchReceiver() {
+        watchBroadcastReceiver?.let { unregisterReceiver(it) }
+        watchBroadcastReceiver = null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterWatchReceiver()
     }
 }

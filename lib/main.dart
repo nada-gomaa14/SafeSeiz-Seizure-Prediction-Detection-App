@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:safeseiz/navigation/auth_gate.dart';
+import 'package:safeseiz/services/watch_service.dart';
 import 'package:safeseiz/user/authentication/auth_cubit.dart';
 import 'package:safeseiz/core/observer.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -15,7 +16,10 @@ import 'package:safeseiz/user/medical/repository/medical_local_repo.dart';
 import 'package:safeseiz/user/profile/cubit/profile_cubit.dart';
 import 'package:safeseiz/user/seizure/cubit/seizure_cubit.dart';
 import 'package:safeseiz/user/seizure/models/seizure_model.dart';
+import 'package:safeseiz/user/sos/cubit/sos_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +40,32 @@ Future<void> main() async {
   await Hive.openBox('emergency_contacts_box');
   await Hive.openBox('seizures_box');
 
+  // Watch service — start listening for sensor data and SOS from smartwatch
+  final watchService = WatchService();
+  watchService.startListening();
+
+  // Trigger SOS alert when watch SOS button is pressed
+  watchService.sosStream.listen((_) async {
+    final context = navigatorKey.currentContext;
+    if (context == null) return;
+
+    final sosCubit = context.read<SOSCubit>();
+    final contactsCubit = context.read<EmergencyContactsCubit>();
+    final profileCubit = context.read<ProfileCubit>();
+
+    final contacts = contactsCubit.contacts;
+    final firstName = profileCubit.profile?.firstName ?? '';
+    final lastName = profileCubit.profile?.lastName ?? '';
+    final patientName = '${firstName} ${lastName}'.trim().isEmpty ? 'Patient' : '${firstName} ${lastName}'.trim();
+
+    if (contacts.isEmpty) return;
+
+    sosCubit.startCountdown(
+      contacts: contacts,
+      patientName: patientName,
+    );
+  });
+
   runApp(const SafeSeiz());
 }
 
@@ -50,6 +80,7 @@ class SafeSeiz extends StatelessWidget {
         BlocProvider(create: (context) => MedicalCubit(MedicalLocalRepo())),
         BlocProvider(create: (context) => EmergencyContactsCubit(EmergencyContactsLocalRepo())),
         BlocProvider(create: (context) => SeizureCubit()),
+        BlocProvider(create: (context) => SOSCubit()),
         BlocProvider(create: (context) => AuthCubit(
           context.read<ProfileCubit>(), 
           context.read<MedicalCubit>(),
@@ -63,6 +94,7 @@ class SafeSeiz extends StatelessWidget {
         splitScreenMode: true,
         builder: (_, child) {
           return MaterialApp(
+            navigatorKey: navigatorKey,
             title: 'SafeSeiz',
             debugShowCheckedModeBanner: false,
             theme: ThemeData(
