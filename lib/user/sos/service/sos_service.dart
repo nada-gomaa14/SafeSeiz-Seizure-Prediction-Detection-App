@@ -11,6 +11,7 @@ class SOSService {
   Future<bool> sendSOS({
     required List<String> phones,
     required String message,
+    String? locationMessage
   }) async {
     if (phones.isEmpty) {
       debugPrint('No recipients provided');
@@ -30,8 +31,6 @@ class SOSService {
         return result ?? false;
 
       } else if (Platform.isIOS) {
-        // iOS can't send silently — opens Messages app
-        // Send to first contact only (iOS limitation)
         final encodedMessage = Uri.encodeComponent(message);
         final Uri smsUri = Uri(
           scheme: 'sms',

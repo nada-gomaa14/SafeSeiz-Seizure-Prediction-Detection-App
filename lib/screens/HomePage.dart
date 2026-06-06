@@ -7,6 +7,7 @@ import 'package:safeseiz/functions/notify.dart';
 import 'package:safeseiz/screens/LogSeizurePage.dart';
 import 'package:safeseiz/screens/ProfilePage.dart';
 import 'package:safeseiz/screens/SOSPage.dart';
+import 'package:safeseiz/screens/WatchPage.dart';
 import 'package:safeseiz/user/profile/cubit/profile_cubit.dart';
 import 'package:safeseiz/user/profile/cubit/profile_states.dart';
 import 'package:safeseiz/user/sos/cubit/sos_cubit.dart';
@@ -58,6 +59,16 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (context) => WatchPage(patientName: name)
+                          ),
+                        );
+                      },
+                      icon: Icon(Icons.watch)
+                    ),
                     Row(
                       children: [
                         Text(
@@ -129,7 +140,7 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         Expanded(
                           child: CustomButton(
-                            height: 75.h,
+                            height: 85.h,
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
@@ -163,7 +174,7 @@ class _HomePageState extends State<HomePage> {
                           child: CustomButton(
                             color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
                             border: Theme.of(context).colorScheme.primary,
-                            height: 75.h,
+                            height: 85.h,
                             onTap: () {
                               notify(context, 'Symptoms logged!');
                             },
@@ -194,7 +205,7 @@ class _HomePageState extends State<HomePage> {
                     CustomButton(
                       color: Theme.of(context).colorScheme.error.withValues(alpha: 0.15),
                       border: Theme.of(context).colorScheme.error,
-                      height: 90.h,
+                      height: 100.h,
                       width: double.infinity,
                       onTap: () {
                         Navigator.of(context).push(
@@ -334,55 +345,56 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     SizedBox(height: 20.h),
-                    Container(
-                      height: 80.h,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15.r),
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
+                    IntrinsicHeight(
+                      child: Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15.r),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Container(
+                              width: 10.r,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.primary,
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(15.r),
+                                  bottomLeft: Radius.circular(15.r),
+                                )
+                              )
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.all(10.0.r),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Daily Tip',
+                                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context).colorScheme.primary,
+                                      )
+                                    ),
+                                    SizedBox(height: 5.h),
+                                    Text(
+                                      'Stay hydrated and get plenty of rest.',
+                                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                        fontSize: 12.sp,
+                                        color: Theme.of(context).colorScheme.primary,
+                                      )
+                                    )
+                                  ]
+                                )
+                              )
+                            )
+                          ],
+                        )
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Container(
-                            width: 10.r,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primary,
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(15.r),
-                                bottomLeft: Radius.circular(15.r),
-                              )
-                            )
-                          ),
-                          Expanded(
-                            child: Padding(
-                              padding: EdgeInsets.all(10.0.r),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Daily Tip',
-                                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                      fontSize: 14.sp,
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).colorScheme.primary,
-                                    )
-                                  ),
-                                  SizedBox(height: 5.h),
-                                  Text(
-                                    'Stay hydrated and get plenty of rest.',
-                                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                      fontSize: 12.sp,
-                                      color: Theme.of(context).colorScheme.primary,
-                                    )
-                                  )
-                                ]
-                              )
-                            )
-                          )
-                        ],
-                      )
                     )
                   ],
                 ),

@@ -57,7 +57,12 @@ Future<void> showPopup({
           await handleClose();
         },
         child: Padding(
-          padding: EdgeInsets.all(20.0.r),
+          padding: EdgeInsets.only(
+            right: 20.0.w,
+            left: 20.0.w,
+            top: 20.0.h,
+            bottom: MediaQuery.of(bottomSheetContext).viewInsets.bottom + 20.0.h
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,

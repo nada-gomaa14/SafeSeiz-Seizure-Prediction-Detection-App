@@ -44,9 +44,9 @@ class _SeizureFrequencyWidgetState extends State<SeizureFrequencyWidget> {
                 )
               ),  
               selected: selected == option,
-              onSelected: (_) {
+              onSelected: (isSelected) {
                 setState(() {
-                  selected = option;
+                  selected = isSelected ? option : null;
                   widget.onChanged(selected);
                 });
               },

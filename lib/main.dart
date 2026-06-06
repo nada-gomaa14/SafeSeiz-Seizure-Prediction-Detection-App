@@ -89,7 +89,7 @@ class SafeSeiz extends StatelessWidget {
         )),
       ],
       child: ScreenUtilInit(
-        designSize: const Size(393, 852),
+        designSize: const Size(800, 1280),
         minTextAdapt: true,
         splitScreenMode: true,
         builder: (_, child) {

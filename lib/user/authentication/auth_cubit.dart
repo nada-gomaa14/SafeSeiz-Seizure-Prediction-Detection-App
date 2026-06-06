@@ -30,6 +30,8 @@ class AuthCubit extends Cubit<AuthStates> {
         'session=${data.session != null}',
       );
 
+      if (data.event == AuthChangeEvent.tokenRefreshed) return;
+
       if (data.event == AuthChangeEvent.initialSession) {
         return;
       }

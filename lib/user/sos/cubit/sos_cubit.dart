@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -61,7 +62,7 @@ class SOSCubit extends Cubit<SOSStates> {
     }
 
     // Reset
-    secondsRemaining = 10;
+    secondsRemaining = 5;
     countdownStarted = true;
     alertCancelled = false;
     alertSent = false;
@@ -172,6 +173,8 @@ class SOSCubit extends Cubit<SOSStates> {
 
       final message = buildSOSMessage(patientName: patientName);
 
+      debugPrint('Alert: $message');
+
       final phones = contacts.map((c) => c.phone).toList();
 
       final success = await sosService.sendSOS(phones: phones, message: message);
@@ -238,22 +241,14 @@ class SOSCubit extends Cubit<SOSStates> {
 
   // Build Message
   String buildSOSMessage({required String patientName}) {
-    final mapsURL = currentPosition != null
-      ? 'google.com/maps?q=${currentPosition!.latitude},${currentPosition!.longitude}'
-      : 'Location unavailable';
+    final time = DateFormat('h:mm a').format(DateTime.now());
 
-    return 
-'''SOS Alert from SafeSeiz
+    if (currentPosition == null) {
+      return '$patientName needs immediate assistance at $time. Location unavailable.';
+    }
 
-$patientName may be experiencing a seizure.
-
-- Current Location:
-$mapsURL
-
-- Time:
-${DateFormat('hh:mm a').format(DateTime.now())}
-
-Please contact or assist them immediately.''';
+    String location = '${currentPosition!.latitude},${currentPosition!.longitude}';
+    return '$patientName needs immediate assistance at $time. Find the location here: goo.gl/maps?q=$location';
   }
 
   // Emit Loaded State Helper

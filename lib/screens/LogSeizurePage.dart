@@ -175,9 +175,7 @@ class LogSeizurePage extends StatelessWidget {
                           child: buildDurationField(
                             title: 'Minutes',
                             onChanged: (value) {
-                              seizureCubit.updateDurationMinutes(
-                                int.tryParse(value) ?? 0,
-                              );
+                              seizureCubit.updateDurationMinutes(int.tryParse(value) ?? 0);
                             },
                           ),
                         ),
@@ -186,9 +184,7 @@ class LogSeizurePage extends StatelessWidget {
                           child: buildDurationField(
                             title: 'Seconds',
                             onChanged: (value) {
-                              seizureCubit.updateDurationSeconds(
-                                int.tryParse(value) ?? 0,
-                              );
+                              seizureCubit.updateDurationSeconds(int.tryParse(value) ?? 0);
                             },
                           ),
                         ),
@@ -208,26 +204,22 @@ class LogSeizurePage extends StatelessWidget {
                     TextField(
                       maxLines: 4,
                       onChanged: seizureCubit.updateNotes,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontSize: 16.sp
+                      ),
                       decoration: InputDecoration(
                         hintText: 'Add any additional details...',
-                        hintStyle: TextStyle(
-                          color: Colors.grey.shade400,
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
+                        hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey),
                         contentPadding: EdgeInsets.all(18.w),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.circular(22.r),
-                          borderSide: BorderSide(
-                            color: Colors.grey.shade300,
-                          ),
+                          borderRadius: BorderRadius.circular(15.r),
+                          borderSide: BorderSide(color: Theme.of(context).colorScheme.tertiary)
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.circular(22.r),
-                          borderSide: const BorderSide(
-                            color: Color(0xff2D2DB5),
+                          borderRadius: BorderRadius.circular(15.r),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                       ),
