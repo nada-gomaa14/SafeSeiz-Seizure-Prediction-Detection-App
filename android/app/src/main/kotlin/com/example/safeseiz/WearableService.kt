@@ -1,4 +1,5 @@
 package com.example.safeseiz
+
 import android.content.Intent
 import android.util.Log
 import com.google.android.gms.wearable.DataEvent
@@ -11,7 +12,7 @@ class WearableService : WearableListenerService() {
 
     companion object {
         const val ACTION_SENSOR_DATA = "com.example.safeseiz.SENSOR_DATA"
-        const val ACTION_SOS = "com.example.safeseiz.SOS"
+        const val ACTION_SOS         = "com.example.safeseiz.SOS"
     }
 
     override fun onDataChanged(dataEvents: DataEventBuffer) {
@@ -23,15 +24,17 @@ class WearableService : WearableListenerService() {
                 Log.d("WearableService", "Sensor data received from watch")
 
                 val intent = Intent(ACTION_SENSOR_DATA).apply {
-                    putExtra("hr",        dataMap.getString("hr", ""))
-                    putExtra("spo2",      dataMap.getString("spo2", ""))
+                    putExtra("hr",        dataMap.getString("hr",      ""))
+                    putExtra("spo2",      dataMap.getString("spo2",    ""))
                     putExtra("accel_x",   dataMap.getString("accel_x", ""))
                     putExtra("accel_y",   dataMap.getString("accel_y", ""))
                     putExtra("accel_z",   dataMap.getString("accel_z", ""))
-                    putExtra("gyro_x",    dataMap.getString("gyro_x", ""))
-                    putExtra("gyro_y",    dataMap.getString("gyro_y", ""))
-                    putExtra("gyro_z",    dataMap.getString("gyro_z", ""))
-                    putExtra("timestamp", dataMap.getLong("timestamp", 0L))
+                    putExtra("gyro_x",    dataMap.getString("gyro_x",  ""))
+                    putExtra("gyro_y",    dataMap.getString("gyro_y",  ""))
+                    putExtra("gyro_z",    dataMap.getString("gyro_z",  ""))
+                    putExtra("ppg",       dataMap.getString("ppg",     ""))
+                    putExtra("rri",       dataMap.getString("rri",     ""))
+                    putExtra("timestamp", dataMap.getLong("timestamp",  0L))
                 }
                 sendBroadcast(intent)
             }

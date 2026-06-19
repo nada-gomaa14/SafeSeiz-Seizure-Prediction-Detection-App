@@ -45,4 +45,5 @@ flutter {
 
 dependencies {
     implementation("com.google.android.gms:play-services-wearable:19.0.0")
+    implementation("org.pytorch:pytorch_android_lite:1.13.1")
 }

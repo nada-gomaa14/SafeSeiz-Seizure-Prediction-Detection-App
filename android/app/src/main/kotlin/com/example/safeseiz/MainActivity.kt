@@ -1,4 +1,5 @@
 package com.example.safeseiz
+
 import android.app.Activity
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
@@ -13,7 +14,7 @@ import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
-    private val SMS_CHANNEL = "com.example.safeseiz/sms"
+    private val SMS_CHANNEL        = "com.example.safeseiz/sms"
     private val WATCH_EVENT_CHANNEL = "com.example.safeseiz/watch_events"
 
     private var watchEventSink: EventChannel.EventSink? = null
@@ -22,16 +23,23 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
+        // ─── Inference Channel ─────────────────────────────────────────
+        val inferencePlugin = InferencePlugin(applicationContext)
+        inferencePlugin.loadModel()
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            InferencePlugin.CHANNEL
+        ).setMethodCallHandler(inferencePlugin)
+
         // ─── SMS Channel ───────────────────────────────────────────────
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, SMS_CHANNEL)
             .setMethodCallHandler { call, result ->
                 if (call.method == "sendSMS") {
-                    val phones = call.argument<List<String>>("phones")
+                    val phones  = call.argument<List<String>>("phones")
                     val message = call.argument<String>("message")
-                    val locationMessage = call.argument<String?>("locationMessage")
 
                     android.util.Log.d("SMS_DEBUG", "Received ${phones?.size} phones: $phones")
-                    android.util.Log.d("SMS_DEBUG", "Message length: ${message?.length}, content: $message")
+                    android.util.Log.d("SMS_DEBUG", "Message length: ${message?.length}")
 
                     if (phones == null || message == null) {
                         result.error("INVALID_ARGS", "phones or message is null", null)
@@ -39,18 +47,14 @@ class MainActivity : FlutterActivity() {
                     }
 
                     try {
-                        // FIX 1: Proper SmsManager instantiation for all Android versions
-                        // Android 10 = SDK 29, so we handle subscription ID carefully
                         val smsManager: SmsManager = if (android.os.Build.VERSION.SDK_INT >= 31) {
                             applicationContext.getSystemService(SmsManager::class.java)
                         } else {
                             val subscriptionId = SubscriptionManager.getDefaultSmsSubscriptionId()
                             if (subscriptionId != SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
-                                android.util.Log.d("SMS_DEBUG", "Using subscription ID: $subscriptionId")
                                 @Suppress("DEPRECATION")
                                 SmsManager.getSmsManagerForSubscriptionId(subscriptionId)
                             } else {
-                                android.util.Log.w("SMS_DEBUG", "Invalid subscription ID, falling back to default")
                                 @Suppress("DEPRECATION")
                                 SmsManager.getDefault()
                             }
@@ -60,9 +64,7 @@ class MainActivity : FlutterActivity() {
 
                         for (phone in phones) {
                             try {
-                                // FIX 2: Clean the phone number — strip whitespace/newlines
                                 val cleanPhone = phone.trim()
-                                android.util.Log.d("SMS_DEBUG", "Sending to: '$cleanPhone'")
 
                                 val sentIntent = PendingIntent.getBroadcast(
                                     applicationContext,
@@ -83,16 +85,8 @@ class MainActivity : FlutterActivity() {
                                             when (resultCode) {
                                                 Activity.RESULT_OK ->
                                                     android.util.Log.d("SMS_DEBUG", "SENT OK to $cleanPhone")
-                                                SmsManager.RESULT_ERROR_GENERIC_FAILURE ->
-                                                    android.util.Log.e("SMS_DEBUG", "SENT FAILED - Generic error to $cleanPhone")
-                                                SmsManager.RESULT_ERROR_NO_SERVICE ->
-                                                    android.util.Log.e("SMS_DEBUG", "SENT FAILED - No service to $cleanPhone")
-                                                SmsManager.RESULT_ERROR_NULL_PDU ->
-                                                    android.util.Log.e("SMS_DEBUG", "SENT FAILED - Null PDU to $cleanPhone")
-                                                SmsManager.RESULT_ERROR_RADIO_OFF ->
-                                                    android.util.Log.e("SMS_DEBUG", "SENT FAILED - Radio off to $cleanPhone")
                                                 else ->
-                                                    android.util.Log.e("SMS_DEBUG", "SENT FAILED - Unknown error $resultCode to $cleanPhone")
+                                                    android.util.Log.e("SMS_DEBUG", "SENT FAILED $resultCode to $cleanPhone")
                                             }
                                             try { ctx?.unregisterReceiver(this) } catch (_: Exception) {}
                                         }
@@ -108,7 +102,7 @@ class MainActivity : FlutterActivity() {
                                                 Activity.RESULT_OK ->
                                                     android.util.Log.d("SMS_DEBUG", "DELIVERED OK to $cleanPhone")
                                                 else ->
-                                                    android.util.Log.e("SMS_DEBUG", "DELIVERY FAILED to $cleanPhone, code: $resultCode")
+                                                    android.util.Log.e("SMS_DEBUG", "DELIVERY FAILED to $cleanPhone")
                                             }
                                             try { ctx?.unregisterReceiver(this) } catch (_: Exception) {}
                                         }
@@ -117,20 +111,13 @@ class MainActivity : FlutterActivity() {
                                     Context.RECEIVER_NOT_EXPORTED
                                 )
 
-                                // FIX 3: Clean the message — strip trailing newlines/whitespace
                                 val cleanMessage = message.trim()
-                                android.util.Log.d("SMS_DEBUG", "Calling sendTextMessage to $cleanPhone")
-
-                                // FIX 4: Proper multipart handling with intents for ALL parts
                                 val parts = smsManager.divideMessage(cleanMessage)
-                                android.util.Log.d("SMS_DEBUG", "Message split into ${parts.size} part(s)")
 
                                 if (parts.size == 1) {
                                     smsManager.sendTextMessage(cleanPhone, null, cleanMessage, sentIntent, deliveryIntent)
                                 } else {
-                                    // Pass proper PendingIntent lists so multipart messages
-                                    // are tracked and don't silently fail
-                                    val sentIntents = ArrayList<PendingIntent>(parts.size)
+                                    val sentIntents     = ArrayList<PendingIntent>(parts.size)
                                     val deliveryIntents = ArrayList<PendingIntent>(parts.size)
                                     repeat(parts.size) {
                                         sentIntents.add(sentIntent)
@@ -140,10 +127,9 @@ class MainActivity : FlutterActivity() {
                                         cleanPhone, null, parts, sentIntents, deliveryIntents
                                     )
                                 }
-                                android.util.Log.d("SMS_DEBUG", "sendTextMessage called for $cleanPhone")
 
                                 if (phones.indexOf(phone) < phones.size - 1) {
-                                    Thread.sleep(1500) // wait 1.5s before sending to next recipient
+                                    Thread.sleep(1500)
                                 }
 
                             } catch (e: Exception) {
@@ -182,15 +168,17 @@ class MainActivity : FlutterActivity() {
                 when (intent?.action) {
                     WearableService.ACTION_SENSOR_DATA -> {
                         val data = mapOf(
-                            "type" to "sensor_data",
-                            "hr" to (intent.getStringExtra("hr") ?: ""),
-                            "spo2" to (intent.getStringExtra("spo2") ?: ""),
-                            "accel_x" to (intent.getStringExtra("accel_x") ?: ""),
-                            "accel_y" to (intent.getStringExtra("accel_y") ?: ""),
-                            "accel_z" to (intent.getStringExtra("accel_z") ?: ""),
-                            "gyro_x" to (intent.getStringExtra("gyro_x") ?: ""),
-                            "gyro_y" to (intent.getStringExtra("gyro_y") ?: ""),
-                            "gyro_z" to (intent.getStringExtra("gyro_z") ?: ""),
+                            "type"      to "sensor_data",
+                            "hr"        to (intent.getStringExtra("hr")        ?: ""),
+                            "spo2"      to (intent.getStringExtra("spo2")      ?: ""),
+                            "accel_x"   to (intent.getStringExtra("accel_x")   ?: ""),
+                            "accel_y"   to (intent.getStringExtra("accel_y")   ?: ""),
+                            "accel_z"   to (intent.getStringExtra("accel_z")   ?: ""),
+                            "gyro_x"    to (intent.getStringExtra("gyro_x")    ?: ""),
+                            "gyro_y"    to (intent.getStringExtra("gyro_y")    ?: ""),
+                            "gyro_z"    to (intent.getStringExtra("gyro_z")    ?: ""),
+                            "ppg"       to (intent.getStringExtra("ppg")       ?: ""),
+                            "rri"       to (intent.getStringExtra("rri")       ?: ""),
                             "timestamp" to intent.getLongExtra("timestamp", 0L).toString()
                         )
                         watchEventSink?.success(data)

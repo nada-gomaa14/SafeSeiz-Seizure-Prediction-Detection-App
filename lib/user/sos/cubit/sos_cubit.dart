@@ -154,8 +154,7 @@ class SOSCubit extends Cubit<SOSStates> {
   }
 
   // Send Alert
-  Future<void> sendAlert({required List<EmergencyContactsModel> contacts, required String patientName}) async {
-    if (alertCancelled || isSending) return;
+  Future<void> sendAlert({required List<EmergencyContactsModel> contacts, required String patientName, bool isSeizure = true}) async {    if (alertCancelled || isSending) return;
 
     isSending = true;
     emitLoadedState();
@@ -171,8 +170,7 @@ class SOSCubit extends Cubit<SOSStates> {
       await fetchLocation();
       if (isClosed) return;
 
-      final message = buildSOSMessage(patientName: patientName);
-
+      final message = buildSOSMessage(patientName: patientName, isSeizure: isSeizure);
       debugPrint('Alert: $message');
 
       final phones = contacts.map((c) => c.phone).toList();
@@ -240,15 +238,19 @@ class SOSCubit extends Cubit<SOSStates> {
   }
 
   // Build Message
-  String buildSOSMessage({required String patientName}) {
+  String buildSOSMessage({required String patientName, bool isSeizure = true}) {
     final time = DateFormat('h:mm a').format(DateTime.now());
 
+    final String alertLabel = isSeizure
+        ? 'is having a seizure and needs immediate assistance'
+        : 'is showing pre-seizure warning signs and may need attention soon';
+
     if (currentPosition == null) {
-      return '$patientName needs immediate assistance at $time. Location unavailable.';
+      return '$patientName $alertLabel at $time. Location unavailable.';
     }
 
     String location = '${currentPosition!.latitude},${currentPosition!.longitude}';
-    return '$patientName needs immediate assistance at $time. Find the location here: goo.gl/maps?q=$location';
+    return '$patientName $alertLabel at $time. Find the location here: goo.gl/maps?q=$location';
   }
 
   // Emit Loaded State Helper
