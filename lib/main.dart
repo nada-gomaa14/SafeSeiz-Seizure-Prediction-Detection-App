@@ -18,11 +18,14 @@ import 'package:safeseiz/user/seizure/cubit/seizure_cubit.dart';
 import 'package:safeseiz/user/seizure/models/seizure_model.dart';
 import 'package:safeseiz/user/sos/cubit/sos_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:safeseiz/services/notification_service.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService().initialize();
+
   Bloc.observer = MyObserver();
 
   await Supabase.initialize(
