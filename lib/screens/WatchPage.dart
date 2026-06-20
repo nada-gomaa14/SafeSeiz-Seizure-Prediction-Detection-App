@@ -7,6 +7,7 @@ import '../user/contacts/models/emergency_contacts_model.dart';
 import '../user/sos/cubit/sos_cubit.dart';
 import '../user/seizure/seizure_detector.dart';
 import '../screens/SOSPage.dart';
+import '../services/notification_service.dart';
 
 class WatchPage extends StatefulWidget {
   final String patientName;
@@ -110,6 +111,7 @@ class _WatchPageState extends State<WatchPage> {
         if (prediction == 2) {
           setState(() => seizureStatus = '🚨 Seizure Detected!');
           if (_currentEventType != 2) {
+            NotificationService().showSeizureNotification(isSeizure: true);
             _navigateToSOSScreen();
             _currentEventType = 2;
           }
@@ -117,6 +119,7 @@ class _WatchPageState extends State<WatchPage> {
         } else if (prediction == 1) {
           setState(() => seizureStatus = '⚠️ Pre-seizure Warning');
           if (_currentEventType == 0) {
+            NotificationService().showSeizureNotification(isSeizure: false);
             _triggerAlert(isSeizure: false);
             _currentEventType = 1;
           }
@@ -178,12 +181,14 @@ class _WatchPageState extends State<WatchPage> {
           if (prediction == 2) {
             setState(() => seizureStatus = '🚨 Seizure Detected!');
             if (_currentEventType != 2) {
+              NotificationService().showSeizureNotification(isSeizure: true);
               _navigateToSOSScreen();
               _currentEventType = 2;
             }
           } else if (prediction == 1) {
             setState(() => seizureStatus = '⚠️ Pre-seizure Warning');
             if (_currentEventType == 0) {
+              NotificationService().showSeizureNotification(isSeizure: false);
               _triggerAlert(isSeizure: false);
               _currentEventType = 1;
             }

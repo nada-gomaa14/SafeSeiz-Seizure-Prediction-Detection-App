@@ -175,6 +175,14 @@ class SOSCubit extends Cubit<SOSStates> {
 
       final phones = contacts.map((c) => c.phone).toList();
 
+      // Re-check cancellation right before sending
+      if (alertCancelled) {
+        isSending = false;
+        if (isClosed) return;
+        emitLoadedState();
+        return;
+      }
+
       final success = await sosService.sendSOS(phones: phones, message: message);
 
        if (isClosed) return;
