@@ -95,8 +95,7 @@ class SeizureDetector {
     _lastGyroZ  = gyroZ;
 
     // Keep buffer size manageable
-    final int maxBufferSize =
-        seqLen * windowStepSamples + windowSamples + 100;
+    final int maxBufferSize = seqLen * windowStepSamples + windowSamples + 100;
     for (int c = 0; c < totalChannels; c++) {
       if (_buffer[c].length > maxBufferSize) {
         _buffer[c].removeRange(0, _buffer[c].length - maxBufferSize);
@@ -104,8 +103,7 @@ class SeizureDetector {
     }
 
     // Check if we have enough samples
-    final int requiredSamples =
-        (seqLen - 1) * windowStepSamples + windowSamples;
+    final int requiredSamples = (seqLen - 1) * windowStepSamples + windowSamples;
 
     debugPrint('Buffer size: ${_buffer[0].length} / $requiredSamples required');
 
@@ -123,9 +121,9 @@ class SeizureDetector {
         final int windowStart = seqStart + i * windowStepSamples;
         return List.generate(
           totalChannels,
-              (c) => List.generate(
+          (c) => List.generate(
             windowSamples,
-                (s) => _normalise(_buffer[c][windowStart + s], c),
+              (s) => _normalise(_buffer[c][windowStart + s], c),
           ),
         );
       },
@@ -157,9 +155,7 @@ class SeizureDetector {
     try {
       debugPrint('Running inference...');
       final result = await _channel.invokeMethod('runInference', {
-        'sequence': sequence
-            .map((window) => window.map((ch) => ch).toList())
-            .toList(),
+        'sequence': sequence.map((window) => window.map((ch) => ch).toList()).toList(),
       });
       debugPrint('Inference result: $result');
       return result as int;

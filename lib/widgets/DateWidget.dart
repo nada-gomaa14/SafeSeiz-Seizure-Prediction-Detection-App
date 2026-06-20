@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:safeseiz/functions/responsive.dart';
 
 class DateWidget extends StatelessWidget {
   const DateWidget({
@@ -32,9 +33,9 @@ class DateWidget extends StatelessWidget {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xFF2D2DB8),
-              onPrimary: Colors.white,
+            colorScheme: ColorScheme.light(
+              primary: Theme.of(context).colorScheme.primary,
+              onPrimary: Theme.of(context).colorScheme.secondary,
             ),
           ),
           child: child ?? const SizedBox.shrink(),
@@ -49,7 +50,7 @@ class DateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderRadius = BorderRadius.circular(15.r);
+    final borderRadius = BorderRadius.circular(15.r * Responsive.scale(context));
 
     return TextFormField(
       validator: (value) {
@@ -67,23 +68,23 @@ class DateWidget extends StatelessWidget {
       enabled: enabled,
       style: TextStyle(
         color: Theme.of(context).colorScheme.primary,
-        fontSize: 16.sp
+        fontSize: 16.sp * Responsive.scale(context),
       ),
       decoration: InputDecoration(
         labelText: label,
         labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          fontSize: 16.sp,
+          fontSize: 16.sp * Responsive.scale(context),
           color: Theme.of(context).colorScheme.tertiary
         ),
         hintText: 'Select date',
-        hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+        hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.tertiary),
         suffixIcon: Icon(
           Icons.calendar_today_outlined,
-          size: 18.sp,
+          size: 18.sp * Responsive.scale(context),
           color: Theme.of(context).colorScheme.tertiary,
         ),
         errorStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          fontSize: 12.sp,
+          fontSize: 12.sp * Responsive.scale(context),
           color: Theme.of(context).colorScheme.error,
         ),
         errorMaxLines: 2,
@@ -104,7 +105,7 @@ class DateWidget extends StatelessWidget {
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: borderRadius,
           borderSide: BorderSide(
-            width: 2.r,
+            width: 2.r * Responsive.scale(context),
             color: Theme.of(context).colorScheme.error
           ),  
         ),

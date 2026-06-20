@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:safeseiz/functions/responsive.dart';
 import 'package:safeseiz/user/authentication/auth_cubit.dart';
 import 'package:safeseiz/user/authentication/auth_states.dart';
 
@@ -20,7 +21,7 @@ class PasswordWidget extends StatefulWidget {
 class _PasswordWidgetState extends State<PasswordWidget> {
   @override
   Widget build(BuildContext context) {
-    final borderRadius = BorderRadius.circular(15.r);
+    final borderRadius = BorderRadius.circular(15.r * Responsive.scale(context));
 
     return BlocBuilder<AuthCubit, AuthStates>(
       builder: (context, state) {
@@ -61,23 +62,22 @@ class _PasswordWidgetState extends State<PasswordWidget> {
           },
           style: TextStyle(
             color: Theme.of(context).colorScheme.primary,
-            fontSize: 16.sp
+            fontSize: 16.sp * Responsive.scale(context)
           ),
           decoration: InputDecoration(
             labelText: widget.label,
             labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey
+              fontSize: 16.sp * Responsive.scale(context),
+              color: Theme.of(context).colorScheme.tertiary
             ),
             hintText: 'Enter your password',
             hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey),
-            prefixIcon: const Icon(
+            prefixIcon: Icon(
               Icons.lock,
-              color: Colors.grey,
+              color: Theme.of(context).colorScheme.tertiary,
             ),
             errorStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontSize: 12.sp,
+              fontSize: 12.sp * Responsive.scale(context),
               color: Theme.of(context).colorScheme.error,
             ),
             errorMaxLines: 2,
@@ -107,8 +107,8 @@ class _PasswordWidgetState extends State<PasswordWidget> {
                 authCubit.changePasswordVisibility();
               },
               icon: authCubit.isObscure
-                ? Icon(Icons.visibility, color: Colors.grey)
-                : Icon(Icons.visibility_off, color: Colors.grey)
+                ? Icon(Icons.visibility, color: Theme.of(context).colorScheme.tertiary)
+                : Icon(Icons.visibility_off, color: Theme.of(context).colorScheme.tertiary)
             )
           ),
         );

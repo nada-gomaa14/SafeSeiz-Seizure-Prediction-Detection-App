@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:safeseiz/functions/notify.dart';
+import 'package:safeseiz/functions/responsive.dart';
 import 'package:safeseiz/navigation/auth_gate.dart';
 import 'package:safeseiz/screens/PersonalInfoPage.dart';
 import 'package:safeseiz/user/medical/cubit/medical_cubit.dart';
@@ -57,8 +58,8 @@ class _MedicalInfoPageState extends State<MedicalInfoPage> {
 
                 return Padding(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 30.0.w,
-                    vertical: 10.0.h
+                    horizontal: 30.0.w * Responsive.scale(context),
+                    vertical: 10.0.h * Responsive.scale(context)
                   ),
                   child: SingleChildScrollView(
                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -75,7 +76,7 @@ class _MedicalInfoPageState extends State<MedicalInfoPage> {
                         Text(
                           'Medical Information',
                           style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                            fontSize: 30.sp,
+                            fontSize: 30.sp * Responsive.scale(context),
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).colorScheme.primary,
                           )
@@ -85,11 +86,11 @@ class _MedicalInfoPageState extends State<MedicalInfoPage> {
                         Text(
                           'Step 3 of 3 - Almost done',
                           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontSize: 18.sp,
-                            color: Colors.grey
+                            fontSize: 18.sp * Responsive.scale(context),
+                            color: Theme.of(context).colorScheme.tertiary,
                           ),
                         ),
-                        SizedBox(height: 30.h),
+                        SizedBox(height: 30.h * Responsive.scale(context)),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -105,14 +106,14 @@ class _MedicalInfoPageState extends State<MedicalInfoPage> {
                                 },
                               ),
                             ),
-                            SizedBox(width: 5.w),
+                            SizedBox(width: 5.w * Responsive.scale(context)),
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Checkbox(
                                   side: BorderSide(
-                                    color: Colors.grey,
-                                    width: 1.r
+                                    color: Theme.of(context).colorScheme.tertiary,
+                                    width: 1.r * Responsive.scale(context)
                                   ),
                                   value: medicalCubit.notDiagnosed, 
                                   onChanged: (value) {
@@ -129,8 +130,8 @@ class _MedicalInfoPageState extends State<MedicalInfoPage> {
                                   child: Text(
                                     'Not diagnosed',
                                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                      fontSize: 16.sp,
-                                      color: Colors.grey
+                                      fontSize: 16.sp * Responsive.scale(context),
+                                      color: Theme.of(context).colorScheme.tertiary
                                     ),
                                   ),
                                 )
@@ -138,15 +139,15 @@ class _MedicalInfoPageState extends State<MedicalInfoPage> {
                             ),
                           ],
                         ),
-                        SizedBox(height: 20.h),
+                        SizedBox(height: 20.h * Responsive.scale(context)),
                         SeizureTypeWidget(
                           onChanged: (types) => medicalCubit.updateSeizureTypes(types),
                         ),
-                        SizedBox(height: 20.h),
+                        SizedBox(height: 20.h * Responsive.scale(context)),
                         SeizureFrequencyWidget(
                           onChanged: (frequency) => medicalCubit.updateSeizureFrequency(frequency),
                         ),
-                        SizedBox(height: 30.h),
+                        SizedBox(height: 30.h * Responsive.scale(context)),
                         CustomButton(
                           text: "Complete Setup",
                           width: double.infinity,
@@ -154,26 +155,26 @@ class _MedicalInfoPageState extends State<MedicalInfoPage> {
                             await medicalCubit.saveMedicalInfo();
                           },
                           child: isLoading 
-                            ? const Center(
+                            ? Center(
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                )
+                                valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.secondary),
                               )
+                            )
                             : null 
                         ),
-                        SizedBox(height: 10.h),
+                        SizedBox(height: 10.h * Responsive.scale(context)),
                         Center(
                           child: Text(
                             'You can update this anytime from your profile',
                             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                              fontSize: 12.sp,
-                              color: Colors.grey
+                              fontSize: 12.sp * Responsive.scale(context),
+                              color: Theme.of(context).colorScheme.tertiary
                             ),
                           ),
                         ),
                         
-                        SizedBox(height: 10.h),
+                        SizedBox(height: 10.h * Responsive.scale(context)),
                         
                         /// SKIP (optional)
                         CustomButton(

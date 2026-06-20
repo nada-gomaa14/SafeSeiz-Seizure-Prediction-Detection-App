@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:safeseiz/functions/responsive.dart';
 import 'package:safeseiz/widgets/CustomButton.dart';
 
 class GenderWidget extends StatefulWidget {
@@ -56,7 +57,7 @@ class _GenderWidgetState extends State<GenderWidget> {
       color: isSelected
           ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15)
           : Colors.transparent,
-      textColor: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey,
+      textColor: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.tertiary,
       border: isSelected
         ? Theme.of(context).colorScheme.primary
         : Theme.of(context).colorScheme.tertiary,
@@ -72,12 +73,11 @@ class _GenderWidgetState extends State<GenderWidget> {
         Text(
           "Gender",
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.bold,
-            color: Colors.grey
+            fontSize: 16.sp * Responsive.scale(context),
+            color: Theme.of(context).colorScheme.tertiary
           )
         ),
-        SizedBox(height: 10.h),
+        SizedBox(height: 10.h * Responsive.scale(context)),
         Row(
           children: [
             Expanded(
@@ -86,7 +86,7 @@ class _GenderWidgetState extends State<GenderWidget> {
                 value: 'male'
               )
             ),
-            SizedBox(width: 10.w),
+            SizedBox(width: 10.w * Responsive.scale(context)),
             Expanded(
               child: buildGenderButton(
                 label: 'Female',
@@ -98,12 +98,12 @@ class _GenderWidgetState extends State<GenderWidget> {
 
         if (widget.errorText != null)
           Padding(
-            padding: EdgeInsets.only(top: 4.h),
+            padding: EdgeInsets.only(top: 4.h * Responsive.scale(context)),
             child: Text(
               widget.errorText!,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 12.sp,
-                color: const Color(0xFF990000)
+                fontSize: 12.sp * Responsive.scale(context),
+                color: Theme.of(context).colorScheme.error
               )
             ),
           ),

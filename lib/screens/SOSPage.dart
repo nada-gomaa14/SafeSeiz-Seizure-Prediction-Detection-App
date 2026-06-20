@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:safeseiz/functions/notify.dart';
+import 'package:safeseiz/functions/responsive.dart';
 import 'package:safeseiz/user/contacts/cubit/emergency_contacts_cubit.dart';
 import 'package:safeseiz/user/contacts/models/emergency_contacts_model.dart';
 import 'package:safeseiz/user/profile/cubit/profile_cubit.dart';
@@ -59,8 +60,8 @@ class _SOSPageState extends State<SOSPage> {
 
             return Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: 30.w,
-                vertical: 10.h,
+                horizontal: 30.w * Responsive.scale(context),
+                vertical: 10.h * Responsive.scale(context),
               ),
               child: SingleChildScrollView(
                 child: Column(
@@ -70,9 +71,9 @@ class _SOSPageState extends State<SOSPage> {
                     // SOS Status Card                 
                     Container(
                       width: double.infinity,
-                      padding: EdgeInsets.all(20.r),
+                      padding: EdgeInsets.all(20.r * Responsive.scale(context)),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20.r),
+                        borderRadius: BorderRadius.circular(20.r * Responsive.scale(context)),
                         color: loadedState.alertCancelled
                           ? const Color(0xFF22A45D).withValues(alpha: 0.15)
                           : Theme.of(context).colorScheme.error.withValues(alpha: 0.15),
@@ -85,9 +86,9 @@ class _SOSPageState extends State<SOSPage> {
                       child: Column(
                         children: [
                           Container(
-                            height: 70.r,
-                            width: 70.r,
-                            padding: EdgeInsets.all(10.r),
+                            height: 70.r * Responsive.scale(context),
+                            width: 70.r * Responsive.scale(context),
+                            padding: EdgeInsets.all(10.r * Responsive.scale(context)),
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
@@ -99,18 +100,18 @@ class _SOSPageState extends State<SOSPage> {
                               ? Icon(
                                 Icons.check,
                                 color: Theme.of(context).colorScheme.secondary,
-                                size: 40.sp,
+                                size: 40.sp * Responsive.scale(context),
                               )
                               : Text(
                                 'SOS',
                                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                  fontSize: 20.sp,
+                                  fontSize: 20.sp * Responsive.scale(context),
                                   fontWeight: FontWeight.bold,
                                   color: Theme.of(context).colorScheme.secondary,
                                 )
                               )  
                           ),
-                          SizedBox(height: 15.h),
+                          SizedBox(height: 15.h * Responsive.scale(context)),
                           Text(
                             loadedState.alertCancelled
                               ? 'All Clear'
@@ -121,14 +122,14 @@ class _SOSPageState extends State<SOSPage> {
                               : 'Emergency SOS',
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                              fontSize: 25.sp,
+                              fontSize: 25.sp * Responsive.scale(context),
                               fontWeight: FontWeight.bold,
                               color: loadedState.alertCancelled
                                 ? const Color(0xFF22A45D)
                                 : Theme.of(context).colorScheme.error,
                             ),
                           ),
-                          SizedBox(height: 10.h),
+                          SizedBox(height: 10.h * Responsive.scale(context)),
                           Text(
                             loadedState.alertCancelled
                               ? 'Your emergency contacts were informed that you are safe.'
@@ -139,9 +140,9 @@ class _SOSPageState extends State<SOSPage> {
                               : 'Send an emergency alert with your live location.',
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                              fontSize: 14.sp,
+                              fontSize: 14.sp * Responsive.scale(context),
                               color: Theme.of(context).colorScheme.tertiary,
-                              height: 1.5,
+                              height: 1.5.h * Responsive.scale(context),
                             ),
                           ),
                           // Countdown
@@ -151,26 +152,26 @@ class _SOSPageState extends State<SOSPage> {
                             !loadedState.alertCancelled)
                             Column(
                               children: [
-                                SizedBox(height: 20.h),
+                                SizedBox(height: 20.h * Responsive.scale(context)),
                                 Text(
                                   'Alert sends in',
                                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                     color: Theme.of(context).colorScheme.error,
-                                    fontSize: 16.sp,
+                                    fontSize: 16.sp * Responsive.scale(context),
                                   ),
                                 ),
-                                SizedBox(height: 5.h),
+                                SizedBox(height: 5.h * Responsive.scale(context)),
                                 Text(
                                   '00:${loadedState.secondsRemaining.toString().padLeft(2, '0')}',
                                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                    fontSize: 40.sp,
+                                    fontSize: 40.sp * Responsive.scale(context),
                                     fontWeight: FontWeight.bold,
                                     color: Theme.of(context).colorScheme.error,
                                   ),
                                 ),
                               ],
                             ),
-                          SizedBox(height: 20.h),
+                          SizedBox(height: 20.h * Responsive.scale(context)),
                           // Cancel Button
                           if (loadedState.countdownStarted &&
                             !loadedState.alertSent &&
@@ -194,12 +195,12 @@ class _SOSPageState extends State<SOSPage> {
                                   strokeWidth: 2,
                                   valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
                                 ),
-                                SizedBox(height: 15.h),
+                                SizedBox(height: 15.h * Responsive.scale(context)),
                                 Text(
                                   'Sending alerts...',
                                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                     color: Theme.of(context).colorScheme.error,
-                                    fontSize: 16.sp,
+                                    fontSize: 16.sp * Responsive.scale(context),
                                   ),
                                 ),
                               ],
@@ -216,21 +217,21 @@ class _SOSPageState extends State<SOSPage> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 20.h),
+                    SizedBox(height: 20.h * Responsive.scale(context)),
                     // Contacts
                     Text(
                       'CONTACTS NOTIFIED',
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 16.sp,
+                        fontSize: 16.sp * Responsive.scale(context),
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.tertiary,
                       ),
                     ),
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 10.h * Responsive.scale(context)),
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15.r),
+                        borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                         border: Border.all(color: Theme.of(context).colorScheme.tertiary),
                       ),
                       child: Column(
@@ -245,9 +246,9 @@ class _SOSPageState extends State<SOSPage> {
                             children: [
                               CustomListItem(
                                 leading: Container(
-                                  height: 40.r,
-                                  width: 40.r,
-                                  padding: EdgeInsets.all(8.r),
+                                  height: 40.r * Responsive.scale(context),
+                                  width: 40.r * Responsive.scale(context),
+                                  padding: EdgeInsets.all(8.r * Responsive.scale(context)),
                                   alignment: Alignment.center,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
@@ -256,7 +257,7 @@ class _SOSPageState extends State<SOSPage> {
                                   child: Text(
                                     initial,
                                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                      fontSize: 16.sp,
+                                      fontSize: 16.sp * Responsive.scale(context),
                                       color: Theme.of(context).colorScheme.secondary,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -270,7 +271,7 @@ class _SOSPageState extends State<SOSPage> {
                                     ? 'Sent'
                                     : 'Pending',
                                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                    fontSize: 12.sp,
+                                    fontSize: 12.sp * Responsive.scale(context),
                                     fontWeight: FontWeight.bold,
                                     color: notified
                                       ? const Color(0xFF22A45D)
@@ -288,23 +289,23 @@ class _SOSPageState extends State<SOSPage> {
                         }).toList(),
                       ),
                     ),
-                    SizedBox(height: 20.h),
+                    SizedBox(height: 20.h * Responsive.scale(context)),
                     // Location
                     Text(
                       'LOCATION SHARED',
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 16.sp,
+                        fontSize: 16.sp * Responsive.scale(context),
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.tertiary,
                       ),
                     ),
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 10.h * Responsive.scale(context)),
                     Container(
                       width: double.infinity,
-                      padding: EdgeInsets.all(18.r),
+                      padding: EdgeInsets.all(18.r * Responsive.scale(context)),
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(15.r),
+                        borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -313,16 +314,16 @@ class _SOSPageState extends State<SOSPage> {
                           Icon(
                             Icons.location_on_outlined,
                             color: Theme.of(context).colorScheme.primary,
-                            size: 30.sp,
+                            size: 30.sp * Responsive.scale(context),
                           ),
-                          SizedBox(width: 10.w),
+                          SizedBox(width: 10.w * Responsive.scale(context)),
                           Expanded(
                             child: Text(
                               loadedState.locationText,
                               softWrap: true,
                               overflow: TextOverflow.visible,
                               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                fontSize: 14.sp,
+                                fontSize: 14.sp * Responsive.scale(context),
                                 color: Theme.of(context).colorScheme.primary,
                               ),
                             ),
@@ -330,17 +331,17 @@ class _SOSPageState extends State<SOSPage> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 20.h),
+                    SizedBox(height: 20.h * Responsive.scale(context)),
                     // Checklist
                     Text(
                       'AFTER THE SEIZURE',
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 16.sp,
+                        fontSize: 16.sp * Responsive.scale(context),
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.tertiary,
                       ),
                     ),
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 10.h * Responsive.scale(context)),
                     Column(
                       children: List.generate(loadedState.afterSeizureChecklist.entries.length, (index) {
                         final entry = loadedState.afterSeizureChecklist.entries.elementAt(index);
@@ -356,8 +357,8 @@ class _SOSPageState extends State<SOSPage> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Container(
-                                    height: 28.r,
-                                    width: 28.r,
+                                    height: 28.r * Responsive.scale(context),
+                                    width: 28.r * Responsive.scale(context),
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       color: entry.value
@@ -372,18 +373,18 @@ class _SOSPageState extends State<SOSPage> {
                                     child: entry.value
                                       ? Icon(
                                         Icons.check,
-                                        size: 18.sp,
+                                        size: 18.sp * Responsive.scale(context),
                                         color: Theme.of(context).colorScheme.secondary,
                                       )
                                       : null,
                                   ),
-                                  SizedBox(width: 10.w),
+                                  SizedBox(width: 10.w * Responsive.scale(context)),
                                   Expanded(
                                     child: Text(
                                       entry.key,
                                       style:
                                       Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                        fontSize: 14.sp,
+                                        fontSize: 14.sp * Responsive.scale(context),
                                         color: Theme.of(context).colorScheme.primary,
                                       ),
                                     ),
@@ -394,9 +395,9 @@ class _SOSPageState extends State<SOSPage> {
                             if (index < loadedState.afterSeizureChecklist.entries.length - 1)
                               Padding(
                                 padding: EdgeInsets.symmetric(
-                                  vertical: 5.h, 
-                                  horizontal: 10.h,
-                                ), 
+                                  vertical: 5.h * Responsive.scale(context),
+                                  horizontal: 10.h * Responsive.scale(context),
+                                ),
                                 child: Divider(
                                   color: Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.5)
                                 ),

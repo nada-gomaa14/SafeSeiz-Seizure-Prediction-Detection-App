@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:safeseiz/functions/responsive.dart';
 
 class ReturnButton extends StatelessWidget {
   const ReturnButton({super.key});
@@ -11,9 +12,9 @@ class ReturnButton extends StatelessWidget {
         Navigator.maybePop(context);
       },
       child: Container(
-        height: 40.0.r,
-        width: 40.0.r,
-        padding: EdgeInsets.all(10.r),
+        height: 40.0.r * Responsive.scale(context),
+        width: 40.0.r * Responsive.scale(context),
+        padding: EdgeInsets.all(10.r * Responsive.scale(context)),
         alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
@@ -21,7 +22,7 @@ class ReturnButton extends StatelessWidget {
         ),
         child: Icon(
           Icons.keyboard_arrow_left,
-          size: 20.sp,
+          size: 20.sp * Responsive.scale(context),
           color: Theme.of(context).colorScheme.primary,
         )          
       )  

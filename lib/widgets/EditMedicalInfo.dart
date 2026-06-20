@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:safeseiz/functions/responsive.dart';
 import 'package:safeseiz/user/medical/cubit/medical_cubit.dart';
 import 'package:safeseiz/user/medical/models/medical_model.dart';
 import 'package:safeseiz/widgets/CustomButton.dart';
@@ -69,7 +70,7 @@ class _EditMedicalInfoState extends State<EditMedicalInfo> {
               checkChanges();
             },
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 10.h * Responsive.scale(context)),
           // Seizure Types
           GestureDetector(
             onTap: showSeizureTypePicker,
@@ -78,17 +79,17 @@ class _EditMedicalInfoState extends State<EditMedicalInfo> {
               decoration: InputDecoration(
                 labelText: 'Seizure Types',
                 labelStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontSize: 16.sp,
+                  fontSize: 16.sp * Responsive.scale(context),
                   color: Theme.of(context).colorScheme.tertiary,
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15.r),
+                  borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                   borderSide: BorderSide(
                     color: Theme.of(context).colorScheme.tertiary,
                   )
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15.r),
+                  borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                   borderSide: BorderSide(
                     color: Theme.of(context).colorScheme.primary,
                   )
@@ -101,37 +102,41 @@ class _EditMedicalInfoState extends State<EditMedicalInfo> {
               child: Text(
                 selectedSeizureTypes.join(', '),
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontSize: 16.sp,
+                  fontSize: 16.sp * Responsive.scale(context),
                   color: Theme.of(context) .colorScheme.primary,
                 ),
               ),
             ),
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 10.h * Responsive.scale(context)),
           // Frequency
           DropdownButtonFormField<String>(
             value: selectedFrequency,
             icon: Padding(
-              padding: EdgeInsets.only(right: 10.0.r),
+              padding: EdgeInsets.only(right: 10.0.r * Responsive.scale(context)),
               child: Icon(
                 Icons.arrow_drop_down,
                 color: Theme.of(context).colorScheme.tertiary
               ),
             ),
             decoration: InputDecoration(
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 8.w * Responsive.scale(context), 
+                vertical: 16.h * Responsive.scale(context)
+              ),
               labelText: 'Seizure Frequency',
               labelStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                fontSize: 16.sp,
+                fontSize: 16.sp * Responsive.scale(context),
                 color: Theme.of(context).colorScheme.tertiary,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.tertiary,
                 )
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.primary,
                 )
@@ -143,8 +148,9 @@ class _EditMedicalInfoState extends State<EditMedicalInfo> {
                 child: Text(
                   type,
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    fontSize: 16.sp,
+                    fontSize: 16.sp * Responsive.scale(context),
                     color: Theme.of(context).colorScheme.primary,
+                    height: 0.5.h * Responsive.scale(context)
                   ),
                 ),
               );
@@ -157,7 +163,7 @@ class _EditMedicalInfoState extends State<EditMedicalInfo> {
               checkChanges();
             },
           ),
-          SizedBox(height: 20.h),
+          SizedBox(height: 20.h * Responsive.scale(context)),
           // Save
           ValueListenableBuilder<bool>(
             valueListenable: widget.hasUnsavedChanges,
@@ -181,7 +187,7 @@ class _EditMedicalInfoState extends State<EditMedicalInfo> {
               );
             }
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 10.h * Responsive.scale(context)),
         ],
       ),
     );
@@ -200,7 +206,7 @@ class _EditMedicalInfoState extends State<EditMedicalInfo> {
         return StatefulBuilder(
           builder: (context, setModalState) {
             return Padding(
-              padding: EdgeInsets.all(20.r),
+              padding: EdgeInsets.all(20.r * Responsive.scale(context)),
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -208,15 +214,15 @@ class _EditMedicalInfoState extends State<EditMedicalInfo> {
                   children: [
                     Center(
                       child: Container(
-                        width: 40.w,
-                        height: 4.h,
+                        width: 40.w * Responsive.scale(context),
+                        height: 4.h * Responsive.scale(context),
                         decoration: BoxDecoration(
                           color: Theme.of(context).colorScheme.tertiary,
-                          borderRadius: BorderRadius.circular(20.r),
+                          borderRadius: BorderRadius.circular(20.r * Responsive.scale(context)),
                         ),
                       ),
                     ),
-                    SizedBox(height: 20.h),
+                    SizedBox(height: 20.h * Responsive.scale(context)),
                     // Seizure Types
                     ...MedicalModel.seizureTypeOptions.map((type) {
                       final isSelected = tempSelected.contains(type);
@@ -226,7 +232,7 @@ class _EditMedicalInfoState extends State<EditMedicalInfo> {
                         title: Text(
                           type,
                           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontSize: 16.0.sp,
+                            fontSize: 16.0.sp * Responsive.scale(context),
                             color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
@@ -244,7 +250,7 @@ class _EditMedicalInfoState extends State<EditMedicalInfo> {
                         },
                       );
                     }),
-                    SizedBox(height: 10.0.h),
+                    SizedBox(height: 10.0.h * Responsive.scale(context)),
                     // Done
                     CustomButton(
                       text: 'Done',
@@ -258,7 +264,7 @@ class _EditMedicalInfoState extends State<EditMedicalInfo> {
                         Navigator.pop(context);
                       },
                     ),
-                    SizedBox(height: 10.0.h),
+                    SizedBox(height: 10.0.h * Responsive.scale(context)),
                   ],
                 ),
               ),

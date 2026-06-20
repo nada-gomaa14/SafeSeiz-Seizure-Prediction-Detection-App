@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:safeseiz/functions/responsive.dart';
 import 'package:safeseiz/functions/showPopup.dart';
 import 'package:safeseiz/functions/notify.dart';
 import 'package:safeseiz/screens/HomePage.dart';
@@ -38,10 +39,11 @@ class _ProfilePageState extends State<ProfilePage> {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           scrolledUnderElevation: 0,
+          toolbarHeight: 60.h * Responsive.scale(context),
           title: Text(
             'Profile',
             style: Theme.of(context).textTheme.titleMedium!.copyWith(
-              fontSize: 25.sp,
+              fontSize: 25.sp * Responsive.scale(context),
               fontWeight: FontWeight.bold,
               color: Theme.of(context).colorScheme.primary,
             ),
@@ -50,9 +52,9 @@ class _ProfilePageState extends State<ProfilePage> {
           leading: isLocked
             ? null
             : Padding(
-                padding: EdgeInsets.only(left: 20.w),
+                padding: EdgeInsets.only(left: 20.w * Responsive.scale(context)),
                 child: InkWell(
-                  borderRadius: BorderRadius.circular(20.0.r),
+                  borderRadius: BorderRadius.circular(20.0.r * Responsive.scale(context)),
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -61,30 +63,31 @@ class _ProfilePageState extends State<ProfilePage> {
                     );
                   },
                   child: Container(
-                    height: 40.0.r,
-                    width: 40.0.r,
-                    padding: EdgeInsets.all(10.r),
+                    height: 40.0.r * Responsive.scale(context),
+                    width: 40.0.r * Responsive.scale(context),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
                     ),
-                    child: Icon(
-                      Icons.home,
-                      size: 20.sp,
-                      color: Theme.of(context).colorScheme.primary,
+                    child: Center(
+                      child: Icon(
+                        Icons.home,
+                        size: 20.sp * Responsive.scale(context),
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
                   ),
                 ),
               ),
-          leadingWidth: 60.w,
+          leadingWidth: 60.w * Responsive.scale(context),
           actions: isLocked
             ? null
             : [
               Padding(
-                padding: EdgeInsets.only(right: 20.w),
+                padding: EdgeInsets.only(right: 20.w * Responsive.scale(context)),
                 child: InkWell(
-                  borderRadius: BorderRadius.circular(20.0.r),
+                  borderRadius: BorderRadius.circular(20.0.r * Responsive.scale(context)),
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -93,27 +96,29 @@ class _ProfilePageState extends State<ProfilePage> {
                     );
                   },
                   child: Container(
-                    height: 40.0.r,
-                    width: 40.0.r,
-                    padding: EdgeInsets.all(10.r),
+                    height: 40.0.r * Responsive.scale(context),
+                    width: 40.0.r * Responsive.scale(context),
+                    
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
                     ),
-                    child: Icon(
-                      Icons.settings,
-                      size: 20.sp,
-                      color: Theme.of(context).colorScheme.primary,
+                    child: Center(
+                      child: Icon(
+                        Icons.settings,
+                        size: 20.sp * Responsive.scale(context),
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
                   ),
                 ),
               ),
           ],
           bottom: PreferredSize(
-            preferredSize: Size.fromHeight(10.h), 
+            preferredSize: Size.fromHeight(10.h * Responsive.scale(context)),
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 5.h),
+              padding: EdgeInsets.symmetric(horizontal: 20.w * Responsive.scale(context), vertical: 5.h * Responsive.scale(context)),
               child: Divider(
                 color: Theme.of(context).colorScheme.tertiary,
                 thickness: 1,
@@ -165,8 +170,8 @@ class _ProfilePageState extends State<ProfilePage> {
       
               return Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: 30.0.w,
-                  vertical: 10.0.h
+                  horizontal: 30.0.w * Responsive.scale(context),
+                  vertical: 10.0.h * Responsive.scale(context)
                 ),
                 child: SingleChildScrollView(
                   child: Column(
@@ -176,20 +181,20 @@ class _ProfilePageState extends State<ProfilePage> {
                       if (isLocked)
                         Container(
                           width: double.infinity,
-                          margin: EdgeInsets.only(bottom: 20.0.h),
-                          padding: EdgeInsets.all(15.r),
+                          margin: EdgeInsets.only(bottom: 20.0.h * Responsive.scale(context)),
+                          padding: EdgeInsets.all(15.r * Responsive.scale(context)),
                           decoration: BoxDecoration(
                             color: Theme.of(context).colorScheme.error.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(15.0.r),
+                            borderRadius: BorderRadius.circular(15.0.r * Responsive.scale(context)),
                           ),
                           child: Row(
                             children: [
                               Icon(
                                 Icons.warning_rounded,
                                 color: Theme.of(context).colorScheme.error,
-                                size: 40.0.sp,
+                                size: 40.0.sp * Responsive.scale(context),
                               ),
-                              SizedBox(width: 10.0.w),
+                              SizedBox(width: 10.0.w * Responsive.scale(context)),
                               Expanded(
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -198,16 +203,16 @@ class _ProfilePageState extends State<ProfilePage> {
                                     Text(
                                       'For your own safety, you must add at least 2 emergency contacts to use the app.',
                                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                        fontSize: 16.sp,
+                                        fontSize: 16.sp * Responsive.scale(context),
                                         fontWeight: FontWeight.bold,
                                         color: Theme.of(context).colorScheme.error,
                                       ),
                                     ),
-                                    SizedBox(height: 5.0.h),
+                                    SizedBox(height: 5.0.h * Responsive.scale(context)),
                                     Text(
                                       '${contacts.length} / 2 contacts added',
                                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                        fontSize: 14.sp,
+                                        fontSize: 14.sp * Responsive.scale(context),
                                         color: Theme.of(context).colorScheme.error,
                                       ),
                                     ),
@@ -221,18 +226,18 @@ class _ProfilePageState extends State<ProfilePage> {
                         width: double.infinity,
                         decoration: BoxDecoration(
                           color: Theme.of(context).colorScheme.primary,
-                          borderRadius: BorderRadius.circular(15.0.r),
+                          borderRadius: BorderRadius.circular(15.0.r * Responsive.scale(context)),
                         ),
                         child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20.0.w),
+                          padding: EdgeInsets.symmetric(horizontal: 20.0.w * Responsive.scale(context)),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Container(
-                                height: 60.r,
-                                width: 60.r,
-                                padding: EdgeInsets.all(10.r),
+                                height: 60.r * Responsive.scale(context),
+                                width: 60.r * Responsive.scale(context),
+                                padding: EdgeInsets.all(10.r * Responsive.scale(context)),
                                 alignment: Alignment.center,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
@@ -241,7 +246,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 child: Text(
                                   initial,
                                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                    fontSize: 25.sp,
+                                    fontSize: 25.sp * Responsive.scale(context),
                                     color: Theme.of(context).colorScheme.secondary,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -249,7 +254,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                               const Spacer(),
                               Padding(
-                                padding: EdgeInsets.all(10.0.r),
+                                padding: EdgeInsets.all(10.0.r * Responsive.scale(context)),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -257,7 +262,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     Text(
                                       name,
                                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                        fontSize: 20.sp,
+                                        fontSize: 20.sp * Responsive.scale(context),
                                         fontWeight: FontWeight.bold,
                                         color: Theme.of(context).colorScheme.secondary,
                                       ),
@@ -265,21 +270,21 @@ class _ProfilePageState extends State<ProfilePage> {
                                     Text(
                                       email,
                                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                        fontSize: 14.sp,
+                                        fontSize: 14.sp * Responsive.scale(context),
                                         color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.75),
                                       ),
                                     ),
                                     Text(
                                       'born $dob',
                                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                        fontSize: 14.sp,
+                                        fontSize: 14.sp * Responsive.scale(context),
                                         color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.75),
                                       ),
                                     ),
                                     Text(
                                       gender,
                                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                        fontSize: 14.sp,
+                                        fontSize: 14.sp * Responsive.scale(context),
                                         color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.75),
                                       ),
                                     )
@@ -288,7 +293,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                               const Spacer(),
                               InkWell(
-                                borderRadius: BorderRadius.circular(20.r),
+                                borderRadius: BorderRadius.circular(20.r * Responsive.scale(context)),
                                 onTap: isLocked
                                   ? null
                                   : () {
@@ -304,7 +309,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 child: Icon(
                                   Icons.edit,
                                   color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.75),
-                                  size: 25.sp,
+                                  size: 25.sp * Responsive.scale(context),
                                 ),
                                  //ADD EDIT POPUP
                               )    
@@ -312,7 +317,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 20.0.h), 
+                      SizedBox(height: 20.0.h * Responsive.scale(context)), 
                       Opacity(
                         opacity: isLocked ? 0.5 : 1.0,
                         child: Row(
@@ -322,13 +327,13 @@ class _ProfilePageState extends State<ProfilePage> {
                             Text(
                               'HEALTH INFORMATION',
                               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                fontSize: 16.sp,
+                                fontSize: 16.sp * Responsive.scale(context),
                                 fontWeight: FontWeight.bold,
                                 color: Theme.of(context).colorScheme.tertiary,
                               )
                             ),
                             InkWell(
-                              borderRadius: BorderRadius.circular(20.r),
+                              borderRadius: BorderRadius.circular(20.r * Responsive.scale(context)),
                               onTap: isLocked
                                 ? null
                                 : () {
@@ -344,13 +349,13 @@ class _ProfilePageState extends State<ProfilePage> {
                               child: Icon(
                                 Icons.edit,
                                 color: Theme.of(context).colorScheme.primary,
-                                size: 20.sp,
+                                size: 20.sp * Responsive.scale(context),
                               ),
                             ),
                           ],
                         ),
                       ),
-                      SizedBox(height: 10.0.h),
+                      SizedBox(height: 10.0.h * Responsive.scale(context)),
                       Opacity(
                         opacity: isLocked ? 0.5 : 1.0,
                         child: Row(
@@ -359,10 +364,10 @@ class _ProfilePageState extends State<ProfilePage> {
                           children: [
                             Expanded(
                               child: Container(
-                                height: 70.0.h,
+                                height: 70.0.h * Responsive.scale(context),
                                 decoration: BoxDecoration(
                                   color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(15.r),
+                                  borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                                 ),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -371,7 +376,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     Text(
                                       'Weight',
                                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                        fontSize: 14.sp,
+                                        fontSize: 14.sp * Responsive.scale(context),
                                         fontWeight: FontWeight.bold,
                                         color: Theme.of(context).colorScheme.tertiary,
                                       ),  
@@ -385,16 +390,16 @@ class _ProfilePageState extends State<ProfilePage> {
                                             ? weight.toInt().toString()
                                             : '--',
                                           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                            fontSize: 16.sp,
+                                            fontSize: 16.sp * Responsive.scale(context),
                                             fontWeight: FontWeight.bold,
                                             color: Theme.of(context).colorScheme.primary,
                                           ),  
                                         ),
-                                        SizedBox(width: 5.0.w),
+                                        SizedBox(width: 5.0.w * Responsive.scale(context)),
                                         Text(
                                           'kg',
                                           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                            fontSize: 14.sp,
+                                            fontSize: 14.sp * Responsive.scale(context),
                                             color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.75),
                                           ),  
                                         ),
@@ -404,13 +409,13 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                               ),
                             ),
-                            SizedBox(width: 10.0.w),
+                            SizedBox(width: 10.0.w * Responsive.scale(context)),
                             Expanded(
                               child: Container(
-                                height: 70.0.h,
+                                height: 70.0.h * Responsive.scale(context),
                                 decoration: BoxDecoration(
                                   color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(15.r),
+                                  borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                                 ),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -419,7 +424,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     Text(
                                       'Height',
                                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                        fontSize: 14.sp,
+                                        fontSize: 14.sp * Responsive.scale(context),
                                         fontWeight: FontWeight.bold,
                                         color: Theme.of(context).colorScheme.tertiary,
                                       ),  
@@ -433,16 +438,16 @@ class _ProfilePageState extends State<ProfilePage> {
                                             ? height.toInt().toString()
                                             : '--',
                                           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                            fontSize: 16.sp,
+                                            fontSize: 16.sp * Responsive.scale(context),
                                             fontWeight: FontWeight.bold,
                                             color: Theme.of(context).colorScheme.primary,
                                           ),  
                                         ),
-                                        SizedBox(width: 5.0.w),
+                                        SizedBox(width: 5.0.w * Responsive.scale(context)),
                                         Text(
                                           'cm',
                                           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                            fontSize: 14.sp,
+                                            fontSize: 14.sp * Responsive.scale(context),
                                             color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.75),
                                           ),  
                                         ),
@@ -452,13 +457,13 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                               ),
                             ),
-                            SizedBox(width: 10.0.w),
+                            SizedBox(width: 10.0.w * Responsive.scale(context)),
                             Expanded(
                               child: Container(
-                                height: 70.0.h,
+                                height: 70.0.h * Responsive.scale(context),
                                 decoration: BoxDecoration(
                                   color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(15.r),
+                                  borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                                 ),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -467,7 +472,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     Text(
                                       'Blood',
                                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                        fontSize: 14.sp,
+                                        fontSize: 14.sp * Responsive.scale(context),
                                         fontWeight: FontWeight.bold,
                                         color: Theme.of(context).colorScheme.tertiary,
                                       ),  
@@ -475,7 +480,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     Text(
                                       bloodType ?? '--',
                                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                        fontSize: 16.sp,
+                                        fontSize: 16.sp * Responsive.scale(context),
                                         fontWeight: FontWeight.bold,
                                         color: Theme.of(context).colorScheme.primary,
                                       ),  
@@ -487,7 +492,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ]
                         ),
                       ),
-                      SizedBox(height: 20.0.h),
+                      SizedBox(height: 20.0.h * Responsive.scale(context)),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -495,13 +500,13 @@ class _ProfilePageState extends State<ProfilePage> {
                           Text(
                             'EMERGENCY CONTACTS',
                             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                              fontSize: 16.sp,
+                              fontSize: 16.sp * Responsive.scale(context),
                               fontWeight: FontWeight.bold,
                               color: Theme.of(context).colorScheme.tertiary,
                             )
                           ),
                           InkWell(
-                            borderRadius: BorderRadius.circular(20.r),
+                            borderRadius: BorderRadius.circular(20.r * Responsive.scale(context)),
                             onTap: () {
                               final hasUnsavedChanges = ValueNotifier(false);
 
@@ -515,26 +520,26 @@ class _ProfilePageState extends State<ProfilePage> {
                             child: Icon(
                               Icons.add,
                               color: Theme.of(context).colorScheme.primary,
-                              size: 20.sp,
+                              size: 20.sp * Responsive.scale(context),
                             ),
                           ),
                         ],
                       ),
-                      SizedBox(height: 10.0.h),
+                      SizedBox(height: 10.0.h * Responsive.scale(context)),
                       Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15.r),
+                          borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                           border: Border.all(color: Theme.of(context).colorScheme.tertiary),
                         ),
                         child: contacts.isEmpty
                           ? Padding(
-                            padding: EdgeInsets.all(16.0.r),
+                            padding: EdgeInsets.all(16.0.r * Responsive.scale(context)),
                             child: Center(
                               child: Text(
                                 'No emergency contacts added yet!',
                                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                  fontSize: 14.sp,
+                                  fontSize: 14.sp * Responsive.scale(context),
                                   fontWeight: FontWeight.bold,
                                   color: Theme.of(context).colorScheme.error,
                                 ),
@@ -563,9 +568,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                     },
                                     child: CustomListItem(
                                       leading: Container(
-                                        height: 40.r,
-                                        width: 40.r,
-                                        padding: EdgeInsets.all(8.r),
+                                        height: 40.r * Responsive.scale(context),
+                                        width: 40.r * Responsive.scale(context),
+                                        padding: EdgeInsets.all(8.r * Responsive.scale(context)),
                                         alignment: Alignment.center,
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
@@ -574,7 +579,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         child: Text(
                                           initial,
                                           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                            fontSize: 16.sp,
+                                            fontSize: 16.sp * Responsive.scale(context),
                                             color: Theme.of(context).colorScheme.secondary,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -585,19 +590,19 @@ class _ProfilePageState extends State<ProfilePage> {
                                       subtitle: '${contact.relationship} - ${contact.phone}',
                                       trailing: Icon(
                                         Icons.keyboard_arrow_right,
-                                        size: 20.sp,
+                                        size: 20.sp * Responsive.scale(context),
                                         color: Theme.of(context).colorScheme.tertiary,
                                       )
                                     ),
                                   ),
                                   if (index < contacts.length - 1)
-                                    SizedBox(height: 0.h, child: Divider(color: Theme.of(context).colorScheme.tertiary)),
+                                    SizedBox(height: 0.h * Responsive.scale(context), child: Divider(color: Theme.of(context).colorScheme.tertiary)),
                                 ],
                               );
                             })
                           ),
                       ),  
-                      SizedBox(height: 20.0.h),
+                      SizedBox(height: 20.0.h * Responsive.scale(context)),
                       Opacity(
                         opacity: isLocked ? 0.5 : 1.0,
                         child: Row(
@@ -607,7 +612,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             Text(
                               'MEDICAL INFORMATION',
                               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                fontSize: 16.sp,
+                                fontSize: 16.sp * Responsive.scale(context),
                                 fontWeight: FontWeight.bold,
                                 color: Theme.of(context).colorScheme.tertiary,
                               )
@@ -629,19 +634,19 @@ class _ProfilePageState extends State<ProfilePage> {
                               child: Icon(
                                 Icons.edit,
                                 color: Theme.of(context).colorScheme.primary,
-                                size: 20.sp,
+                                size: 20.sp * Responsive.scale(context),
                               ),
                             ),
                           ],
                         ),
                       ),
-                      SizedBox(height: 10.0.h), 
+                      SizedBox(height: 10.0.h * Responsive.scale(context)), 
                       Opacity(
                         opacity: isLocked ? 0.5 : 1.0,
                         child: Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15.r),
+                            borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                             border: Border.all(color: Theme.of(context).colorScheme.tertiary),
                           ),
                           child: Column(
@@ -657,12 +662,12 @@ class _ProfilePageState extends State<ProfilePage> {
                                       : 'Not specified',
                                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                     color: Theme.of(context).colorScheme.primary,
-                                    fontSize: 12.sp,
+                                    fontSize: 12.sp * Responsive.scale(context),
                                     fontWeight: FontWeight.bold,
                                   ),    
                                 ),
                               ),
-                              SizedBox(height: 0.h, child: Divider(color: Theme.of(context).colorScheme.tertiary)),
+                              SizedBox(height: 0.h * Responsive.scale(context), child: Divider(color: Theme.of(context).colorScheme.tertiary)),
                               CustomListItem(
                                 title: 'Seizure type',
                                 color: Theme.of(context).colorScheme.tertiary,
@@ -672,7 +677,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       type,
                                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                         color: Theme.of(context).colorScheme.primary,
-                                        fontSize: 12.sp,
+                                        fontSize: 12.sp * Responsive.scale(context),
                                         fontWeight: FontWeight.bold,
                                       ),
                                     );
@@ -682,14 +687,14 @@ class _ProfilePageState extends State<ProfilePage> {
                                       'Not specified',
                                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                         color: Theme.of(context).colorScheme.primary,
-                                        fontSize: 12.sp,
+                                        fontSize: 12.sp * Responsive.scale(context),
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   ],
                                   trailingBackground: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
                               ),
-                              SizedBox(height: 0.h, child: Divider(color: Theme.of(context).colorScheme.tertiary)),
+                              SizedBox(height: 0.h * Responsive.scale(context), child: Divider(color: Theme.of(context).colorScheme.tertiary)),
                               CustomListItem(
                                 title: 'Frequency',
                                 color: Theme.of(context).colorScheme.tertiary,
@@ -697,7 +702,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   seizureFrequency,
                                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                     color: Theme.of(context).colorScheme.primary,
-                                    fontSize: 12.sp,
+                                    fontSize: 12.sp * Responsive.scale(context),
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -706,7 +711,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 20.0.h),
+                      SizedBox(height: 20.0.h * Responsive.scale(context)),
                       Opacity(
                         opacity: isLocked ? 0.5 : 1.0,
                         child: CustomButton(

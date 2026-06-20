@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:safeseiz/functions/notify.dart';
+import 'package:safeseiz/functions/responsive.dart';
 import 'package:safeseiz/navigation/auth_gate.dart';
 import 'package:safeseiz/user/authentication/auth_cubit.dart';
 import 'package:safeseiz/user/authentication/auth_states.dart';
@@ -52,24 +53,25 @@ class _SettingsPageState extends State<SettingsPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         scrolledUnderElevation: 0,
+        toolbarHeight: 60.h * Responsive.scale(context),
         title: Text(
           'Settings',
           style: Theme.of(context).textTheme.titleMedium!.copyWith(
-            fontSize: 25.sp,
+            fontSize: 25.sp * Responsive.scale(context),
             fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.primary,
           ),
         ),
         centerTitle: true,
         leading: Padding(
-          padding: EdgeInsets.only(left: 20.w),
+          padding: EdgeInsets.only(left: 20.w * Responsive.scale(context)),
           child: ReturnButton(),
         ),
-        leadingWidth: 60.w,
+        leadingWidth: 60.w * Responsive.scale(context),
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(10.h), 
+          preferredSize: Size.fromHeight(10.h * Responsive.scale(context)), 
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 5.h),
+            padding: EdgeInsets.symmetric(horizontal: 20.w * Responsive.scale(context), vertical: 5.h * Responsive.scale(context)),
             child: Divider(
               color: Theme.of(context).colorScheme.tertiary,
               thickness: 1,
@@ -104,8 +106,8 @@ class _SettingsPageState extends State<SettingsPage> {
             
             return Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: 30.0.w,
-                vertical: 10.0.h
+                horizontal: 30.0.w * Responsive.scale(context),
+                vertical: 10.0.h * Responsive.scale(context)
               ),
               child: SingleChildScrollView(
                 child: Column(
@@ -116,16 +118,16 @@ class _SettingsPageState extends State<SettingsPage> {
                     Text(
                       'NOTIFICATIONS',
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 16.sp,
+                        fontSize: 16.sp * Responsive.scale(context),
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.tertiary,
                       )
                     ),
-                    SizedBox(height: 10.0.h),
+                    SizedBox(height: 10.0.h * Responsive.scale(context)),
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15.r),
+                        borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                         border: Border.all(color: Theme.of(context).colorScheme.tertiary),
                       ),
                       child: Column(
@@ -192,21 +194,21 @@ class _SettingsPageState extends State<SettingsPage> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 20.0.h),
+                    SizedBox(height: 20.0.h * Responsive.scale(context)),
                     // Preferences
                     Text(
                       'PREFERENCES',
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 16.sp,
+                        fontSize: 16.sp * Responsive.scale(context),
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.tertiary,
                       )
                     ),
-                    SizedBox(height: 10.0.h),
+                    SizedBox(height: 10.0.h * Responsive.scale(context)),
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15.r),
+                        borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                         border: Border.all(color: Theme.of(context).colorScheme.tertiary),
                       ),
                       child: Column(
@@ -218,12 +220,12 @@ class _SettingsPageState extends State<SettingsPage> {
                               'English',
                               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                 color: Theme.of(context).colorScheme.primary,
-                                fontSize: 12.sp,
+                                fontSize: 12.sp * Responsive.scale(context),
                                 fontWeight: FontWeight.bold,
                               ),    
                             ),
                           ),
-                          SizedBox(height: 0.h, child: Divider(color: Theme.of(context).colorScheme.tertiary)),
+                          SizedBox(height: 0.h * Responsive.scale(context), child: Divider(color: Theme.of(context).colorScheme.tertiary)),
                           CustomListItem(
                             title: 'Dark mode',
                             color: Theme.of(context).colorScheme.primary,
@@ -245,21 +247,21 @@ class _SettingsPageState extends State<SettingsPage> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 20.0.h),
+                    SizedBox(height: 20.0.h * Responsive.scale(context)),
                     // Support
                     Text(
                       'SUPPORT',
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 16.sp,
+                        fontSize: 16.sp * Responsive.scale(context),
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.tertiary,
                       )
                     ),
-                    SizedBox(height: 10.0.h),
+                    SizedBox(height: 10.0.h * Responsive.scale(context)),
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15.r),
+                        borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                         border: Border.all(color: Theme.of(context).colorScheme.tertiary),
                       ),
                       child: Column(
@@ -269,24 +271,24 @@ class _SettingsPageState extends State<SettingsPage> {
                             color: Theme.of(context).colorScheme.primary,
                             trailing: Icon(
                               Icons.keyboard_arrow_right,
-                              size: 20.sp,
+                              size: 20.sp * Responsive.scale(context),
                               color: Theme.of(context).colorScheme.tertiary,
                             )
                           ),
-                          SizedBox(height: 0.h, child: Divider(color: Theme.of(context).colorScheme.tertiary)),
+                          SizedBox(height: 0.h * Responsive.scale(context), child: Divider(color: Theme.of(context).colorScheme.tertiary)),
                           CustomListItem(
                             title: 'Help & support',
                             color: Theme.of(context).colorScheme.primary,
                             trailing: Icon(
                               Icons.keyboard_arrow_right,
-                              size: 20.sp,
+                              size: 20.sp * Responsive.scale(context),
                               color: Theme.of(context).colorScheme.tertiary,
                             )
                           ),                  
                         ],
                       ),
                     ),
-                    SizedBox(height: 30.0.h),
+                    SizedBox(height: 30.0.h * Responsive.scale(context)),
                     // Logout
                     CustomButton(
                       text: "Log Out",
@@ -299,19 +301,42 @@ class _SettingsPageState extends State<SettingsPage> {
                           context: context,
                           barrierDismissible: false,
                           builder: (_) => AlertDialog(
-                            title: const Text('Log Out'),
-                            content: const Text('Are you sure you want to log out?'),
+                            title: Text(
+                              'Log Out',
+                              style: TextStyle(
+                                fontSize: 20.sp * Responsive.scale(context),
+                              ),
+                            ),
+                            content: SizedBox(
+                              width: Responsive.isTablet(context) ? 500.w : 300.w,
+                              child: Text(
+                                'Are you sure you want to log out?',
+                                style: TextStyle(
+                                  fontSize: 12.sp * Responsive.scale(context),
+                                ),
+                              ),
+                            ),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: const Text('Cancel'),
+                                child: Text(
+                                  'Cancel',
+                                  style: TextStyle(
+                                    fontSize: 12.sp * Responsive.scale(context),
+                                  ),
+                                ),
                               ),
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(context);
                                   authCubit.logout();
                                 },
-                                child: const Text('Log out'),
+                                child: Text(
+                                  'Log out',
+                                  style: TextStyle(
+                                    fontSize: 12.sp * Responsive.scale(context),
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -326,7 +351,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           )
                         : null
                     ),
-                    SizedBox(height: 10.0.h),
+                    SizedBox(height: 10.0.h * Responsive.scale(context)),
                     // Delete Account
                     CustomButton(
                       text: isDeletingAccount
@@ -340,12 +365,30 @@ class _SettingsPageState extends State<SettingsPage> {
                           context: context,
                           barrierDismissible: false,
                           builder: (_) => AlertDialog(
-                            title: const Text('Delete Account'),
-                            content: const Text('Are you sure you want to request account deletion?\nProceeding will permanently delete all your data.'),
+                            title: Text(
+                              'Delete Account',
+                              style: TextStyle(
+                                fontSize: 20.sp * Responsive.scale(context),
+                              ),
+                            ),
+                            content: SizedBox(
+                              width: Responsive.isTablet(context) ? 500.w : 300.w,
+                              child: Text(
+                                'Are you sure you want to request account deletion?\nProceeding will permanently delete all your data.',
+                                style: TextStyle(
+                                  fontSize: 12.sp * Responsive.scale(context),
+                                ),
+                              ),
+                            ),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: const Text('Cancel'),
+                                child: Text(
+                                  'Cancel',
+                                  style: TextStyle(
+                                    fontSize: 12.sp * Responsive.scale(context),
+                                  ),
+                                ),
                               ),
                               TextButton(
                                 onPressed: () async {
@@ -368,7 +411,12 @@ class _SettingsPageState extends State<SettingsPage> {
                                     notify(context, e.toString().replaceFirst('Exception: ', ''));
                                   }
                                 },
-                                child: const Text('Continue'),
+                                child: Text(
+                                  'Continue',
+                                  style: TextStyle(
+                                    fontSize: 12.sp * Responsive.scale(context),
+                                  ),
+                                ),
                               ),
                             ],
                           ),
