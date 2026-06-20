@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:safeseiz/functions/responsive.dart';
 
 
 class NameWidget extends StatelessWidget {
@@ -19,7 +20,7 @@ class NameWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderRadius = BorderRadius.circular(15.r);
+    final borderRadius = BorderRadius.circular(15.r * Responsive.scale(context));
 
     return TextFormField(
       validator: (value) {
@@ -57,23 +58,22 @@ class NameWidget extends StatelessWidget {
       },
       style: TextStyle(
         color: Theme.of(context).colorScheme.primary,
-        fontSize: 16.sp
+        fontSize: 16.sp * Responsive.scale(context)
       ),
       decoration: InputDecoration(
         labelText: label,
         labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          fontSize: 16.sp,
-          fontWeight: FontWeight.bold,
-          color: Colors.grey
+          fontSize: 16.sp * Responsive.scale(context),
+          color: Theme.of(context).colorScheme.tertiary
         ),
         hintText: hint,
-        hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey),
-        prefixIcon: const Icon(
+        hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.tertiary),
+        prefixIcon: Icon(
           Icons.person,
-          color: Colors.grey,
+          color: Theme.of(context).colorScheme.tertiary,
         ),
         errorStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          fontSize: 12.sp,
+          fontSize: 12.sp * Responsive.scale(context),
           color: Theme.of(context).colorScheme.error,
         ),
         errorMaxLines: 2,

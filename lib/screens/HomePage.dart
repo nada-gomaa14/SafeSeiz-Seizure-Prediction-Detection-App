@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:safeseiz/functions/notify.dart';
+import 'package:safeseiz/functions/responsive.dart';
 import 'package:safeseiz/screens/LogSeizurePage.dart';
 import 'package:safeseiz/screens/ProfilePage.dart';
 import 'package:safeseiz/screens/SOSPage.dart';
@@ -51,8 +52,8 @@ class _HomePageState extends State<HomePage> {
 
             return Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: 30.0.w,
-                vertical: 10.0.h
+                horizontal: 30.0.w * Responsive.scale(context),
+                vertical: 10.0.h * Responsive.scale(context)
               ),
               child: SingleChildScrollView(
                 child: Column(
@@ -74,7 +75,7 @@ class _HomePageState extends State<HomePage> {
                         Text(
                           date,                  
                           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontSize: 16.sp,
+                            fontSize: 16.sp * Responsive.scale(context),
                             color: Theme.of(context).colorScheme.tertiary
                           ),
                         ),
@@ -88,9 +89,9 @@ class _HomePageState extends State<HomePage> {
                             );
                           },
                           child: Container(
-                            height: 50.r,
-                            width: 50.r,
-                            padding: EdgeInsets.all(10.r),
+                            height: 50.r * Responsive.scale(context),
+                            width: 50.r * Responsive.scale(context),
+                            padding: EdgeInsets.all(10.r * Responsive.scale(context)),
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
@@ -99,7 +100,7 @@ class _HomePageState extends State<HomePage> {
                             child: Text(
                               name.split(' ')[0].substring(0, 1).toUpperCase(),
                               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                fontSize: 20.sp,
+                                fontSize: 20.sp * Responsive.scale(context),
                                 color: Theme.of(context).colorScheme.secondary,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -108,39 +109,39 @@ class _HomePageState extends State<HomePage> {
                         )
                       ],
                     ),
-                    SizedBox(height: 5.h),
+                    SizedBox(height: 5.h * Responsive.scale(context)),
                     Text(
                       'Hello, $name',
                       style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                        fontSize: 25.sp,
+                        fontSize: 25.sp * Responsive.scale(context),
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
-                    SizedBox(height: 5.h),
+                    SizedBox(height: 5.h * Responsive.scale(context)),
                     Divider(
                       color: Theme.of(context).colorScheme.tertiary,
                       thickness: 1,
                     ),
-                    SizedBox(height: 5.h),
+                    SizedBox(height: 5.h * Responsive.scale(context)),
                     CalendarWidget(), 
-                    SizedBox(height: 20.h),
+                    SizedBox(height: 20.h * Responsive.scale(context)),
                     Text(
                       'QUICK ACTIONS',
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 16.sp,
+                        fontSize: 16.sp * Responsive.scale(context),
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.tertiary,
                       )
                     ), 
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 10.h * Responsive.scale(context)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Expanded(
                           child: CustomButton(
-                            height: 85.h,
+                            height: 85.h * Responsive.scale(context),
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
@@ -155,11 +156,11 @@ class _HomePageState extends State<HomePage> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Icon(Icons.add, color: Theme.of(context).colorScheme.secondary),
-                                  SizedBox(width: 10.w),
+                                  SizedBox(width: 10.w * Responsive.scale(context)),
                                   Text(
                                     'Log\nSeizure',
                                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                      fontSize: 16.sp,
+                                      fontSize: 16.sp * Responsive.scale(context),
                                       fontWeight: FontWeight.bold,
                                       color: Theme.of(context).colorScheme.secondary
                                     )
@@ -169,12 +170,12 @@ class _HomePageState extends State<HomePage> {
                             )
                           ),
                         ),
-                        SizedBox(width: 10.w),
+                        SizedBox(width: 10.w * Responsive.scale(context)),
                         Expanded(
                           child: CustomButton(
                             color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
                             border: Theme.of(context).colorScheme.primary,
-                            height: 85.h,
+                            height: 85.h * Responsive.scale(context),
                             onTap: () {
                               notify(context, 'Symptoms logged!');
                             },
@@ -185,11 +186,11 @@ class _HomePageState extends State<HomePage> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
-                                  SizedBox(width: 10.w),
+                                  SizedBox(width: 10.w * Responsive.scale(context)),
                                   Text(
                                     'Log\nSymptoms',
                                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                      fontSize: 16.sp,
+                                      fontSize: 16.sp * Responsive.scale(context),
                                       fontWeight: FontWeight.bold,
                                       color: Theme.of(context).colorScheme.primary
                                     )
@@ -201,11 +202,11 @@ class _HomePageState extends State<HomePage> {
                         ),    
                       ],
                     ),
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 10.h * Responsive.scale(context)),
                     CustomButton(
                       color: Theme.of(context).colorScheme.error.withValues(alpha: 0.15),
                       border: Theme.of(context).colorScheme.error,
-                      height: 100.h,
+                      height: 100.h * Responsive.scale(context),
                       width: double.infinity,
                       onTap: () {
                         Navigator.of(context).push(
@@ -231,7 +232,7 @@ class _HomePageState extends State<HomePage> {
                                 Text(
                                   'Emergency SOS',
                                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                    fontSize: 16.sp,
+                                    fontSize: 16.sp * Responsive.scale(context),
                                     fontWeight: FontWeight.bold,
                                     color: Theme.of(context).colorScheme.error
                                   )
@@ -239,7 +240,7 @@ class _HomePageState extends State<HomePage> {
                                 Text(
                                   'Alert your emergency contacts',
                                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                    fontSize: 14.sp,
+                                    fontSize: 14.sp * Responsive.scale(context),
                                     color: Theme.of(context).colorScheme.error
                                   )  
                                 )
@@ -247,9 +248,9 @@ class _HomePageState extends State<HomePage> {
                             ),
                             const Spacer(),
                             Container(
-                              height: 60.r,
-                              width: 60.r,
-                              padding: EdgeInsets.all(10.r),
+                              height: 60.r * Responsive.scale(context),
+                              width: 60.r * Responsive.scale(context),
+                              padding: EdgeInsets.all(10.r * Responsive.scale(context)),
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
@@ -258,7 +259,7 @@ class _HomePageState extends State<HomePage> {
                               child: Text(
                                 'SOS',
                                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                  fontSize: 16.sp,
+                                  fontSize: 16.sp * Responsive.scale(context),
                                   fontWeight: FontWeight.bold,
                                   color: Theme.of(context).colorScheme.secondary,
                                 )
@@ -268,20 +269,20 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 20.h),
+                    SizedBox(height: 20.h * Responsive.scale(context)),
                     Text(
                       "TODAY'S STATUS",
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 16.sp,
+                        fontSize: 16.sp * Responsive.scale(context),
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.tertiary,
                       )
                     ), 
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 10.h * Responsive.scale(context)),
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15.r),
+                        borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                         border: Border.all(color: Theme.of(context).colorScheme.tertiary),
                       ),
                       child: Column(
@@ -289,7 +290,7 @@ class _HomePageState extends State<HomePage> {
                           CustomListItem(
                             leading: Icon(
                               Icons.medication,
-                              size: 20.sp,
+                              size: 20.sp * Responsive.scale(context),
                               color: Theme.of(context).colorScheme.primary,
                             ),
                             title: 'Medications',
@@ -298,17 +299,17 @@ class _HomePageState extends State<HomePage> {
                               '3 / 5 taken',
                               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                 color: Theme.of(context).colorScheme.primary,
-                                fontSize: 12.sp,
+                                fontSize: 12.sp * Responsive.scale(context),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             trailingBackground: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
                           ),
-                          SizedBox(height: 0.h, child: Divider(color: Theme.of(context).colorScheme.tertiary)),
+                          SizedBox(height: 0.h * Responsive.scale(context), child: Divider(color: Theme.of(context).colorScheme.tertiary)),
                           CustomListItem(
                             leading: Icon(
                               Icons.access_time,
-                              size: 20.sp,
+                              size: 20.sp * Responsive.scale(context),
                               color: Theme.of(context).colorScheme.primary,
                             ),
                             title: 'Last seizure',
@@ -317,16 +318,16 @@ class _HomePageState extends State<HomePage> {
                               '3 days ago',
                               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                 color: Theme.of(context).colorScheme.tertiary,
-                                fontSize: 12.sp,
+                                fontSize: 12.sp * Responsive.scale(context),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),  
                           ),
-                          SizedBox(height: 0.h, child: Divider(color: Theme.of(context).colorScheme.tertiary)),
+                          SizedBox(height: 0.h * Responsive.scale(context), child: Divider(color: Theme.of(context).colorScheme.tertiary)),
                           CustomListItem(
                             leading: Icon(
                               Icons.monitor_heart,
-                              size: 20.sp,
+                              size: 20.sp * Responsive.scale(context),
                               color: Theme.of(context).colorScheme.primary,
                             ),
                             title: 'Seizure-free streak',
@@ -335,7 +336,7 @@ class _HomePageState extends State<HomePage> {
                               '3 days',
                               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                 color: Theme.of(context).colorScheme.primary,
-                                fontSize: 12.sp,
+                                fontSize: 12.sp * Responsive.scale(context),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -344,12 +345,12 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 20.h),
+                    SizedBox(height: 20.h * Responsive.scale(context)),
                     IntrinsicHeight(
                       child: Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15.r),
+                          borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                           color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
                         ),
                         child: Row(
@@ -357,34 +358,34 @@ class _HomePageState extends State<HomePage> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Container(
-                              width: 10.r,
+                              width: 10.r * Responsive.scale(context),
                               decoration: BoxDecoration(
                                 color: Theme.of(context).colorScheme.primary,
                                 borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(15.r),
-                                  bottomLeft: Radius.circular(15.r),
+                                  topLeft: Radius.circular(15.r * Responsive.scale(context)),
+                                  bottomLeft: Radius.circular(15.r * Responsive.scale(context)),
                                 )
                               )
                             ),
                             Expanded(
                               child: Padding(
-                                padding: EdgeInsets.all(10.0.r),
+                                padding: EdgeInsets.all(10.0.r * Responsive.scale(context)),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       'Daily Tip',
                                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                        fontSize: 14.sp,
+                                        fontSize: 14.sp * Responsive.scale(context),
                                         fontWeight: FontWeight.bold,
                                         color: Theme.of(context).colorScheme.primary,
                                       )
                                     ),
-                                    SizedBox(height: 5.h),
+                                    SizedBox(height: 5.h * Responsive.scale(context)),
                                     Text(
                                       'Stay hydrated and get plenty of rest.',
                                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                        fontSize: 12.sp,
+                                        fontSize: 12.sp * Responsive.scale(context),
                                         color: Theme.of(context).colorScheme.primary,
                                       )
                                     )

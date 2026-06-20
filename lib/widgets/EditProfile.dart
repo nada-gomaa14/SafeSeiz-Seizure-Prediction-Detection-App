@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:safeseiz/functions/responsive.dart';
 import 'package:safeseiz/user/profile/cubit/profile_cubit.dart';
 import 'package:safeseiz/user/profile/cubit/profile_states.dart';
 import 'package:safeseiz/widgets/CustomButton.dart';
@@ -81,30 +82,30 @@ class _EditProfileState extends State<EditProfile> {
             },
             maxLines: 1,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontSize: 16.sp,
+              fontSize: 16.sp * Responsive.scale(context),
               color: Theme.of(context).colorScheme.primary,
             ),
             decoration: InputDecoration(
               labelText: 'First Name',
               labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 16.sp,
+                fontSize: 16.sp * Responsive.scale(context),
                 color: Theme.of(context).colorScheme.tertiary,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.tertiary,
                 )
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.primary,
                 )
               ),
             ),
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 10.h * Responsive.scale(context)),
           // Last Name
           TextField(
             controller: lastNameController,
@@ -127,30 +128,30 @@ class _EditProfileState extends State<EditProfile> {
             },
             maxLines: 1,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontSize: 16.sp,
+              fontSize: 16.sp * Responsive.scale(context),
               color: Theme.of(context).colorScheme.primary,
             ),
             decoration: InputDecoration(
               labelText: 'Last Name',
               labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 16.sp,
+                fontSize: 16.sp * Responsive.scale(context),
                 color: Theme.of(context).colorScheme.tertiary,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.tertiary,
                 )
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.primary,
                 )
               ),
             ),
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 10.h * Responsive.scale(context)),
           // DOB
           DateWidget(
             label: 'Date of Birth',
@@ -165,7 +166,7 @@ class _EditProfileState extends State<EditProfile> {
               checkChanges();
             },
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 10.h * Responsive.scale(context)),
           // Gender Dropdown
           BlocBuilder<ProfileCubit, ProfileStates>(
             builder: (context, state) {
@@ -175,26 +176,30 @@ class _EditProfileState extends State<EditProfile> {
                   DropdownButtonFormField<String>(
                     value: selectedGender,
                     icon: Padding(
-                      padding: EdgeInsets.only(right: 10.0.r),
+                      padding: EdgeInsets.only(right: 10.0.r * Responsive.scale(context)),
                       child: Icon(
                         Icons.arrow_drop_down,
                         color: Theme.of(context).colorScheme.tertiary,
                       ),
                     ),
                     decoration: InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 8.w * Responsive.scale(context), 
+                        vertical: 16.h * Responsive.scale(context)
+                      ),
                       labelText: 'Gender',
                       labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontSize: 16.sp,
-                            color: Theme.of(context).colorScheme.tertiary,
-                          ),
+                        fontSize: 16.sp * Responsive.scale(context),
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15.r),
+                        borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                         borderSide: BorderSide(
                           color: Theme.of(context).colorScheme.tertiary,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15.r),
+                        borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                         borderSide: BorderSide(
                           color: Theme.of(context).colorScheme.primary,
                         ),
@@ -206,9 +211,10 @@ class _EditProfileState extends State<EditProfile> {
                         child: Text(
                           gender,
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                fontSize: 16.sp,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
+                            fontSize: 16.sp * Responsive.scale(context),
+                            color: Theme.of(context).colorScheme.primary,
+                            height: 0.5 * Responsive.scale(context),
+                          ),
                         ),
                       );
                     }).toList(),
@@ -223,13 +229,13 @@ class _EditProfileState extends State<EditProfile> {
 
                   if (profileCubit.genderError != null)
                     Padding(
-                      padding: EdgeInsets.only(top: 8.h, left: 5.w),
+                      padding: EdgeInsets.only(top: 8.h * Responsive.scale(context), left: 5.w * Responsive.scale(context)),
                       child: Text(
                         profileCubit.genderError!,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontSize: 14.sp,
-                              color: Theme.of(context).colorScheme.error,
-                            ),
+                          fontSize: 14.sp * Responsive.scale(context),
+                          color: Theme.of(context).colorScheme.error,
+                        ),
                       ),
                     ),
                 ],
@@ -243,11 +249,11 @@ class _EditProfileState extends State<EditProfile> {
                 return Align(
                   alignment: Alignment.centerLeft,
                   child: Padding(
-                    padding: EdgeInsets.only(top: 10.h),
+                    padding: EdgeInsets.only(top: 10.h * Responsive.scale(context)),
                     child: Text(
                       state.error,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 14.sp,
+                        fontSize: 14.sp * Responsive.scale(context),
                         color: Theme.of(context).colorScheme.error,
                       ),
                     ),
@@ -258,7 +264,7 @@ class _EditProfileState extends State<EditProfile> {
               return const SizedBox.shrink();
             },
           ),
-          SizedBox(height: 20.h),
+          SizedBox(height: 20.h * Responsive.scale(context)),
           // Save
           ValueListenableBuilder<bool>(
             valueListenable: widget.hasUnsavedChanges,
@@ -304,7 +310,7 @@ class _EditProfileState extends State<EditProfile> {
               );
             }
           ),          
-          SizedBox(height: 10.h),
+          SizedBox(height: 10.h * Responsive.scale(context)),
         ],
       ),
     );

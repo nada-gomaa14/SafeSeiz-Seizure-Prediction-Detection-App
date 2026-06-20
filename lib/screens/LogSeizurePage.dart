@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:safeseiz/functions/notify.dart';
+import 'package:safeseiz/functions/responsive.dart';
 import 'package:safeseiz/user/seizure/cubit/seizure_cubit.dart';
 import 'package:safeseiz/user/seizure/cubit/seizure_states.dart';
 import 'package:safeseiz/widgets/CustomButton.dart';
@@ -21,24 +22,25 @@ class LogSeizurePage extends StatelessWidget {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         scrolledUnderElevation: 0,
+        toolbarHeight: 60.h * Responsive.scale(context),
         title: Text(
           'Log Seizure',
           style: Theme.of(context).textTheme.titleMedium!.copyWith(
-            fontSize: 25.sp,
+            fontSize: 25.sp * Responsive.scale(context),
             fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.primary,
           ),
         ),
         centerTitle: true,
         leading: Padding(
-          padding: EdgeInsets.only(left: 20.w),
+          padding: EdgeInsets.only(left: 20.w * Responsive.scale(context)),
           child: ReturnButton(),
         ),
-        leadingWidth: 60.w,
+        leadingWidth: 60.w * Responsive.scale(context),
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(10.h), 
+          preferredSize: Size.fromHeight(10.h * Responsive.scale(context)), 
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 5.h),
+            padding: EdgeInsets.symmetric(horizontal: 20.w * Responsive.scale(context), vertical: 5.h * Responsive.scale(context)),
             child: Divider(
               color: Theme.of(context).colorScheme.tertiary,
               thickness: 1,
@@ -72,8 +74,8 @@ class LogSeizurePage extends StatelessWidget {
 
             return Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: 30.0.w,
-                vertical: 10.0.h
+                horizontal: 30.0.w * Responsive.scale(context),
+                vertical: 10.0.h * Responsive.scale(context)
               ),
               child: SingleChildScrollView(
                 child: Column(
@@ -84,12 +86,12 @@ class LogSeizurePage extends StatelessWidget {
                     Text(
                       'DATE & TIME',
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 16.sp,
+                        fontSize: 16.sp * Responsive.scale(context),
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.tertiary,
                       )
                     ), 
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 10.h * Responsive.scale(context)),
                     Row(
                       children: [
                         Expanded(
@@ -115,7 +117,7 @@ class LogSeizurePage extends StatelessWidget {
                             },
                           ),
                         ),
-                        SizedBox(width: 10.w),
+                        SizedBox(width: 10.w * Responsive.scale(context)),
                         Expanded(
                           child: buildDateCard(
                             context: context,
@@ -135,40 +137,40 @@ class LogSeizurePage extends StatelessWidget {
                         ),
                       ],
                     ),
-                    SizedBox(height: 20.h),
+                    SizedBox(height: 20.h * Responsive.scale(context)),
                     Text(
                       'SEIZURE TYPE',
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 16.sp,
+                        fontSize: 16.sp * Responsive.scale(context),
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.tertiary,
                       )
                     ), 
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 10.h * Responsive.scale(context)),
                     SeizureTypeWidget(onChanged: seizureCubit.updateSeizureTypes),
                     if (seizureCubit.seizureTypesError != null) ...[
                       Padding(
-                        padding: EdgeInsets.only(top: 5.h),
+                        padding: EdgeInsets.only(top: 5.h * Responsive.scale(context)),
                         child: Text(
                           seizureCubit.seizureTypesError!,
                           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                             color: Theme.of(context).colorScheme.error,
-                            fontSize: 12.sp,
+                            fontSize: 12.sp * Responsive.scale(context),
                           ),
                         ),
                       ),
                     ],
-                    SizedBox(height: 20.h),
+                    SizedBox(height: 20.h * Responsive.scale(context)),
                     // Duration
                     Text(
                       'DURATION',
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 16.sp,
+                        fontSize: 16.sp * Responsive.scale(context),
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.tertiary,
                       ),
                     ),
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 10.h * Responsive.scale(context)),
                     Row(
                       children: [
                         Expanded(
@@ -179,7 +181,7 @@ class LogSeizurePage extends StatelessWidget {
                             },
                           ),
                         ),
-                        SizedBox(width: 10.w),
+                        SizedBox(width: 10.w * Responsive.scale(context)),
                         Expanded(
                           child: buildDurationField(
                             title: 'Seconds',
@@ -190,41 +192,41 @@ class LogSeizurePage extends StatelessWidget {
                         ),
                       ],
                     ),
-                    SizedBox(height: 20.h),
+                    SizedBox(height: 20.h * Responsive.scale(context)),
                     // Notes
                     Text(
                       'NOTES (optional)',
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 16.sp,
+                        fontSize: 16.sp * Responsive.scale(context),
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.tertiary,
                       ),
                     ), 
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 10.h * Responsive.scale(context)),
                     TextField(
                       maxLines: 4,
                       onChanged: seizureCubit.updateNotes,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.primary,
-                        fontSize: 16.sp
+                        fontSize: 16.sp * Responsive.scale(context)
                       ),
                       decoration: InputDecoration(
                         hintText: 'Add any additional details...',
                         hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey),
-                        contentPadding: EdgeInsets.all(18.w),
+                        contentPadding: EdgeInsets.all(18.w * Responsive.scale(context)),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15.r),
+                          borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                           borderSide: BorderSide(color: Theme.of(context).colorScheme.tertiary)
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15.r),
+                          borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                           borderSide: BorderSide(
                             color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(height: 20.h),
+                    SizedBox(height: 20.h * Responsive.scale(context)),
                     CustomButton(
                       text: 'Save Seizure',
                       width: double.infinity,

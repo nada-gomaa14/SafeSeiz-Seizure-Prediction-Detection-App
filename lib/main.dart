@@ -59,7 +59,7 @@ Future<void> main() async {
     final contacts = contactsCubit.contacts;
     final firstName = profileCubit.profile?.firstName ?? '';
     final lastName = profileCubit.profile?.lastName ?? '';
-    final patientName = '${firstName} ${lastName}'.trim().isEmpty ? 'Patient' : '${firstName} ${lastName}'.trim();
+    final patientName = '$firstName $lastName'.trim().isEmpty ? 'Patient' : '${firstName} ${lastName}'.trim();
 
     if (contacts.isEmpty) return;
 
@@ -92,7 +92,9 @@ class SafeSeiz extends StatelessWidget {
         )),
       ],
       child: ScreenUtilInit(
-        designSize: const Size(800, 1280),
+        designSize: MediaQuery.of(context).size.width >= 600
+          ? const Size(800, 1280)
+          : const Size(393, 852),
         minTextAdapt: true,
         splitScreenMode: true,
         builder: (_, child) {

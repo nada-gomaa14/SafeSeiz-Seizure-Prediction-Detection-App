@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:safeseiz/functions/responsive.dart';
 import 'package:safeseiz/user/medical/models/medical_model.dart';
 
 class SeizureFrequencyWidget extends StatefulWidget {
@@ -26,18 +27,20 @@ class _SeizureFrequencyWidgetState extends State<SeizureFrequencyWidget> {
         Text(
           'Seizure Frequency',
           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.bold,
+            fontSize: 16.sp * Responsive.scale(context),
             color: Theme.of(context).colorScheme.tertiary,
           )
         ),
+        SizedBox(height: 5.h * Responsive.scale(context)),
         Wrap(
-          spacing: 8.w,
+          spacing: 8.w * Responsive.scale(context),
+          runSpacing: 8.h * Responsive.scale(context),
           children: MedicalModel.seizureFrequencyOptions.map((option) {
             return ChoiceChip(
               label: Text(
                 option,
                 style: TextStyle(
+                  fontSize: 14.sp * Responsive.scale(context),
                   color: selected == option 
                     ? Theme.of(context).colorScheme.secondary
                     : Theme.of(context).colorScheme.primary,
@@ -58,7 +61,7 @@ class _SeizureFrequencyWidgetState extends State<SeizureFrequencyWidget> {
                   : Theme.of(context).colorScheme.onSurface
               ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0.r),
+                borderRadius: BorderRadius.circular(20.0.r * Responsive.scale(context)),
               ),
               showCheckmark: false,
             );

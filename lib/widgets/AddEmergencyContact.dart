@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:safeseiz/functions/responsive.dart';
 import 'package:safeseiz/user/contacts/cubit/emergency_contacts_cubit.dart';
 import 'package:safeseiz/user/contacts/cubit/emergency_contacts_states.dart';
 import 'package:safeseiz/user/contacts/models/emergency_contacts_model.dart';
@@ -58,14 +59,10 @@ class _AddEmergencyContactState extends State<AddEmergencyContact> {
             onChanged: (value) {
               if (value.isEmpty) return;
 
-              final capitalized = value
-                  .split(' ')
-                  .map((word) {
-                    if (word.isEmpty) return '';
-                    return word[0].toUpperCase() +
-                        word.substring(1).toLowerCase();
-                  })
-                  .join(' ');
+              final capitalized = value.split(' ').map((word) {
+                if (word.isEmpty) return '';
+                return word[0].toUpperCase() + word.substring(1).toLowerCase();
+              }).join(' ');
 
               if (capitalized != value) {
                 nameController.value = TextEditingValue(
@@ -78,55 +75,59 @@ class _AddEmergencyContactState extends State<AddEmergencyContact> {
             },
             maxLines: 1,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontSize: 16.sp,
+              fontSize: 16.sp * Responsive.scale(context),
               color: Theme.of(context).colorScheme.primary,
             ),
             decoration: InputDecoration(
               labelText: 'Name',
               labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 16.sp,
+                fontSize: 16.sp * Responsive.scale(context),
                 color: Theme.of(context).colorScheme.tertiary,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.tertiary,
                 )
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.primary,
                 )
               ),
             ),
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 10.h * Responsive.scale(context)),
           // Relationship
           DropdownButtonFormField<String>(
             value: selectedRelationship,
             isExpanded: true,
             icon: Padding(
-              padding: EdgeInsets.only(right: 10.0.r),
+              padding: EdgeInsets.only(right: 10.0.r * Responsive.scale(context)),
               child: Icon(
                 Icons.arrow_drop_down,
                 color: Theme.of(context).colorScheme.tertiary
               ),
             ),
             decoration: InputDecoration(
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 8.w * Responsive.scale(context), 
+                vertical: 16.h * Responsive.scale(context)
+              ),
               labelText: 'Relationship',
               labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 16.sp,
+                fontSize: 16.sp * Responsive.scale(context),
                 color: Theme.of(context).colorScheme.tertiary,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.tertiary,
                 )
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.primary,
                 )
@@ -138,8 +139,9 @@ class _AddEmergencyContactState extends State<AddEmergencyContact> {
                 child: Text(
                   type,
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    fontSize: 16.sp,
+                    fontSize: 16.sp * Responsive.scale(context),
                     color: Theme.of(context).colorScheme.primary,
+                    height: 0.5.h * Responsive.scale(context)
                   ),
                 ),
               );
@@ -152,7 +154,7 @@ class _AddEmergencyContactState extends State<AddEmergencyContact> {
               checkChanges();
             },
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 10.h * Responsive.scale(context)),
           // Phone
           TextField(
             controller: phoneController,
@@ -160,23 +162,23 @@ class _AddEmergencyContactState extends State<AddEmergencyContact> {
             textInputAction: TextInputAction.done,
             maxLines: 1,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontSize: 16.sp,
+              fontSize: 16.sp * Responsive.scale(context),
               color: Theme.of(context).colorScheme.primary,
             ),
             decoration: InputDecoration(
               labelText: 'Phone',
               labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 16.sp,
+                fontSize: 16.sp * Responsive.scale(context),
                 color: Theme.of(context).colorScheme.tertiary,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.tertiary,
                 )
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.primary,
                 )
@@ -197,11 +199,11 @@ class _AddEmergencyContactState extends State<AddEmergencyContact> {
                 return Align(
                   alignment: Alignment.centerLeft,
                   child: Padding(
-                    padding: EdgeInsets.only(top: 10.h),
+                    padding: EdgeInsets.only(top: 10.h * Responsive.scale(context)),
                     child: Text(
                       errorMessage,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 14.0.sp,
+                        fontSize: 14.0.sp * Responsive.scale(context),
                         color: Theme.of(context).colorScheme.error
                       )
                     ),
@@ -212,7 +214,7 @@ class _AddEmergencyContactState extends State<AddEmergencyContact> {
               return const SizedBox.shrink();
             },
           ),
-          SizedBox(height: 20.h),
+          SizedBox(height: 20.h * Responsive.scale(context)),
           // Save
           ValueListenableBuilder<bool>(
             valueListenable: widget.hasUnsavedChanges,
@@ -242,7 +244,7 @@ class _AddEmergencyContactState extends State<AddEmergencyContact> {
               );
             }
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 10.h * Responsive.scale(context)),
         ],
       ),
     );   

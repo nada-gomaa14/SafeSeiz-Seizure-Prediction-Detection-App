@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:safeseiz/functions/responsive.dart';
 
 class CustomButton extends StatelessWidget {
   const CustomButton({super.key, this.text, this.textColor, this.color, this.width, this.height, this.border, required this.onTap, this.child});
@@ -22,17 +23,17 @@ class CustomButton extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Container(
-          height: height ?? 60.h,
+          height: height ?? 60.h * Responsive.scale(context),
           width: width,
-          padding: EdgeInsets.all(10.r),
+          padding: EdgeInsets.all(10.r * Responsive.scale(context)),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(15.r)),
+            borderRadius: BorderRadius.all(Radius.circular(15.r * Responsive.scale(context))),
             color: color ?? Theme.of(context).colorScheme.primary,
             border: border != null
               ? Border.all(
                   color: border!,
-                  width: 1.0.r,
+                  width: 1.0.r * Responsive.scale(context),
                 )
               : null
           ),
@@ -40,7 +41,7 @@ class CustomButton extends StatelessWidget {
             Text(
               text!,
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                fontSize: 16.sp,
+                fontSize: 16.sp * Responsive.scale(context),
                 fontWeight: FontWeight.bold,
                 color: textColor ?? Colors.white,
               )

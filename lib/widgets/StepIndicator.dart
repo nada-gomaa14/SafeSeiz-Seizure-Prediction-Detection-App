@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:safeseiz/functions/responsive.dart';
 
 class StepIndicator extends StatelessWidget {
   const StepIndicator({super.key, required this.activeStep});
@@ -16,8 +17,8 @@ class StepIndicator extends StatelessWidget {
       final isActive = step == activeStep;
 
       return Container(
-        width: 30.r,
-        height: 30.r,
+        width: 30.r * Responsive.scale(context),
+        height: 30.r * Responsive.scale(context),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: (isCompleted || isActive)
@@ -30,13 +31,13 @@ class StepIndicator extends StatelessWidget {
         ),
         alignment: Alignment.center,
         child: isCompleted
-            ? Icon(Icons.check, color: Colors.white, size: 18.r)
+            ? Icon(Icons.check, color: Theme.of(context).colorScheme.secondary, size: 18.r * Responsive.scale(context))
             : Text(
                 '$step',
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontSize: 14.sp,
+                  fontSize: 14.sp * Responsive.scale(context),
                   fontWeight: FontWeight.bold,
-                  color: isActive ? Colors.white : inactiveColor,
+                  color: isActive ? Theme.of(context).colorScheme.secondary : inactiveColor,
                 ),
               ),
       );
@@ -54,7 +55,7 @@ class StepIndicator extends StatelessWidget {
         ),
         Expanded(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.w),
+            padding: EdgeInsets.symmetric(horizontal: 8.w * Responsive.scale(context)),
             child: Divider(
               color: activeStep > 1 ? activeColor : inactiveColor,
               thickness: 1,
@@ -69,7 +70,7 @@ class StepIndicator extends StatelessWidget {
         ),
         Expanded(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.w),
+            padding: EdgeInsets.symmetric(horizontal: 8.w * Responsive.scale(context)),
             child: Divider(
               color: activeStep > 2 ? activeColor : inactiveColor,
               thickness: 1,
@@ -111,11 +112,11 @@ class _StepItem extends StatelessWidget {
     return Column(
       children: [
         node,
-        SizedBox(height: 6.h),
+        SizedBox(height: 6.h * Responsive.scale(context)),
         Text(
           label,
           style: TextStyle(
-            fontSize: 12.sp,
+            fontSize: 12.sp * Responsive.scale(context),
             fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
             color: (isCompleted || isActive)
                 ? activeColor

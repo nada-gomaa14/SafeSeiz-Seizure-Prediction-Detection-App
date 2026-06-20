@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:safeseiz/functions/responsive.dart';
 
 Future<void> showPopup({
   required BuildContext context,
@@ -15,7 +16,7 @@ Future<void> showPopup({
     backgroundColor: Theme.of(context).colorScheme.secondary,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(
-        top: Radius.circular(15.0.r),
+        top: Radius.circular(15.0.r * Responsive.scale(context)),
       ),
     ),
     builder: (bottomSheetContext) {
@@ -29,16 +30,39 @@ Future<void> showPopup({
           context: bottomSheetContext, 
           builder: (dialogContext) {
             return AlertDialog(
-              title: const Text('Discard Changes?'),
-              content: const Text('You have unsaved changes.'),
+              title: Text(
+                  'Discard Changes?',
+                  style: TextStyle(
+                    fontSize: 20.sp * Responsive.scale(context),
+                  ),
+                ),
+              content: SizedBox(
+                width: Responsive.isTablet(context) ? 500.w : 300.w,
+                child: Text(
+                  'You have unsaved changes.',
+                  style: TextStyle(
+                    fontSize: 12.sp * Responsive.scale(context),
+                  ),
+                ),
+              ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(dialogContext, false),
-                  child: const Text('Cancel'),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      fontSize: 12.sp * Responsive.scale(context),
+                    ),
+                  ),
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(dialogContext, true),
-                  child: const Text('Discard'),
+                  child: Text(
+                    'Discard',
+                    style: TextStyle(
+                      fontSize: 12.sp * Responsive.scale(context),
+                    ),
+                  ),
                 ),
               ]
             );
@@ -58,10 +82,10 @@ Future<void> showPopup({
         },
         child: Padding(
           padding: EdgeInsets.only(
-            right: 20.0.w,
-            left: 20.0.w,
-            top: 20.0.h,
-            bottom: MediaQuery.of(bottomSheetContext).viewInsets.bottom + 20.0.h
+            right: 20.0.w * Responsive.scale(context),
+            left: 20.0.w * Responsive.scale(context),
+            top: 20.0.h * Responsive.scale(context),
+            bottom: MediaQuery.of(bottomSheetContext).viewInsets.bottom + 20.0.h * Responsive.scale(context)
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -72,7 +96,7 @@ Future<void> showPopup({
                   Text(
                     title,
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 18.sp,
+                      fontSize: 18.sp * Responsive.scale(context),
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).colorScheme.primary,
                     ),
@@ -89,7 +113,7 @@ Future<void> showPopup({
                   ),
                 ],
               ),
-              SizedBox(height: 20.h),
+              SizedBox(height: 20.h * Responsive.scale(context)),
               child,
             ],
           ),

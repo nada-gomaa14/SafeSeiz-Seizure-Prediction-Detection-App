@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:safeseiz/functions/responsive.dart';
 import 'package:safeseiz/screens/HomePage.dart';
 import 'package:safeseiz/screens/SummaryPage.dart';
 import 'package:safeseiz/screens/MedicationPage.dart';
@@ -33,27 +35,34 @@ class _NavigationLayoutState extends State<NavigationLayout> {
           setState(() {});
         },
         selectedItemColor: Theme.of(context).colorScheme.primary,
-        unselectedItemColor: Colors.grey,
+        unselectedItemColor: Theme.of(context).colorScheme.tertiary,
         showUnselectedLabels: true,
         selectedLabelStyle: TextStyle(
+          fontSize: 12.sp * Responsive.scale(context),
           fontWeight: FontWeight.bold
         ),
-        items: const [
+        unselectedLabelStyle: TextStyle(
+          fontSize: 12.sp * Responsive.scale(context),
+        ),
+        items: [
           BottomNavigationBarItem(
             icon: Icon(
               Icons.home,
+              size: 25.sp * Responsive.scale(context),
             ),
-            label: 'Home',
+            label: 'Home'
           ),
           BottomNavigationBarItem(
             icon: Icon(
               Icons.summarize,
+              size: 25.sp * Responsive.scale(context),
             ),
             label: 'Summary'
           ),
           BottomNavigationBarItem(
             icon: Icon(
               Icons.medication,
+              size: 25.sp * Responsive.scale(context),
             ),
             label: 'Medication'
           )

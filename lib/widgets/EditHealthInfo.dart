@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:safeseiz/functions/responsive.dart';
 import 'package:safeseiz/user/medical/cubit/medical_cubit.dart';
 import 'package:safeseiz/user/medical/cubit/medical_states.dart';
 import 'package:safeseiz/user/medical/models/medical_model.dart';
@@ -57,36 +58,36 @@ class _EditHealthMetricsFormState extends State<EditHealthInfo> {
               FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))
             ],
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontSize: 16.sp,
+              fontSize: 16.sp * Responsive.scale(context),
               color: Theme.of(context).colorScheme.primary,
             ),
             decoration: InputDecoration(
               labelText: 'Weight',
               labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 16.sp,
+                fontSize: 16.sp * Responsive.scale(context),
                 color: Theme.of(context).colorScheme.tertiary,
               ),
               suffixText: 'kg',
               suffixStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 16.sp,
+                fontSize: 16.sp * Responsive.scale(context),
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).colorScheme.tertiary,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.tertiary,
                 )
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.primary,
                 )
               ),
             ),
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 10.h * Responsive.scale(context)),
           // Height
           TextField(
             controller: heightController,
@@ -95,60 +96,64 @@ class _EditHealthMetricsFormState extends State<EditHealthInfo> {
               FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))
             ],
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontSize: 16.sp,
+              fontSize: 16.sp * Responsive.scale(context),
               color: Theme.of(context).colorScheme.primary,
             ),
             decoration: InputDecoration(
               labelText: 'Height',
               labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 16.sp,
+                fontSize: 16.sp * Responsive.scale(context),
                 color: Theme.of(context).colorScheme.tertiary,
               ),
               suffixText: 'cm',
               suffixStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 16.sp,
+                fontSize: 16.sp * Responsive.scale(context),
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).colorScheme.tertiary,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.tertiary,
                 )
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.primary,
                 )
               ),
             ),
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 10.h * Responsive.scale(context)),
           // Blood Type
           DropdownButtonFormField<String>(
             value: selectedBloodType,
             icon: Padding(
-              padding: EdgeInsets.only(right: 10.0.r),
+              padding: EdgeInsets.only(right: 10.0.r * Responsive.scale(context)),
               child: Icon(
                 Icons.arrow_drop_down,
                 color: Theme.of(context).colorScheme.tertiary
               ),
             ),
             decoration: InputDecoration(
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 8.w * Responsive.scale(context), 
+                vertical: 16.h * Responsive.scale(context)
+              ),
               labelText: 'Blood Type',
               labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 16.sp,
+                fontSize: 16.sp * Responsive.scale(context),
                 color: Theme.of(context).colorScheme.tertiary,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.tertiary,
                 )
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.primary,
                 )
@@ -160,8 +165,9 @@ class _EditHealthMetricsFormState extends State<EditHealthInfo> {
                 child: Text(
                   type,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontSize: 16.sp,
+                    fontSize: 16.sp * Responsive.scale(context),
                     color: Theme.of(context).colorScheme.primary,
+                    height: 0.5 * Responsive.scale(context),
                   ),
                 ),
               );
@@ -188,7 +194,7 @@ class _EditHealthMetricsFormState extends State<EditHealthInfo> {
                 return Align(
                   alignment: Alignment.centerLeft,
                   child: Padding(
-                    padding: EdgeInsets.only(top: 10.h),
+                    padding: EdgeInsets.only(top: 10.h * Responsive.scale(context)),
                     child: Text(
                       errorMessage,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -203,7 +209,7 @@ class _EditHealthMetricsFormState extends State<EditHealthInfo> {
               return const SizedBox.shrink();
             },
           ),
-          SizedBox(height: 20.h),
+          SizedBox(height: 20.h * Responsive.scale(context)),
           // Save
           ValueListenableBuilder<bool>(
             valueListenable: widget.hasUnsavedChanges,
@@ -235,7 +241,7 @@ class _EditHealthMetricsFormState extends State<EditHealthInfo> {
               );
             }
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 10.h * Responsive.scale(context)),
         ],
       ),
     );

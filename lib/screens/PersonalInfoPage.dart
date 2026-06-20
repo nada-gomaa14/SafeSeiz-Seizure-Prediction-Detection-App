@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:safeseiz/functions/notify.dart';
+import 'package:safeseiz/functions/responsive.dart';
 import 'package:safeseiz/screens/MedicalInfoPage.dart';
 import 'package:safeseiz/screens/RegistrationPage.dart';
 import 'package:safeseiz/user/profile/cubit/profile_cubit.dart';
@@ -75,8 +76,8 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
       
                 return Padding(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 30.0.w,
-                    vertical: 10.0.h
+                    horizontal: 30.0.w * Responsive.scale(context),
+                    vertical: 10.0.h * Responsive.scale(context)
                   ),
                   child: SingleChildScrollView(
                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -88,26 +89,26 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                         Center(
                           child: StepIndicator(activeStep: 2)
                         ),
-                        SizedBox(height: 50.h),
+                        SizedBox(height: 50.h * Responsive.scale(context)),
                         // Title
                         Text(
                           'Personal Information',
                           style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                            fontSize: 30.sp,
+                            fontSize: 30.sp * Responsive.scale(context),
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).colorScheme.primary,
                           )
                         ),
-                        SizedBox(height: 5.h),
+                        SizedBox(height: 5.h * Responsive.scale(context)),
                         // Subtitle
                         Text(
                           'Step 2 of 3 - Tell us about yourself',
                           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontSize: 18.sp,
-                            color: Colors.grey
+                            fontSize: 18.sp * Responsive.scale(context),
+                            color: Theme.of(context).colorScheme.tertiary,
                           ),
                         ),
-                        SizedBox(height: 30.h),
+                        SizedBox(height: 30.h * Responsive.scale(context)),
                         Form(
                           key: formKey,
                           child: Column(
@@ -128,7 +129,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                                       },
                                     )
                                   ),
-                                  SizedBox(width: 15.w),
+                                  SizedBox(width: 15.w * Responsive.scale(context)),
                                   Expanded(
                                     child: NameWidget(
                                       label: 'Last Name',
@@ -141,7 +142,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                                   ),
                                 ]
                               ),
-                              SizedBox(height: 20.h),
+                              SizedBox(height: 20.h * Responsive.scale(context)),
                               DateWidget(
                                 label: 'Date of Birth', 
                                 dateController: dobController,
@@ -150,7 +151,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                                   dobController.text = DateFormat('dd/MM/yyyy').format(date);
                                 },
                               ),
-                              SizedBox(height: 20.h),
+                              SizedBox(height: 20.h * Responsive.scale(context)),
                               GenderWidget(
                                 initialValue: profileCubit.gender,
                                 errorText: profileCubit.genderError,
@@ -161,7 +162,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                             ]
                           )
                         ),
-                        SizedBox(height: 30.h),
+                        SizedBox(height: 30.h * Responsive.scale(context)),
                         CustomButton(
                           text: "Continue",
                           width: double.infinity,
@@ -174,16 +175,16 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                             }
                           },
                           child: isLoading 
-                            ? const Center(
+                            ? Center(
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.secondary),
                                 )
                               )
                             : null
                         ),
       
-                        SizedBox(height: 10.h),
+                        SizedBox(height: 10.h * Responsive.scale(context)),
                     
                           /// SKIP (optional)
                         CustomButton(
@@ -198,7 +199,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                           },
                         ),    
       
-                        SizedBox(height: 10.h),
+                        SizedBox(height: 10.h * Responsive.scale(context)),
                     
                           /// SKIP (optional)
                         CustomButton(

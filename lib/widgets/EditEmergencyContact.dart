@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:safeseiz/functions/responsive.dart';
 import 'package:safeseiz/user/contacts/cubit/emergency_contacts_cubit.dart';
 import 'package:safeseiz/user/contacts/cubit/emergency_contacts_states.dart';
 import 'package:safeseiz/user/contacts/models/emergency_contacts_model.dart';
@@ -79,55 +80,59 @@ class _EditEmergencyContactState extends State<EditEmergencyContact> {
             },
             maxLines: 1,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontSize: 16.sp,
+              fontSize: 16.sp * Responsive.scale(context),
               color: Theme.of(context).colorScheme.primary,
             ),
             decoration: InputDecoration(
               labelText: 'Name',
               labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 16.sp,
+                fontSize: 16.sp * Responsive.scale(context),
                 color: Theme.of(context).colorScheme.tertiary,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.tertiary,
                 )
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.primary,
                 )
               ),
             ),
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 10.h * Responsive.scale(context)),
           // Relationship
           DropdownButtonFormField<String>(
             value: selectedRelationship,
             isExpanded: true,
             icon: Padding(
-              padding: EdgeInsets.only(right: 10.0.r),
+              padding: EdgeInsets.only(right: 10.0.r * Responsive.scale(context)),
               child: Icon(
                 Icons.arrow_drop_down,
                 color: Theme.of(context).colorScheme.tertiary
               ),
             ),
             decoration: InputDecoration(
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 8.w * Responsive.scale(context), 
+                vertical: 16.h * Responsive.scale(context)
+              ),
               labelText: 'Relationship',
               labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 16.sp,
+                fontSize: 16.sp * Responsive.scale(context),
                 color: Theme.of(context).colorScheme.tertiary,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.tertiary,
                 )
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.primary,
                 )
@@ -139,8 +144,9 @@ class _EditEmergencyContactState extends State<EditEmergencyContact> {
                 child: Text(
                   type,
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    fontSize: 16.sp,
+                    fontSize: 16.sp * Responsive.scale(context),
                     color: Theme.of(context).colorScheme.primary,
+                    height: 0.5 * Responsive.scale(context),
                   ),
                 ),
               );
@@ -153,7 +159,7 @@ class _EditEmergencyContactState extends State<EditEmergencyContact> {
               checkChanges();
             },
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 10.h * Responsive.scale(context)),
           // Phone
           TextField(
             controller: phoneController,
@@ -161,23 +167,23 @@ class _EditEmergencyContactState extends State<EditEmergencyContact> {
             textInputAction: TextInputAction.done,
             maxLines: 1,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontSize: 16.sp,
+              fontSize: 16.sp * Responsive.scale(context),
               color: Theme.of(context).colorScheme.primary,
             ),
             decoration: InputDecoration(
               labelText: 'Phone',
               labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 16.sp,
+                fontSize: 16.sp * Responsive.scale(context),
                 color: Theme.of(context).colorScheme.tertiary,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.tertiary,
                 )
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.primary,
                 )
@@ -198,11 +204,11 @@ class _EditEmergencyContactState extends State<EditEmergencyContact> {
                 return Align(
                   alignment: Alignment.centerLeft,
                   child: Padding(
-                    padding: EdgeInsets.only(top: 10.h),
+                    padding: EdgeInsets.only(top: 10.h * Responsive.scale(context)),
                     child: Text(
                       errorMessage,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 14.0.sp,
+                        fontSize: 14.0.sp * Responsive.scale(context),
                         color: Theme.of(context).colorScheme.error
                       )
                     ),
@@ -213,7 +219,7 @@ class _EditEmergencyContactState extends State<EditEmergencyContact> {
               return const SizedBox.shrink();
             },
           ),
-          SizedBox(height: 20.h),
+          SizedBox(height: 20.h * Responsive.scale(context)),
           // Update
           ValueListenableBuilder<bool>(
             valueListenable: widget.hasUnsavedChanges,
@@ -244,7 +250,7 @@ class _EditEmergencyContactState extends State<EditEmergencyContact> {
               );
             }
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 10.h * Responsive.scale(context)),
           // Delete
           CustomButton(
             text: 'Delete Contact',
@@ -280,7 +286,7 @@ class _EditEmergencyContactState extends State<EditEmergencyContact> {
               );      
             },
           ),
-          SizedBox(height: 10.h)
+          SizedBox(height: 10.h * Responsive.scale(context))
         ],
       ),
     );   

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:safeseiz/functions/notify.dart';
+import 'package:safeseiz/functions/responsive.dart';
 import 'package:safeseiz/screens/LoginPage.dart';
 import 'package:safeseiz/screens/PersonalInfoPage.dart';
 import 'package:safeseiz/user/authentication/auth_cubit.dart';
@@ -61,8 +62,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
       
                 return Padding(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 30.0.w,
-                    vertical: 10.0.h,
+                    horizontal: 30.0.w * Responsive.scale(context),
+                    vertical: 10.0.h * Responsive.scale(context),
                   ),
                   child: SingleChildScrollView(
                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -74,26 +75,26 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         Center(
                           child: StepIndicator(activeStep: 1),
                         ),
-                        SizedBox(height: 50.h),
+                        SizedBox(height: 50.h * Responsive.scale(context)),
                         // Title
                         Text(
                           'Create Account',
                           style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                            fontSize: 30.sp,
+                            fontSize: 30.sp * Responsive.scale(context),
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
-                        SizedBox(height: 5.h),
+                        SizedBox(height: 5.h * Responsive.scale(context)),
                         // Subtitle
                         Text(
                           'Step 1 of 3 - Account details',
                           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontSize: 18.sp,
-                            color: Colors.grey,
+                            fontSize: 18.sp * Responsive.scale(context),
+                            color: Theme.of(context).colorScheme.tertiary,
                           ),
                         ),
-                        SizedBox(height: 30.h),
+                        SizedBox(height: 30.h * Responsive.scale(context)),
                         //Form
                         Form(
                           key: formKey,
@@ -102,25 +103,25 @@ class _RegistrationPageState extends State<RegistrationPage> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               EmailWidget(emailController: emailController),
-                              SizedBox(height: 20.h),
+                              SizedBox(height: 20.h * Responsive.scale(context)),
                               PasswordWidget(
                                 label: 'Password',
                                 passwordController: passwordController,
                                 isRegister: true,
                               ),
-                              SizedBox(height: 20.h),
+                              SizedBox(height: 20.h * Responsive.scale(context)),
                               PasswordWidget(
                                 label: 'Confirm Password',
                                 passwordController: confirmPasswordController,
                                 test: passwordController,
                                 isRegister: true,
                               ),
-                              SizedBox(height: 20.h),
+                              SizedBox(height: 20.h * Responsive.scale(context)),
                               StrengthWidget(),
                             ],
                           ),
                         ),
-                        SizedBox(height: 30.h),
+                        SizedBox(height: 30.h * Responsive.scale(context)),
                         // Continue Button
                         CustomButton(
                           text: "Continue",
@@ -145,7 +146,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                               )
                             : null
                         ),
-                        SizedBox(height: 10.h),
+                        SizedBox(height: 10.h * Responsive.scale(context)),
                         // Login Redirect
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -154,8 +155,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
                             Text(
                               "Already have an account?",
                               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                color: Colors.grey,
-                                fontSize: 14.sp,
+                                color: Theme.of(context).colorScheme.tertiary,
+                                fontSize: 14.sp * Responsive.scale(context),
                               ),
                             ),
                             TextButton(
@@ -170,7 +171,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                               child: Text(
                                 'Log in',
                                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                  fontSize: 14.sp,
+                                  fontSize: 14.sp * Responsive.scale(context),
                                   fontWeight: FontWeight.bold,
                                   color: Theme.of(context).colorScheme.primary,
                                 ),
@@ -179,7 +180,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                           ],
                         ),
                     
-                        SizedBox(height: 10.h),
+                        SizedBox(height: 10.h * Responsive.scale(context)),
                     
                           /// SKIP (optional)
                         CustomButton(
