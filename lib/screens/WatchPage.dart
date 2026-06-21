@@ -91,8 +91,7 @@ class _WatchPageState extends State<WatchPage> {
 
     try {
       // Load real seizure data from assets
-      final String jsonStr =
-      await rootBundle.loadString('assets/seizure_test_data.json');
+      final String jsonStr = await rootBundle.loadString('assets/seizure_test_data.json');
       final Map<String, dynamic> data = json.decode(jsonStr);
 
       final List<double> ecg  = List<double>.from(data['ecg']);
@@ -132,7 +131,7 @@ class _WatchPageState extends State<WatchPage> {
           }
         } else if (prediction == 0) {
           if (_currentEventType == 0) {
-            setState(() => seizureStatus = '✓ Normal');
+            setState(() => seizureStatus = 'Normal Readings ✓');
           }
         }
 
@@ -148,7 +147,7 @@ class _WatchPageState extends State<WatchPage> {
     setState(() {
       _isTesting = false;
       if (seizureStatus == '⏳ Running test...') {
-        seizureStatus = '✓ Normal (test complete)';
+        seizureStatus = 'Normal Readings ✓ (test complete)';
       }
     });
   }
@@ -203,7 +202,7 @@ class _WatchPageState extends State<WatchPage> {
               _currentEventType = 1;
             }
           } else if (prediction == 0) {
-            setState(() => seizureStatus = '✓ Normal');
+            setState(() => seizureStatus = 'Normal ✓');
             _currentEventType = 0;
           }
         }
