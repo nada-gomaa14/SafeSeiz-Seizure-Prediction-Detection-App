@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,8 +27,8 @@ class WatchPage extends StatefulWidget {
 }
 
 class _WatchPageState extends State<WatchPage> {
-  static const _watchChannel =
-  EventChannel('com.example.safeseiz/watch_events');
+  static const _watchChannel = EventChannel('com.example.safeseiz/watch_events');
+  StreamSubscription? _watchSubscription;
 
   String hr        = '--';
   String spo2      = '--';
@@ -112,6 +113,8 @@ class _WatchPageState extends State<WatchPage> {
           gyroZ:  0.0,
         );
 
+        if (!mounted) return;
+
         if (prediction == 2) {
           setState(() => seizureStatus = '🚨 Seizure Detected!');
           if (_currentEventType != 2) {
@@ -151,9 +154,10 @@ class _WatchPageState extends State<WatchPage> {
   }
 
   void _listenToWatch() {
-    _watchChannel.receiveBroadcastStream().listen(
+    _watchSubscription = _watchChannel.receiveBroadcastStream().listen(
           (event) async {
-        final data = Map<String, dynamic>.from(event);
+            if (!mounted) return; // add this line
+            final data = Map<String, dynamic>.from(event);
 
         if (data['type'] == 'sos') {
           _triggerAlert();
@@ -181,6 +185,8 @@ class _WatchPageState extends State<WatchPage> {
             gyroY:  double.tryParse(data['gyro_y']  ?? '0') ?? 0.0,
             gyroZ:  double.tryParse(data['gyro_z']  ?? '0') ?? 0.0,
           );
+
+          if (!mounted) return;
 
           if (prediction == 2) {
             setState(() => seizureStatus = '🚨 Seizure Detected!');
@@ -216,9 +222,16 @@ class _WatchPageState extends State<WatchPage> {
         });
       },
       onError: (error) {
+        if (!mounted) return; // add this line
         setState(() => status = 'Error: $error');
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _watchSubscription?.cancel();
+    super.dispose();
   }
 
   @override

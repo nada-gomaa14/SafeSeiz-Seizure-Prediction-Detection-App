@@ -86,8 +86,8 @@ class _SOSPageState extends State<SOSPage> {
                       child: Column(
                         children: [
                           Container(
-                            height: 70.r * Responsive.scale(context),
-                            width: 70.r * Responsive.scale(context),
+                            height: 80.r * Responsive.scale(context),
+                            width: 80.r * Responsive.scale(context),
                             padding: EdgeInsets.all(10.r * Responsive.scale(context)),
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
