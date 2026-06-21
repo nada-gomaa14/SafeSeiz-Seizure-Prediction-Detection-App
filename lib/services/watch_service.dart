@@ -16,7 +16,7 @@ class WatchService {
   Stream<void> get sosStream => _sosController.stream;
 
   void startListening() {
-    debugPrint('👂 WatchService: startListening called');
+    debugPrint('WatchService: startListening called');
     try {
       _subscription = _eventChannel.receiveBroadcastStream().listen(
             (event) {
