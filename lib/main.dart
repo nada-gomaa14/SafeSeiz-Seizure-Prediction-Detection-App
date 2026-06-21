@@ -24,6 +24,7 @@ import 'package:safeseiz/user/seizure/models/seizure_model.dart';
 import 'package:safeseiz/user/sos/cubit/sos_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:safeseiz/services/notification_service.dart';
+import 'package:safeseiz/user/sensors/models/sensor_model.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -44,11 +45,13 @@ Future<void> main() async {
   Hive.registerAdapter(EmergencyContactsModelAdapter());
   Hive.registerAdapter(SeizureModelAdapter());
   Hive.registerAdapter(MedicationModelAdapter());
+  Hive.registerAdapter(SensorReadingModelAdapter());
 
   await Hive.openBox<MedicalModel>('medical_info_box');
   await Hive.openBox('emergency_contacts_box');
   await Hive.openBox('seizures_box');
   await Hive.openBox<List>('medication_box');
+  await Hive.openBox<SensorReadingModel>('sensor_readings_box');
 
   // Watch service — start listening for sensor data and SOS from smartwatch
   final watchService = WatchService();

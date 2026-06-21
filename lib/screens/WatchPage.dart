@@ -216,8 +216,8 @@ class _WatchPageState extends State<WatchPage> {
           gyroX     = data['gyro_x']    ?? '--';
           gyroY     = data['gyro_y']    ?? '--';
           gyroZ     = data['gyro_z']    ?? '--';
-          timestamp = data['timestamp'] ?? '--';
-          status    = 'Receiving data ✓';
+          final ts = data['timestamp'];
+          timestamp = ts != null ? ts.toString() : '--';          status    = 'Receiving data ✓';
         });
       },
       onError: (error) {
