@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:safeseiz/functions/notify.dart';
 import 'package:safeseiz/functions/responsive.dart';
+import 'package:safeseiz/user/medical/information/cubit/medical_cubit.dart';
 import 'package:safeseiz/user/seizure/cubit/seizure_cubit.dart';
 import 'package:safeseiz/user/seizure/cubit/seizure_states.dart';
 import 'package:safeseiz/widgets/CustomButton.dart';
@@ -14,9 +15,26 @@ import 'package:safeseiz/widgets/ReturnButton.dart';
 import 'package:safeseiz/widgets/SeizureTypeWidget.dart';
 import 'package:safeseiz/widgets/TimeWidget.dart';
 
-class LogSeizurePage extends StatelessWidget {
+class LogSeizurePage extends StatefulWidget {
   const LogSeizurePage({super.key});
 
+  @override
+  State<LogSeizurePage> createState() => _LogSeizurePageState();
+}
+
+class _LogSeizurePageState extends State<LogSeizurePage> {
+  @override
+    void initState() {
+      super.initState();
+
+      final seizureCubit = context.read<SeizureCubit>();
+      final medicalCubit = context.read<MedicalCubit>();
+
+      if (seizureCubit.seizureTypes.isEmpty) {
+        seizureCubit.updateSeizureTypes(List<String>.from(medicalCubit.seizureTypes));
+      }
+    }
+  
   @override
   Widget build(BuildContext context) {
     final seizureCubit = context.read<SeizureCubit>();
@@ -165,7 +183,10 @@ class LogSeizurePage extends StatelessWidget {
                       )
                     ), 
                     SizedBox(height: 10.h * Responsive.scale(context)),
-                    SeizureTypeWidget(onChanged: seizureCubit.updateSeizureTypes),
+                    SeizureTypeWidget(
+                      initialSelected: seizureCubit.seizureTypes,
+                      onChanged: seizureCubit.updateSeizureTypes
+                    ),
                     if (seizureCubit.seizureTypesError != null) ...[
                       Padding(
                         padding: EdgeInsets.only(top: 5.h * Responsive.scale(context)),
@@ -348,7 +369,7 @@ class LogSeizurePage extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget buildDurationField({
     required String title,
     required Function(String) onChanged,

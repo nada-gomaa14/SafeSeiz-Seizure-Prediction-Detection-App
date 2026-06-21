@@ -5,10 +5,12 @@ import 'package:safeseiz/user/medical/information/models/medical_model.dart';
 
 
 class SeizureTypeWidget extends StatefulWidget {
+  final List<String> initialSelected;
   final Function(List<String>) onChanged;
 
   const SeizureTypeWidget({
     super.key,
+    this.initialSelected = const [],
     required this.onChanged,
   });
 
@@ -17,7 +19,13 @@ class SeizureTypeWidget extends StatefulWidget {
 }
 
 class _SeizureTypeWidgetState extends State<SeizureTypeWidget> {
-  Set<String> selected = {};
+  late Set<String> selected;
+
+  @override
+  void initState() {
+    super.initState();
+    selected = widget.initialSelected.toSet();
+  }
 
   @override
   Widget build(BuildContext context) {

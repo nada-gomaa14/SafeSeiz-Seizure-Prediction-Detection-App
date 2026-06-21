@@ -133,7 +133,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       child: Column(
                         children: [
                           CustomListItem(
-                            title: 'Medical reminders',
+                            title: 'Medication reminders',
                             color: Theme.of(context).colorScheme.primary,
                             subtitle: 'Alert before each dose',
                             trailing: Switch(
@@ -278,6 +278,16 @@ class _SettingsPageState extends State<SettingsPage> {
                           SizedBox(height: 0.h * Responsive.scale(context), child: Divider(color: Theme.of(context).colorScheme.tertiary)),
                           CustomListItem(
                             title: 'Help & support',
+                            color: Theme.of(context).colorScheme.primary,
+                            trailing: Icon(
+                              Icons.keyboard_arrow_right,
+                              size: 20.sp * Responsive.scale(context),
+                              color: Theme.of(context).colorScheme.tertiary,
+                            )
+                          ),  
+                          SizedBox(height: 0.h * Responsive.scale(context), child: Divider(color: Theme.of(context).colorScheme.tertiary)), 
+                          CustomListItem(
+                            title: 'Terms & conditions',
                             color: Theme.of(context).colorScheme.primary,
                             trailing: Icon(
                               Icons.keyboard_arrow_right,
