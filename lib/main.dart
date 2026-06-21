@@ -94,7 +94,7 @@ class _SafeSeizState extends State<SafeSeiz> {
   void initState() {
     super.initState();
 
-    // Sync On App Resume
+    // Sync on app resume
     _lifecycleListener = AppLifecycleListener(
       onResume: () {
         final context = navigatorKey.currentContext;
