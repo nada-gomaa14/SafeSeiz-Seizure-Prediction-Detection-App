@@ -276,11 +276,59 @@ class LogSeizurePage extends StatelessWidget {
                       text: 'Save Seizure',
                       width: double.infinity,
                       onTap: () async {
-                        final valid = seizureCubit.validateSeizureTypes();
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (_) => AlertDialog(
+                            title: Text(
+                              'Save Seizure',
+                              style: TextStyle(
+                                fontSize: 20.sp * Responsive.scale(context),
+                              ),
+                            ),
+                            content: SizedBox(
+                              width: Responsive.isTablet(context) ? 500.w : 300.w,
+                              child: Text(
+                                'Are you sure you want to log this seizure?\nMake sure you entered the correct infromation because it cannot be edited once saved.',
+                                style: TextStyle(
+                                  fontSize: 12.sp * Responsive.scale(context),
+                                ),
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text(
+                                  'Cancel',
+                                  style: TextStyle(
+                                    fontSize: 12.sp * Responsive.scale(context),
+                                  ),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  try {
+                                    final valid = seizureCubit.validateSeizureTypes();
+                                    if (!valid) return;
 
-                        if (!valid) return;
+                                    Navigator.pop(context);
+                                    await seizureCubit.addSeizure(isAutoDetected: false);
 
-                        await seizureCubit.addSeizure(isAutoDetected: false);
+                                   } catch (e) {                             
+                                    if (!context.mounted) return;
+                                    notify(context, e.toString().replaceFirst('Exception: ', ''));
+                                  }
+                                },
+                                child: Text(
+                                  'Continue',
+                                  style: TextStyle(
+                                    fontSize: 12.sp * Responsive.scale(context),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );  
                       },
                       child: state is SeizureLoadingState 
                         ? Center(

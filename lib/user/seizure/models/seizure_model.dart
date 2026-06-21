@@ -50,7 +50,6 @@ class SeizureModel {
     List<String>? seizureTypes,
     int? durationMinutes,
     int? durationSeconds,
-    List<String>? triggers,
     String? notes,
     bool? isAutoDetected,
     bool? isSynced,
