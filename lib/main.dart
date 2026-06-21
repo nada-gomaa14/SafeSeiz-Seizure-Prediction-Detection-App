@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -77,8 +80,47 @@ Future<void> main() async {
   runApp(const SafeSeiz());
 }
 
-class SafeSeiz extends StatelessWidget {
+class SafeSeiz extends StatefulWidget {
   const SafeSeiz({super.key});
+
+  @override
+  State<SafeSeiz> createState() => _SafeSeizState();
+}
+
+class _SafeSeizState extends State<SafeSeiz> {
+  late final AppLifecycleListener _lifecycleListener;
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySub;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Sync On App Resume
+    _lifecycleListener = AppLifecycleListener(
+      onResume: () {
+        final context = navigatorKey.currentContext;
+        if (context == null) return;
+        context.read<SeizureCubit>().syncToSupabase();
+      },
+    );
+
+    // Sync when connectivity is restored
+    _connectivitySub = Connectivity().onConnectivityChanged.listen((results) {
+      final hasConnection = results.any((r) => r != ConnectivityResult.none);
+      if (!hasConnection) return;
+
+      final context = navigatorKey.currentContext;
+      if (context == null) return;
+      context.read<SeizureCubit>().syncToSupabase();
+    });
+  }
+
+  @override
+  void dispose() {
+    _lifecycleListener.dispose();
+    _connectivitySub?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

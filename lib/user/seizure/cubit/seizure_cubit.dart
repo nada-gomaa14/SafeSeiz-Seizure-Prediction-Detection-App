@@ -74,6 +74,13 @@ class SeizureCubit extends Cubit<SeizureStates> {
     emit(SeizureLoadingState());
 
     try {
+      final user = supabase.auth.currentUser;
+
+      if (user == null) {
+        emit(SeizureErrorState(error: 'User not logged in.'));
+        return false;
+      }
+
       final seizure = SeizureModel(
         id: uuid.v4(),
         seizureDateTime: seizureDateTime ?? DateTime.now(),
@@ -83,68 +90,50 @@ class SeizureCubit extends Cubit<SeizureStates> {
         notes: notes,
         isAutoDetected: isAutoDetected,
         createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
       );
-
-      final user = supabase.auth.currentUser;
-
-      if (user == null) {
-        emit(SeizureErrorState(error: 'User not logged in.'));
-        return false;
-      }
 
       final seizures = seizureLocalRepo.getSeizures(user.id);
       seizures.add(seizure);
-
       await seizureLocalRepo.saveSeizures(user.id, seizures);
-      await loadSeizures();
 
       clearForm();
+      await loadSeizures();
+      syncToSupabase();
 
       emit(SeizureSuccessState());
       return true;
-
     } catch (e) {
       emit(SeizureErrorState(error: e.toString()));
       return false;
     }
   }
 
-  // Delete Seizure
-  Future<void> deleteSeizure({required String userId, required String seizureId}) async {
-    emit(SeizureLoadingState());
+  // Sync To Supabase
+  Future<void> syncToSupabase() async {
+    final user = supabase.auth.currentUser;
+    if (user == null) return;
 
-    try {
-      await seizureLocalRepo.deleteSeizure(userId: userId, seizureId: seizureId);
-      await loadSeizures();
+    final unsynced = seizureLocalRepo.getUnsyncedSeizures(user.id);
+    if (unsynced.isEmpty) return;
 
-      emit(SeizureSuccessState());
+    for (final seizure in unsynced) {
+      try {
+        await supabase.from('seizures').upsert({
+          'id': seizure.id,
+          'user_id': user.id,
+          'seizure_date_time': seizure.seizureDateTime.toIso8601String(),
+          'seizure_types': seizure.seizureTypes,
+          'duration_minutes': seizure.durationMinutes,
+          'duration_seconds': seizure.durationSeconds,
+          'notes': seizure.notes,
+          'is_auto_detected': seizure.isAutoDetected,
+          'created_at': seizure.createdAt.toIso8601String(),
+        });
 
-    } catch (e) {
-      emit(SeizureErrorState(error: e.toString()));
-    }
-  }
-
-  // Update Seizure
-  Future<void> updateSeizure({required String userId, required SeizureModel seizure}) async {
-    emit(SeizureLoadingState());
-
-    try {
-      final updatedSeizure = seizure.copyWith(updatedAt: DateTime.now());
-
-      final seizures = seizureLocalRepo.getSeizures(userId);
-      final index = seizures.indexWhere((s) => s.id == updatedSeizure.id);
-
-      if (index != -1) {
-        seizures[index] = updatedSeizure;
-        await seizureLocalRepo.saveSeizures(userId, seizures);
+        await seizureLocalRepo.markAsSynced(user.id, seizure.id);
+      } catch (e) {
+        // Stays unsynced — will retry on next syncToSupabase() call
       }
-
-      await loadSeizures();
-      emit(SeizureSuccessState());
-
-    } catch (e) {
-      emit(SeizureErrorState(error: e.toString()));
     }
   }
 
@@ -160,7 +149,6 @@ class SeizureCubit extends Cubit<SeizureStates> {
       }
 
       seizuresLogs = seizureLocalRepo.getSeizures(user.id);
-
       seizuresLogs.sort((a, b) => b.seizureDateTime.compareTo(a.seizureDateTime));
 
       emit(SeizureLoadedState(seizuresLogs));

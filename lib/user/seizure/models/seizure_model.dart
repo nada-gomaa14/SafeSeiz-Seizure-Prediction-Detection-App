@@ -32,9 +32,6 @@ class SeizureModel {
   @HiveField(8)
   final DateTime createdAt;
 
-  @HiveField(9)
-  final DateTime updatedAt;
-
   SeizureModel({
     required this.id,
     required this.seizureDateTime,
@@ -45,7 +42,6 @@ class SeizureModel {
     required this.isAutoDetected,
     this.isSynced = false,
     required this.createdAt,
-    required this.updatedAt,
   });
 
   SeizureModel copyWith({
@@ -59,7 +55,6 @@ class SeizureModel {
     bool? isAutoDetected,
     bool? isSynced,
     DateTime? createdAt,
-    DateTime? updatedAt,
   }) {
     return SeizureModel(
       id: id ?? this.id,
@@ -71,7 +66,6 @@ class SeizureModel {
       isAutoDetected: isAutoDetected ?? this.isAutoDetected,
       isSynced: isSynced ?? this.isSynced,
       createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }

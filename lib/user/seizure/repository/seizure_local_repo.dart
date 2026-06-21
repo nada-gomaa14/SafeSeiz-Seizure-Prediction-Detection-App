@@ -10,18 +10,21 @@ class SeizureLocalRepo {
 
   List<SeizureModel> getSeizures(String userId) {
     final data = seizuresBox.get(userId);
-
     if (data == null) return [];
-
     return List<SeizureModel>.from(data);
   }
 
-  Future<void> deleteSeizure({required String userId, required String seizureId}) async {
+  List<SeizureModel> getUnsyncedSeizures(String userId) {
+    return getSeizures(userId).where((s) => !s.isSynced).toList();
+  }
+
+  Future<void> markAsSynced(String userId, String seizureId) async {
     final seizures = getSeizures(userId);
-
-    seizures.removeWhere((seizure) => seizure.id == seizureId);
-
-    await saveSeizures(userId, seizures);
+    final index = seizures.indexWhere((s) => s.id == seizureId);
+    if (index != -1) {
+      seizures[index] = seizures[index].copyWith(isSynced: true);
+      await saveSeizures(userId, seizures);
+    }
   }
 
   Future<void> clearSeizures(String userId) async {
