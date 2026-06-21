@@ -2,6 +2,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:safeseiz/functions/responsive.dart';
+import 'package:safeseiz/widgets/CustomButton.dart';
+import 'package:safeseiz/widgets/ReturnButton.dart';
 import '../user/contacts/cubit/emergency_contacts_cubit.dart';
 import '../user/contacts/models/emergency_contacts_model.dart';
 import '../user/sos/cubit/sos_cubit.dart';
@@ -221,156 +225,177 @@ class _WatchPageState extends State<WatchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Watch Data'),
-        backgroundColor: const Color(0xFF1A237E),
-        foregroundColor: Colors.white,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // Connection status bar
-            Container(
-              width: double.infinity,
-              padding:
-              const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-              decoration: BoxDecoration(
-                color: status.contains('✓')
-                    ? Colors.green.shade50
-                    : Colors.orange.shade50,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: status.contains('✓')
-                      ? Colors.green
-                      : Colors.orange,
-                ),
-              ),
-              child: Text(
-                status,
-                style: TextStyle(
-                  color: status.contains('✓')
-                      ? Colors.green.shade800
-                      : Colors.orange.shade800,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+        automaticallyImplyLeading: false,
+        scrolledUnderElevation: 0,
+        toolbarHeight: 60.h * Responsive.scale(context),
+        title: Text(
+          'Watch Data',
+          style: Theme.of(context).textTheme.titleMedium!.copyWith(
+            fontSize: 25.sp * Responsive.scale(context),
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+        centerTitle: true,
+        leading: Padding(
+          padding: EdgeInsets.only(left: 20.w * Responsive.scale(context)),
+          child: ReturnButton(),
+        ),
+        leadingWidth: 60.w * Responsive.scale(context),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(10.h * Responsive.scale(context)), 
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.w * Responsive.scale(context), vertical: 5.h * Responsive.scale(context)),
+            child: Divider(
+              color: Theme.of(context).colorScheme.tertiary,
+              thickness: 1,
             ),
-
-            const SizedBox(height: 10),
-
-            // Seizure status bar
-            Container(
-              width: double.infinity,
-              padding:
-              const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-              decoration: BoxDecoration(
-                color: seizureStatus.contains('🚨')
-                    ? Colors.red.shade50
-                    : seizureStatus.contains('⚠️')
-                    ? Colors.orange.shade50
-                    : seizureStatus.contains('✓')
-                    ? Colors.green.shade50
-                    : Colors.blue.shade50,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: seizureStatus.contains('🚨')
-                      ? Colors.red
+          ),
+        ),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: 30.0.w * Responsive.scale(context),
+            vertical: 10.0.h * Responsive.scale(context)
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Connection status bar
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(10.r * Responsive.scale(context)),
+                  decoration: BoxDecoration(
+                    color: status.contains('✓')
+                      ? const Color(0xFF22A45D).withValues(alpha: 0.15)
+                      : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(15.0.r * Responsive.scale(context)),
+                    border: Border.all(
+                      color: status.contains('✓')
+                      ? const Color(0xFF22A45D)
+                      : Theme.of(context).colorScheme.primary
+                    ),
+                  ),
+                  child: Text(
+                    status,
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      fontSize: 14.sp * Responsive.scale(context),
+                      color: status.contains('✓')
+                        ? const Color(0xFF22A45D)
+                        : Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10.h * Responsive.scale(context)),
+                // Seizure status bar
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(10.r * Responsive.scale(context)),
+                  decoration: BoxDecoration(
+                    color: seizureStatus.contains('🚨')
+                      ? Theme.of(context).colorScheme.error.withValues(alpha: 0.15)
+                      : seizureStatus.contains('⚠️')
+                      ? Colors.orange.withValues(alpha: 0.15)
+                      : seizureStatus.contains('✓')
+                      ? const Color(0xFF22A45D).withValues(alpha: 0.15)
+                      : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(15.0.r * Responsive.scale(context)),
+                    border: Border.all(
+                      color: seizureStatus.contains('🚨')
+                      ? Theme.of(context).colorScheme.error
                       : seizureStatus.contains('⚠️')
                       ? Colors.orange
                       : seizureStatus.contains('✓')
-                      ? Colors.green
-                      : Colors.blue,
-                ),
-              ),
-              child: Text(
-                seizureStatus,
-                style: TextStyle(
-                  color: seizureStatus.contains('🚨')
-                      ? Colors.red.shade800
-                      : seizureStatus.contains('⚠️')
-                      ? Colors.orange.shade800
-                      : seizureStatus.contains('✓')
-                      ? Colors.green.shade800
-                      : Colors.blue.shade800,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Vitals card
-            _buildCard(
-              title: 'Vitals',
-              icon: Icons.favorite,
-              color: Colors.red,
-              children: [
-                _buildRow('Heart Rate', '$hr bpm'),
-                _buildRow('SpO2', '$spo2 %'),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
-            // Accelerometer card
-            _buildCard(
-              title: 'Accelerometer',
-              icon: Icons.speed,
-              color: Colors.blue,
-              children: [
-                _buildRow('X', accelX),
-                _buildRow('Y', accelY),
-                _buildRow('Z', accelZ),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
-            // Gyroscope card
-            _buildCard(
-              title: 'Gyroscope',
-              icon: Icons.rotate_right,
-              color: Colors.purple,
-              children: [
-                _buildRow('X', gyroX),
-                _buildRow('Y', gyroY),
-                _buildRow('Z', gyroZ),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
-            // Test button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: _isTesting ? null : _runSyntheticTest,
-                icon: _isTesting
-                    ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-                    : const Icon(Icons.science),
-                label: Text(_isTesting ? 'Testing...' : 'Test Seizure Detection'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1A237E),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                      ? const Color(0xFF22A45D)
+                      : Theme.of(context).colorScheme.onSurface
+                    ),
+                  ),
+                  child: Text(
+                    seizureStatus,
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      fontSize: 14.sp * Responsive.scale(context),
+                      color: seizureStatus.contains('🚨')
+                        ? Theme.of(context).colorScheme.error
+                        : seizureStatus.contains('⚠️')
+                        ? Colors.orange
+                        : seizureStatus.contains('✓')
+                        ? const Color(0xFF22A45D)
+                        : Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
                 ),
-              ),
+                SizedBox(height: 20.h * Responsive.scale(context)),
+                    
+                // Vitals card
+                _buildCard(
+                  title: 'Vitals',
+                  icon: Icons.favorite,
+                  color: Colors.red,
+                  children: [
+                    _buildRow('Heart Rate', '$hr bpm'),
+                    _buildRow('SpO2', '$spo2 %'),
+                  ],
+                ),
+                    
+                const SizedBox(height: 12),
+                    
+                // Accelerometer card
+                _buildCard(
+                  title: 'Accelerometer',
+                  icon: Icons.speed,
+                  color: Colors.blue,
+                  children: [
+                    _buildRow('X', accelX),
+                    _buildRow('Y', accelY),
+                    _buildRow('Z', accelZ),
+                  ],
+                ),
+                    
+                const SizedBox(height: 12),
+                    
+                // Gyroscope card
+                _buildCard(
+                  title: 'Gyroscope',
+                  icon: Icons.rotate_right,
+                  color: Colors.purple,
+                  children: [
+                    _buildRow('X', gyroX),
+                    _buildRow('Y', gyroY),
+                    _buildRow('Z', gyroZ),
+                  ],
+                ),
+                    
+                SizedBox(height: 20.h * Responsive.scale(context)),
+                // Test Seizure Detection button
+                CustomButton(
+                  text: _isTesting ? 'Testing...' : 'Test Seizure Detection',
+                  width: double.infinity,
+                  onTap: _isTesting ? null : _runSyntheticTest,
+                  child: _isTesting 
+                    ? Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.secondary),
+                      )
+                    )
+                    : null
+                ),
+                SizedBox(height: 10.h * Responsive.scale(context)),
+                Center(
+                  child: Text(
+                    'Last update: $timestamp',
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      fontSize: 12.sp * Responsive.scale(context),
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
+                  ),
+                ),
+              ],
             ),
-
-            const SizedBox(height: 8),
-
-            Text(
-              'Last update: $timestamp',
-              style: const TextStyle(color: Colors.grey, fontSize: 11),
-            ),
-          ],
+          ),
         ),
       ),
     );

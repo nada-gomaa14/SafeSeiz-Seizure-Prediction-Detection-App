@@ -9,6 +9,7 @@ import 'package:safeseiz/screens/LogSeizurePage.dart';
 import 'package:safeseiz/screens/ProfilePage.dart';
 import 'package:safeseiz/screens/SOSPage.dart';
 import 'package:safeseiz/screens/WatchPage.dart';
+import 'package:safeseiz/user/medical/medication/cubit/medication_cubit.dart';
 import 'package:safeseiz/user/profile/cubit/profile_cubit.dart';
 import 'package:safeseiz/user/profile/cubit/profile_states.dart';
 import 'package:safeseiz/user/sos/cubit/sos_cubit.dart';
@@ -50,6 +51,19 @@ class _HomePageState extends State<HomePage> {
             final profileCubit = context.read<ProfileCubit>();
             final name = profileCubit.profile?.firstName ?? 'User';
 
+            final medicationCubit = context.watch<MedicationCubit>();
+            final medications = medicationCubit.medications;
+            final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+            int takenCount = 0;
+            int totalCount = 0;
+
+            for (final medication in medications) {
+              totalCount += medication.times.length;
+              final todayStatus = medication.takenStatus[today] ?? {};
+              takenCount += todayStatus.values.where((taken) => taken).length;
+            }
+
             return Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: 30.0.w * Responsive.scale(context),
@@ -60,16 +74,6 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (context) => WatchPage(patientName: name)
-                          ),
-                        );
-                      },
-                      icon: Icon(Icons.watch)
-                    ),
                     Row(
                       children: [
                         Text(
@@ -80,6 +84,31 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         const Spacer(),
+                        InkWell(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => WatchPage(patientName: name)
+                              ),
+                            );
+                          },
+                          child: Container(
+                            height: 50.r * Responsive.scale(context),
+                            width: 50.r * Responsive.scale(context),
+                            padding: EdgeInsets.all(10.r * Responsive.scale(context)),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            child: Icon(
+                              Icons.watch,
+                              color: Theme.of(context).colorScheme.secondary,
+                              size: 20.sp * Responsive.scale(context),
+                            ),  
+                          ),          
+                        ),
+                        SizedBox(width: 10.w * Responsive.scale(context)),
                         InkWell(
                           onTap: () {
                             Navigator.of(context).push(
@@ -135,72 +164,74 @@ class _HomePageState extends State<HomePage> {
                       )
                     ), 
                     SizedBox(height: 10.h * Responsive.scale(context)),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: CustomButton(
-                            height: 85.h * Responsive.scale(context),
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => const LogSeizurePage(),
+                    IntrinsicHeight(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                            child: CustomButton(
+                              height: double.infinity,
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => const LogSeizurePage(),
+                                  ),
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.add, color: Theme.of(context).colorScheme.secondary),
+                                    SizedBox(width: 10.w * Responsive.scale(context)),
+                                    Text(
+                                      'Log\nSeizure',
+                                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                        fontSize: 16.sp * Responsive.scale(context),
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context).colorScheme.secondary
+                                      )
+                                    )
+                                  ],
                                 ),
-                              );
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(5.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.add, color: Theme.of(context).colorScheme.secondary),
-                                  SizedBox(width: 10.w * Responsive.scale(context)),
-                                  Text(
-                                    'Log\nSeizure',
-                                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                      fontSize: 16.sp * Responsive.scale(context),
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).colorScheme.secondary
-                                    )
-                                  )
-                                ],
-                              ),
-                            )
-                          ),
-                        ),
-                        SizedBox(width: 10.w * Responsive.scale(context)),
-                        Expanded(
-                          child: CustomButton(
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
-                            border: Theme.of(context).colorScheme.primary,
-                            height: 85.h * Responsive.scale(context),
-                            onTap: () {
-                              notify(context, 'Symptoms logged!');
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(5.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
-                                  SizedBox(width: 10.w * Responsive.scale(context)),
-                                  Text(
-                                    'Log\nSymptoms',
-                                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                      fontSize: 16.sp * Responsive.scale(context),
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).colorScheme.primary
-                                    )
-                                  )
-                                ],
                               )
-                            )  
+                            ),
                           ),
-                        ),    
-                      ],
+                          SizedBox(width: 10.w * Responsive.scale(context)),
+                          Expanded(
+                            child: CustomButton(
+                              height: double.infinity,
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
+                              border: Theme.of(context).colorScheme.primary,
+                              onTap: () {
+                                notify(context, 'Symptoms logged!');
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
+                                    SizedBox(width: 10.w * Responsive.scale(context)),
+                                    Text(
+                                      'Log\nSymptoms',
+                                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                        fontSize: 16.sp * Responsive.scale(context),
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context).colorScheme.primary
+                                      )
+                                    )
+                                  ],
+                                )
+                              )  
+                            ),
+                          ),    
+                        ],
+                      ),
                     ),
                     SizedBox(height: 10.h * Responsive.scale(context)),
                     CustomButton(
@@ -248,8 +279,8 @@ class _HomePageState extends State<HomePage> {
                             ),
                             const Spacer(),
                             Container(
-                              height: 60.r * Responsive.scale(context),
-                              width: 60.r * Responsive.scale(context),
+                              height: 70.r * Responsive.scale(context),
+                              width: 70.r * Responsive.scale(context),
                               padding: EdgeInsets.all(10.r * Responsive.scale(context)),
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
@@ -296,7 +327,7 @@ class _HomePageState extends State<HomePage> {
                             title: 'Medications',
                             color: Theme.of(context).colorScheme.primary,
                             trailing:Text(
-                              '3 / 5 taken',
+                              '$takenCount / $totalCount taken',
                               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                 color: Theme.of(context).colorScheme.primary,
                                 fontSize: 12.sp * Responsive.scale(context),

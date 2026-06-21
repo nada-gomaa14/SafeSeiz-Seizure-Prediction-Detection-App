@@ -1,5 +1,5 @@
 import 'package:hive/hive.dart';
-import 'package:safeseiz/user/medical/models/medical_model.dart';
+import 'package:safeseiz/user/medical/information/models/medical_model.dart';
 
 class MedicalLocalRepo {
 

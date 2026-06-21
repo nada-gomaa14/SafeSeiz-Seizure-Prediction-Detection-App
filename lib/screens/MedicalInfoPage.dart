@@ -6,8 +6,8 @@ import 'package:safeseiz/functions/notify.dart';
 import 'package:safeseiz/functions/responsive.dart';
 import 'package:safeseiz/navigation/auth_gate.dart';
 import 'package:safeseiz/screens/PersonalInfoPage.dart';
-import 'package:safeseiz/user/medical/cubit/medical_cubit.dart';
-import 'package:safeseiz/user/medical/cubit/medical_states.dart';
+import 'package:safeseiz/user/medical/information/cubit/medical_cubit.dart';
+import 'package:safeseiz/user/medical/information/cubit/medical_states.dart';
 import 'package:safeseiz/widgets/CustomButton.dart';
 import 'package:safeseiz/widgets/DateWidget.dart';
 import 'package:safeseiz/widgets/SeizureFrequencyWidget.dart';
@@ -140,10 +140,40 @@ class _MedicalInfoPageState extends State<MedicalInfoPage> {
                           ],
                         ),
                         SizedBox(height: 20.h * Responsive.scale(context)),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          spacing: 5.w * Responsive.scale(context),
+                          children: [
+                            Text(
+                              'Seizure Type',
+                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                fontSize: 16.sp * Responsive.scale(context),
+                                color: Theme.of(context).colorScheme.tertiary,
+                              )
+                            ),
+                            Text(
+                              ' (select all that apply)',
+                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                fontSize: 14.sp * Responsive.scale(context),
+                                color: Theme.of(context).colorScheme.tertiary,
+                              ) 
+                            )
+                          ]     
+                        ),
+                        SizedBox(height: 5.h * Responsive.scale(context)),
                         SeizureTypeWidget(
                           onChanged: (types) => medicalCubit.updateSeizureTypes(types),
                         ),
                         SizedBox(height: 20.h * Responsive.scale(context)),
+                        Text(
+                          'Seizure Frequency',
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontSize: 16.sp * Responsive.scale(context),
+                            color: Theme.of(context).colorScheme.tertiary,
+                          )
+                        ),
+                        SizedBox(height: 5.h * Responsive.scale(context)),
                         SeizureFrequencyWidget(
                           onChanged: (frequency) => medicalCubit.updateSeizureFrequency(frequency),
                         ),

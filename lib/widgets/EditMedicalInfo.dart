@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:safeseiz/functions/responsive.dart';
-import 'package:safeseiz/user/medical/cubit/medical_cubit.dart';
-import 'package:safeseiz/user/medical/models/medical_model.dart';
+import 'package:safeseiz/user/medical/information/cubit/medical_cubit.dart';
+import 'package:safeseiz/user/medical/information/models/medical_model.dart';
 import 'package:safeseiz/widgets/CustomButton.dart';
 import 'package:safeseiz/widgets/DateWidget.dart';
 

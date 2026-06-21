@@ -5,14 +5,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:safeseiz/functions/responsive.dart';
 import 'package:safeseiz/functions/showPopup.dart';
 import 'package:safeseiz/functions/notify.dart';
-import 'package:safeseiz/screens/HomePage.dart';
+import 'package:safeseiz/navigation/navigation_layout.dart';
 import 'package:safeseiz/screens/SettingsPage.dart';
 import 'package:safeseiz/user/contacts/cubit/emergency_contacts_cubit.dart';
-import 'package:safeseiz/user/medical/cubit/medical_cubit.dart';
+import 'package:safeseiz/user/medical/information/cubit/medical_cubit.dart';
 import 'package:safeseiz/user/profile/cubit/profile_cubit.dart';
 import 'package:safeseiz/user/profile/cubit/profile_states.dart';
 import 'package:safeseiz/widgets/AddEmergencyContact.dart';
-import 'package:safeseiz/widgets/CustomButton.dart';
 import 'package:safeseiz/widgets/CustomListItem.dart';
 import 'package:safeseiz/widgets/EditEmergencyContact.dart';
 import 'package:safeseiz/widgets/EditHealthInfo.dart';
@@ -58,7 +57,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => const HomePage()
+                        builder: (context) => const NavigationLayout()
                       ),
                     );
                   },
@@ -709,16 +708,6 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                             ],
                           ),
-                        ),
-                      ),
-                      SizedBox(height: 20.0.h * Responsive.scale(context)),
-                      Opacity(
-                        opacity: isLocked ? 0.5 : 1.0,
-                        child: CustomButton(
-                          text: 'Export Report',
-                          onTap: isLocked
-                            ? null
-                            : () {}, 
                         ),
                       ),
                     ],

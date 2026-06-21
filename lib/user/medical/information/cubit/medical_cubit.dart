@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:safeseiz/user/medical/cubit/medical_states.dart';
-import 'package:safeseiz/user/medical/models/medical_model.dart';
-import 'package:safeseiz/user/medical/repository/medical_local_repo.dart';
+import 'package:safeseiz/user/medical/information/cubit/medical_states.dart';
+import 'package:safeseiz/user/medical/information/models/medical_model.dart';
+import 'package:safeseiz/user/medical/information/repository/medical_local_repo.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MedicalCubit extends Cubit<MedicalStates> {

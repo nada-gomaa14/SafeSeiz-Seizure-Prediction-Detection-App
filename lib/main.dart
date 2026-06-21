@@ -10,9 +10,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:safeseiz/user/contacts/cubit/emergency_contacts_cubit.dart';
 import 'package:safeseiz/user/contacts/models/emergency_contacts_model.dart';
 import 'package:safeseiz/user/contacts/repository/emergency_contacts_local_repo.dart';
-import 'package:safeseiz/user/medical/cubit/medical_cubit.dart';
-import 'package:safeseiz/user/medical/models/medical_model.dart';
-import 'package:safeseiz/user/medical/repository/medical_local_repo.dart';
+import 'package:safeseiz/user/medical/information/cubit/medical_cubit.dart';
+import 'package:safeseiz/user/medical/information/models/medical_model.dart';
+import 'package:safeseiz/user/medical/information/repository/medical_local_repo.dart';
+import 'package:safeseiz/user/medical/medication/cubit/medication_cubit.dart';
+import 'package:safeseiz/user/medical/medication/models/medication_model.dart';
+import 'package:safeseiz/user/medical/medication/repository/medication_local_repo.dart';
 import 'package:safeseiz/user/profile/cubit/profile_cubit.dart';
 import 'package:safeseiz/user/seizure/cubit/seizure_cubit.dart';
 import 'package:safeseiz/user/seizure/models/seizure_model.dart';
@@ -38,10 +41,12 @@ Future<void> main() async {
   Hive.registerAdapter(MedicalModelAdapter());
   Hive.registerAdapter(EmergencyContactsModelAdapter());
   Hive.registerAdapter(SeizureModelAdapter());
+  Hive.registerAdapter(MedicationModelAdapter());
 
   await Hive.openBox<MedicalModel>('medical_info_box');
   await Hive.openBox('emergency_contacts_box');
   await Hive.openBox('seizures_box');
+  await Hive.openBox<List>('medication_box');
 
   // Watch service — start listening for sensor data and SOS from smartwatch
   final watchService = WatchService();
@@ -82,12 +87,14 @@ class SafeSeiz extends StatelessWidget {
         BlocProvider(create: (context) => ProfileCubit()),
         BlocProvider(create: (context) => MedicalCubit(MedicalLocalRepo())),
         BlocProvider(create: (context) => EmergencyContactsCubit(EmergencyContactsLocalRepo())),
+        BlocProvider(create: (context) => MedicationCubit(MedicationLocalRepo())),
         BlocProvider(create: (context) => SeizureCubit()),
         BlocProvider(create: (context) => SOSCubit()),
         BlocProvider(create: (context) => AuthCubit(
           context.read<ProfileCubit>(), 
           context.read<MedicalCubit>(),
           context.read<EmergencyContactsCubit>(),
+          context.read<MedicationCubit>(),
           context.read<SeizureCubit>(),
         )),
       ],

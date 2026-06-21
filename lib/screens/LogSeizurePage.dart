@@ -8,8 +8,11 @@ import 'package:safeseiz/functions/responsive.dart';
 import 'package:safeseiz/user/seizure/cubit/seizure_cubit.dart';
 import 'package:safeseiz/user/seizure/cubit/seizure_states.dart';
 import 'package:safeseiz/widgets/CustomButton.dart';
+import 'package:safeseiz/widgets/DateWidget.dart';
+import 'package:safeseiz/widgets/NumberFieldWidget.dart';
 import 'package:safeseiz/widgets/ReturnButton.dart';
 import 'package:safeseiz/widgets/SeizureTypeWidget.dart';
+import 'package:safeseiz/widgets/TimeWidget.dart';
 
 class LogSeizurePage extends StatelessWidget {
   const LogSeizurePage({super.key});
@@ -17,6 +20,16 @@ class LogSeizurePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final seizureCubit = context.read<SeizureCubit>();
+    final dateController = TextEditingController(
+      text: seizureCubit.seizureDateTime == null
+        ? DateFormat('MMM d, yyyy').format(DateTime.now())
+        : DateFormat('MMM d, yyyy').format(seizureCubit.seizureDateTime!),
+    );
+    final timeController = TextEditingController(
+      text: seizureCubit.seizureDateTime == null
+        ? DateFormat('hh:mm a').format(DateTime.now())
+        : DateFormat('hh:mm a').format(seizureCubit.seizureDateTime!),
+    );
     
     return Scaffold(
       appBar: AppBar(
@@ -48,7 +61,6 @@ class LogSeizurePage extends StatelessWidget {
           ),
         ),
       ),
-
       body: SafeArea(
         child: BlocConsumer<SeizureCubit, SeizureStates>(
           listener: (context, state) {
@@ -95,43 +107,49 @@ class LogSeizurePage extends StatelessWidget {
                     Row(
                       children: [
                         Expanded(
-                          child: buildDateCard(
-                            context: context,
-                            title: 'Date',
-                            value: seizureCubit.seizureDateTime == null
-                              ? DateFormat('MMM d, yyyy').format(DateTime.now())
-                              : DateFormat('MMM d, yyyy').format(seizureCubit.seizureDateTime!),
-                            onTap: () async {
+                          child: DateWidget(
+                            label: 'Date',
+                            dateController: dateController,
+                            initialDate: seizureCubit.seizureDateTime,
+                            onDateSelected: (selectedDate) {
+                              final current = seizureCubit.seizureDateTime ?? DateTime.now();
 
-                              final pickedDate = await showDatePicker(
-                                context: context,
-                                firstDate: DateTime(2020),
-                                lastDate: DateTime.now(),
-                                initialDate: seizureCubit.seizureDateTime ?? DateTime.now(),
+                              seizureCubit.updateSeizureDateTime(
+                                DateTime(
+                                  selectedDate.year,
+                                  selectedDate.month,
+                                  selectedDate.day,
+                                  current.hour,
+                                  current.minute,
+                                ),
                               );
 
-                              if (pickedDate != null) {
-                                final current = seizureCubit.seizureDateTime ?? DateTime.now();
-                                seizureCubit.updateSeizureDateTime(DateTime(pickedDate.year, pickedDate.month, pickedDate.day, current.hour, current.minute));
-                              }
+                              dateController.text = DateFormat('MMM d, yyyy').format(selectedDate);
                             },
                           ),
-                        ),
+                        ),  
                         SizedBox(width: 10.w * Responsive.scale(context)),
                         Expanded(
-                          child: buildDateCard(
-                            context: context,
-                            title: 'Time',
-                            value: seizureCubit.seizureDateTime == null
-                              ? DateFormat('hh:mm a').format(DateTime.now())
-                              : DateFormat( 'hh:mm a').format(seizureCubit.seizureDateTime!),
-                            onTap: () async {
-                              final pickedTime = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+                          child: TimeWidget(
+                            label: 'Time',
+                            timeController: timeController,
+                            initialTime: seizureCubit.seizureDateTime == null
+                              ? null
+                              : TimeOfDay.fromDateTime(seizureCubit.seizureDateTime!),
+                            onTimeSelected: (selectedTime) {
+                              final current = seizureCubit.seizureDateTime ?? DateTime.now();
 
-                              if (pickedTime != null) {
-                                final current = seizureCubit.seizureDateTime ?? DateTime.now();
-                                seizureCubit.updateSeizureDateTime(DateTime(current.year, current.month, current.day, pickedTime.hour, pickedTime.minute));
-                              }
+                              seizureCubit.updateSeizureDateTime(
+                                DateTime(
+                                  current.year,
+                                  current.month,
+                                  current.day,
+                                  selectedTime.hour,
+                                  selectedTime.minute,
+                                ),
+                              );
+
+                              timeController.text = selectedTime.format(context);
                             },
                           ),
                         ),
@@ -174,19 +192,27 @@ class LogSeizurePage extends StatelessWidget {
                     Row(
                       children: [
                         Expanded(
-                          child: buildDurationField(
-                            title: 'Minutes',
+                          child: NumberFieldWidget(
+                            label: 'Minutes',
+                            suffixText: 'min',
                             onChanged: (value) {
-                              seizureCubit.updateDurationMinutes(int.tryParse(value) ?? 0);
+                              seizureCubit.updateDurationMinutes(
+                                int.tryParse(value) ?? 0,
+                              );
                             },
                           ),
                         ),
-                        SizedBox(width: 10.w * Responsive.scale(context)),
+                        SizedBox(
+                          width: 15.w * Responsive.scale(context),
+                        ),
                         Expanded(
-                          child: buildDurationField(
-                            title: 'Seconds',
+                          child: NumberFieldWidget(
+                            label: 'Seconds',
+                            suffixText: 'sec',
                             onChanged: (value) {
-                              seizureCubit.updateDurationSeconds(int.tryParse(value) ?? 0);
+                              seizureCubit.updateDurationSeconds(
+                                int.tryParse(value) ?? 0,
+                              );
                             },
                           ),
                         ),
@@ -212,8 +238,16 @@ class LogSeizurePage extends StatelessWidget {
                       ),
                       decoration: InputDecoration(
                         hintText: 'Add any additional details...',
-                        hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+                        hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontSize: 16.sp * Responsive.scale(context),
+                          color: Theme.of(context).colorScheme.tertiary,
+                        ),
                         contentPadding: EdgeInsets.all(18.w * Responsive.scale(context)),
+                        errorStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontSize: 12.sp * Responsive.scale(context),
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                        errorMaxLines: 2,
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
                           borderSide: BorderSide(color: Theme.of(context).colorScheme.tertiary)
@@ -223,6 +257,17 @@ class LogSeizurePage extends StatelessWidget {
                           borderSide: BorderSide(
                             color: Theme.of(context).colorScheme.primary,
                           ),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
+                          borderSide: BorderSide(color: Theme.of(context).colorScheme.error)
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
+                          borderSide: BorderSide(
+                            width: 2.r * Responsive.scale(context),
+                            color: Theme.of(context).colorScheme.error
+                          ),  
                         ),
                       ),
                     ),
@@ -255,96 +300,7 @@ class LogSeizurePage extends StatelessWidget {
       ),
     );
   }
-
-  Widget buildChip({
-    required String label,
-    required bool selected,
-    required VoidCallback onTap,
-  }) {
-
-    return GestureDetector(
-
-      onTap: onTap,
-
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.symmetric(
-          horizontal: 22.w,
-          vertical: 14.h,
-        ),
-        decoration: BoxDecoration(
-          color: selected
-              ? const Color(0xff2D2DB5)
-              : const Color(0xffF5F5FD),
-          borderRadius:
-              BorderRadius.circular(30.r),
-          border: Border.all(
-            color: const Color(0xffE3E3F7),
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color:
-                selected ? Colors.white : const Color(0xff2D2DB5),
-            fontSize: 18.sp,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildDateCard({
-    required BuildContext context,
-    required String title,
-    required String value,
-    required VoidCallback onTap,
-  }) {
-
-    return GestureDetector(
-
-      onTap: onTap,
-
-      child: Container(
-        padding: EdgeInsets.all(18.w),
-        decoration: BoxDecoration(
-          borderRadius:
-              BorderRadius.circular(22.r),
-          border: Border.all(
-            color: Colors.grey.shade300,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
-          children: [
-
-            Text(
-              title,
-              style: TextStyle(
-                color: Colors.grey.shade500,
-                fontSize: 16.sp,
-              ),
-            ),
-
-            SizedBox(height: 12.h),
-
-            Text(
-              value,
-              style: TextStyle(
-                color: const Color(0xff2D2DB5),
-                fontSize: 24.sp,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-
-          ],
-        ),
-      ),
-    );
-  }
-
+  
   Widget buildDurationField({
     required String title,
     required Function(String) onChanged,

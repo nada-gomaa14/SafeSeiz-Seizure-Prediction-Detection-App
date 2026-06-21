@@ -3,54 +3,87 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:safeseiz/functions/responsive.dart';
-import 'package:safeseiz/user/contacts/cubit/emergency_contacts_cubit.dart';
-import 'package:safeseiz/user/contacts/cubit/emergency_contacts_states.dart';
-import 'package:safeseiz/user/contacts/models/emergency_contacts_model.dart';
+import 'package:safeseiz/user/medical/medication/cubit/medication_cubit.dart';
+import 'package:safeseiz/user/medical/medication/cubit/medication_states.dart';
+import 'package:safeseiz/user/medical/medication/models/medication_model.dart';
 import 'package:safeseiz/widgets/CustomButton.dart';
+import 'package:safeseiz/widgets/TimeWidget.dart';
 
-class EditEmergencyContact extends StatefulWidget {
-  final EmergencyContactsModel contact;
+class EditMedication extends StatefulWidget {
+  final MedicationModel medication;
   final ValueNotifier<bool> hasUnsavedChanges;
 
-  const EditEmergencyContact({super.key, required this.contact, required this.hasUnsavedChanges});
+  const EditMedication({
+    super.key,
+    required this.medication,
+    required this.hasUnsavedChanges,
+  });
 
   @override
-  State<EditEmergencyContact> createState() => _EditEmergencyContactState();
+  State<EditMedication> createState() => _EditMedicationState();
 }
 
-class _EditEmergencyContactState extends State<EditEmergencyContact> {
+class _EditMedicationState extends State<EditMedication> {
   late TextEditingController nameController;
-  String? selectedRelationship;
-  late TextEditingController phoneController;
+  late TextEditingController dosageController;
+  late TextEditingController frequencyController;
+  List<TimeOfDay> selectedTimes = [];
+  List<TextEditingController> timeControllers = [];
 
   @override
   void initState() {
     super.initState();
-    nameController = TextEditingController(text: widget.contact.name);
-    selectedRelationship = widget.contact.relationship;
-    phoneController = TextEditingController(
-      text: widget.contact.phone.startsWith('+20')
-        ? widget.contact.phone.substring(3)
-        : widget.contact.phone,
-    );
-  
+
+    nameController = TextEditingController(text: widget.medication.name);
+    dosageController = TextEditingController(text: widget.medication.dosage);
+    frequencyController = TextEditingController(text: widget.medication.frequency.toString());
+
+    selectedTimes = widget.medication.times.map((time) {
+      final parts = time.split(':');
+
+      return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+    }).toList();
+
+    timeControllers = selectedTimes.map((_) => TextEditingController()).toList();
+
     nameController.addListener(checkChanges);
-    phoneController.addListener(checkChanges);
+    dosageController.addListener(checkChanges);
+    frequencyController.addListener(checkChanges);
+
+    checkChanges();
+  }
+
+  bool _initialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (!_initialized) {
+      for (int i = 0; i < selectedTimes.length; i++) {
+        timeControllers[i].text = selectedTimes[i].format(context);
+      }
+
+      _initialized = true;
+    }
   }
 
   void checkChanges() {
-    final originalPhone = widget.contact.phone.startsWith('+20')
-      ? widget.contact.phone.substring(3)
-      : widget.contact.phone;
+    final originalTimes = widget.medication.times;
 
-    widget.hasUnsavedChanges.value = nameController.text.trim() != widget.contact.name ||
-      selectedRelationship != widget.contact.relationship ||
-      phoneController.text.trim() != originalPhone;
+    final currentTimes = selectedTimes.map(
+      (time) => '${time.hour.toString().padLeft(2, '0')}:''${time.minute.toString().padLeft(2, '0')}',
+    ).toList();
+
+    widget.hasUnsavedChanges.value = nameController.text.trim() != widget.medication.name ||
+      dosageController.text.trim() != widget.medication.dosage ||
+      frequencyController.text.trim() != widget.medication.frequency.toString() ||
+      currentTimes.toString() != originalTimes.toString();
   }
 
   @override
   Widget build(BuildContext context) {
-    final contactCubit = context.read<EmergencyContactsCubit>();
+    final medicationCubit = context.read<MedicationCubit>();
 
     return SingleChildScrollView(
       child: Column(
@@ -59,23 +92,18 @@ class _EditEmergencyContactState extends State<EditEmergencyContact> {
           // Name
           TextField(
             controller: nameController,
-            keyboardType: TextInputType.text,
-            textInputAction: TextInputAction.next,
             textCapitalization: TextCapitalization.words,
+            textInputAction: TextInputAction.next,
             inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
+              FilteringTextInputFormatter.allow(
+                RegExp(r'[a-zA-Z0-9\- ]'),
+              ),
             ],
             onChanged: (value) {
-              if (value.isEmpty) return;
-
-              final capitalized = value
-                  .split(' ')
-                  .map((word) {
-                    if (word.isEmpty) return '';
-                    return word[0].toUpperCase() +
-                        word.substring(1).toLowerCase();
-                  })
-                  .join(' ');
+              final capitalized = value.split(' ').map((word) {
+                if (word.isEmpty) return '';
+                  return word[0].toUpperCase() + word.substring(1).toLowerCase();
+              }).join(' ');
 
               if (capitalized != value) {
                 nameController.value = TextEditingValue(
@@ -92,7 +120,7 @@ class _EditEmergencyContactState extends State<EditEmergencyContact> {
               color: Theme.of(context).colorScheme.primary,
             ),
             decoration: InputDecoration(
-              labelText: 'Name',
+              labelText: 'Medication Name',
               labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontSize: 16.sp * Responsive.scale(context),
                 color: Theme.of(context).colorScheme.tertiary,
@@ -112,85 +140,20 @@ class _EditEmergencyContactState extends State<EditEmergencyContact> {
             ),
           ),
           SizedBox(height: 10.h * Responsive.scale(context)),
-          // Relationship
-          DropdownButtonFormField<String>(
-            value: selectedRelationship,
-            isExpanded: true,
-            icon: Padding(
-              padding: EdgeInsets.only(right: 10.0.r * Responsive.scale(context)),
-              child: Icon(
-                Icons.arrow_drop_down,
-                color: Theme.of(context).colorScheme.tertiary
-              ),
-            ),
-            decoration: InputDecoration(
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 8.w * Responsive.scale(context), 
-                vertical: 16.h * Responsive.scale(context)
-              ),
-              labelText: 'Relationship',
-              labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 16.sp * Responsive.scale(context),
-                color: Theme.of(context).colorScheme.tertiary,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
-                borderSide: BorderSide(
-                  color: Theme.of(context).colorScheme.tertiary,
-                )
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
-                borderSide: BorderSide(
-                  color: Theme.of(context).colorScheme.primary,
-                )
-              ),
-            ),
-            items: EmergencyContactsModel.relationships.map((type) {
-              return DropdownMenuItem(
-                value: type,
-                child: Text(
-                  type,
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    fontSize: 16.sp * Responsive.scale(context),
-                    color: Theme.of(context).colorScheme.primary,
-                    height: 0.5 * Responsive.scale(context),
-                  ),
-                ),
-              );
-            }).toList(),
-            onChanged: (value) {
-              setState(() {
-                selectedRelationship = value;
-              });
-
-              checkChanges();
-            },
-          ),
-          SizedBox(height: 10.h * Responsive.scale(context)),
-          // Phone
+          // Dosage
           TextField(
-            controller: phoneController,
-            keyboardType: TextInputType.phone,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-            ],
-            textInputAction: TextInputAction.done,
-            maxLines: 1,
+            controller: dosageController,
+            keyboardType: TextInputType.text,
+            textInputAction: TextInputAction.next,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               fontSize: 16.sp * Responsive.scale(context),
               color: Theme.of(context).colorScheme.primary,
             ),
             decoration: InputDecoration(
-              labelText: 'Phone',
+              labelText: 'Dosage',
               labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontSize: 16.sp * Responsive.scale(context),
                 color: Theme.of(context).colorScheme.tertiary,
-              ),
-              prefixText: '(+ 20) ',
-              prefixStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 16.sp * Responsive.scale(context),
-                color: Theme.of(context).colorScheme.primary,
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
@@ -206,13 +169,101 @@ class _EditEmergencyContactState extends State<EditEmergencyContact> {
               ),
             ),
           ),
-          // Error Message
-          BlocSelector<EmergencyContactsCubit, EmergencyContactsStates, String?>(
+          SizedBox(height: 10.h * Responsive.scale(context)),
+          // Frequency
+          TextField(
+            controller: frequencyController,
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+            ],
+            textInputAction: TextInputAction.done,
+            onChanged: (value) {
+              final frequency = int.tryParse(value) ?? 0;
+
+              setState(() {
+                if (frequency > selectedTimes.length) {
+                  final count = frequency - selectedTimes.length;
+                  final now = TimeOfDay.now();
+
+                  selectedTimes.addAll(List.generate(count, (_) => now));
+
+                  timeControllers.addAll(
+                    List.generate(
+                      count,
+                      (_) => TextEditingController(text: now.format(context)),
+                    ),
+                  );
+                } else {
+                  for (int i = frequency; i < timeControllers.length; i++) {
+                    timeControllers[i].dispose();
+                  }
+
+                  selectedTimes = selectedTimes.take(frequency).toList();
+                  timeControllers = timeControllers.take(frequency).toList();
+                }
+
+                checkChanges();
+              });
+            },
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontSize: 16.sp * Responsive.scale(context),
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            decoration: InputDecoration(
+              labelText: 'Times Per Day',
+              labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontSize: 16.sp * Responsive.scale(context),
+                color: Theme.of(context).colorScheme.tertiary,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.tertiary,
+                )
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.primary,
+                )
+              ),
+            ),
+          ),
+          // Time Pickers
+          if (selectedTimes.isNotEmpty) ...[
+            SizedBox(height: 10.h * Responsive.scale(context)),
+            Column(
+              children: List.generate(
+                selectedTimes.length,
+                (index) => Padding(
+                  padding: EdgeInsets.only(
+                    bottom: 10.h * Responsive.scale(context),
+                  ),
+                  child: TimeWidget(
+                    timeController: timeControllers[index],
+                    label: 'Time ${index + 1}',
+                    initialTime: selectedTimes[index],
+                    onTimeSelected: (time) {
+                      setState(() {
+                        selectedTimes[index] = time;
+                        timeControllers[index].text = time.format(context);
+                      });
+
+                      checkChanges();
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],  
+          // Error
+          BlocSelector<MedicationCubit, MedicationStates, String?>(
             selector: (state) {
-              if (state is EmergencyContactsErrorState) {
-                return state.message;
+              if (state is MedicationErrorState) {
+                return state.error;
               }
-        
+
               return null;
             },
             builder: (context, errorMessage) {
@@ -231,7 +282,7 @@ class _EditEmergencyContactState extends State<EditEmergencyContact> {
                   ),
                 );
               }
-        
+      
               return const SizedBox.shrink();
             },
           ),
@@ -245,31 +296,46 @@ class _EditEmergencyContactState extends State<EditEmergencyContact> {
                 onTap: !hasChanges
                   ? null
                   : () async {
-                    final success = contactCubit.updateContact(
-                      id: widget.contact.id,
-                      name: nameController.text,
-                      relationship: selectedRelationship ?? '',
-                      phone: phoneController.text
+                    final frequency = int.tryParse(frequencyController.text) ?? 0;
+                    final updatedTakenStatus = <String, Map<int, bool>>{};
+
+                    widget.medication.takenStatus.forEach((date, status) {
+                      final filteredStatus = <int, bool>{};
+
+                      for (int i = 0; i < frequency; i++) {
+                        filteredStatus[i] = status[i] ?? false;
+                      }
+
+                      updatedTakenStatus[date] = filteredStatus;
+                    });
+
+                    final updatedMedication = MedicationModel(
+                      id: widget.medication.id,
+                      name: nameController.text.trim(),
+                      dosage: dosageController.text.trim(),
+                      frequency: frequency,
+                      times: selectedTimes.map(
+                        (time) =>'${time.hour.toString().padLeft(2, '0')}:''${time.minute.toString().padLeft(2, '0')}',
+                      ).toList(),
+                      takenStatus: updatedTakenStatus,
                     );
-                    
+
+                    final success = await medicationCubit.updateMedication(widget.medication.id, updatedMedication);
+
                     if (!success) return;
-              
-                    final saved = await contactCubit.saveEmergencyContacts();
-                    
-                    if (!saved) return;
-                    
+
                     if (context.mounted) {
                       widget.hasUnsavedChanges.value = false;
                       Navigator.pop(context);
                     }
                   },
               );
-            }
+            },
           ),
           SizedBox(height: 10.h * Responsive.scale(context)),
           // Delete
           CustomButton(
-            text: 'Delete Contact',
+            text: 'Delete Medication',
             color: Theme.of(context).colorScheme.error,
             onTap: () async {
               showDialog(
@@ -277,17 +343,20 @@ class _EditEmergencyContactState extends State<EditEmergencyContact> {
                 useRootNavigator: true,
                 builder: (_) => AlertDialog(
                   title: Text(
-                    'Delete Emergency Contact',
-                      style: TextStyle(
-                        fontSize: 20.sp * Responsive.scale(context),
-                      )
-                    ),
-                    content: Text(
-                      'Are you sure you want to delete this contact?',
+                    'Delete Medication',
+                    style: TextStyle(
+                      fontSize: 20.sp * Responsive.scale(context),
+                    )
+                  ),
+                  content: SizedBox(
+                    width: Responsive.isTablet(context) ? 500.w : 300.w,
+                    child: Text(
+                      'Are you sure you want to delete this medication?',
                       style: TextStyle(
                         fontSize: 12.sp * Responsive.scale(context),
                       ),
                     ),
+                  ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
@@ -300,10 +369,9 @@ class _EditEmergencyContactState extends State<EditEmergencyContact> {
                       ),
                       TextButton(
                         onPressed: () async {
-                          contactCubit.removeContact(widget.contact.id);
+                          final success = await medicationCubit.deleteMedication(widget.medication.id);
       
-                          final saved = await contactCubit.saveEmergencyContacts();
-                          if (!saved) return;
+                          if (!success) return;
       
                           if (context.mounted) {
                             Navigator.pop(context);
@@ -325,15 +393,22 @@ class _EditEmergencyContactState extends State<EditEmergencyContact> {
           SizedBox(height: 10.h * Responsive.scale(context))
         ],
       ),
-    );   
+    );
   }
 
   @override
   void dispose() {
     nameController.removeListener(checkChanges);
-    phoneController.removeListener(checkChanges);
+    dosageController.removeListener(checkChanges);
+    frequencyController.removeListener(checkChanges);
+
     nameController.dispose();
-    phoneController.dispose();
+    dosageController.dispose();
+    frequencyController.dispose();
+    for (final controller in timeControllers) {
+      controller.dispose();
+    }
+
     super.dispose();
   }
 }

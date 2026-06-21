@@ -19,16 +19,12 @@ class EmergencyContactsCubit extends Cubit<EmergencyContactsStates> {
 
   // Phone Number Validation
   bool isValidEgyptianPhone(String phone) {
-    return RegExp(r'^01[0-9]{9}$').hasMatch(phone);
+    return RegExp(r'^1[0125][0-9]{8}$').hasMatch(phone);
   }
 
   // Phone Number Format
   String formatEgyptianPhone(String phone) {
-    final cleaned = phone.trim().replaceAll(' ', '').replaceAll('-', '');
-    if (cleaned.startsWith('+2')) return cleaned;
-    if (cleaned.startsWith('2')) return '+$cleaned';
-    if (cleaned.startsWith('0')) return '+2${cleaned.substring(0)}';
-    return '+2$cleaned';
+    return '+20$phone';
   }
 
   // Add Contact
@@ -47,7 +43,8 @@ class EmergencyContactsCubit extends Cubit<EmergencyContactsStates> {
       return false;
     }
 
-    final duplicatePhone = contacts.any((contact) => contact.phone == phone);
+    final formattedPhone = formatEgyptianPhone(phone);
+    final duplicatePhone = contacts.any((contact) => contact.phone == formattedPhone);
 
     if (duplicatePhone) {
       emit(EmergencyContactsErrorState('Phone number already exists.'));
@@ -59,7 +56,7 @@ class EmergencyContactsCubit extends Cubit<EmergencyContactsStates> {
         id: uuid.v4(),
         name: name,
         relationship: relationship,
-        phone: formatEgyptianPhone(phone),
+        phone: formattedPhone,
       ),
     );
 
@@ -89,9 +86,8 @@ class EmergencyContactsCubit extends Cubit<EmergencyContactsStates> {
       return false;
     }
 
-    final duplicatePhone = contacts.any(
-      (contact) => contact.phone == phone && contact.id != id,
-    );
+    final formattedPhone = formatEgyptianPhone(phone);
+    final duplicatePhone = contacts.any((contact) => contact.phone == formattedPhone && contact.id != id);
 
     if (duplicatePhone) {
       emit(EmergencyContactsErrorState('Phone number already exists.'));
@@ -109,7 +105,7 @@ class EmergencyContactsCubit extends Cubit<EmergencyContactsStates> {
       id: id,
       name: name,
       relationship: relationship,
-      phone: formatEgyptianPhone(phone),
+      phone: formattedPhone,
     );
 
     emit(EmergencyContactsLoadedState(contacts: List.from(contacts), hasMinimumContacts: hasMinimumContacts));

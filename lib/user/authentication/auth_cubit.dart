@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:safeseiz/core/app_exceptions.dart';
 import 'package:safeseiz/user/contacts/cubit/emergency_contacts_cubit.dart';
-import 'package:safeseiz/user/medical/cubit/medical_cubit.dart';
+import 'package:safeseiz/user/medical/information/cubit/medical_cubit.dart';
+import 'package:safeseiz/user/medical/medication/cubit/medication_cubit.dart';
 import 'package:safeseiz/user/profile/cubit/profile_cubit.dart';
 import 'package:safeseiz/user/seizure/cubit/seizure_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -13,11 +14,12 @@ class AuthCubit extends Cubit<AuthStates> {
   final ProfileCubit profileCubit;
   final MedicalCubit medicalCubit;
   final EmergencyContactsCubit contactsCubit;
+  final MedicationCubit medicationCubit;
   final SeizureCubit seizureCubit;
   final supabase = Supabase.instance.client;
   StreamSubscription<AuthState>? authSubscription;
 
-  AuthCubit(this.profileCubit, this.medicalCubit, this.contactsCubit, this.seizureCubit) : super(AuthInitialState()){
+  AuthCubit(this.profileCubit, this.medicalCubit, this.contactsCubit, this.medicationCubit, this.seizureCubit) : super(AuthInitialState()){
     if (supabase.auth.currentSession != null) {
       validateSession();
     } else {
@@ -65,6 +67,7 @@ class AuthCubit extends Cubit<AuthStates> {
     await profileCubit.fetchProfile(userId);
     await medicalCubit.fetchMedicalInfo();
     await contactsCubit.fetchEmergencyContacts();
+    await medicationCubit.fetchMedications();
     await seizureCubit.loadSeizures();
   }
 
@@ -139,6 +142,7 @@ class AuthCubit extends Cubit<AuthStates> {
     profileCubit.resetState();
     medicalCubit.resetState();
     contactsCubit.resetState();
+    medicationCubit.resetState();
     seizureCubit.resetState();
 
     try {
@@ -253,6 +257,7 @@ class AuthCubit extends Cubit<AuthStates> {
       profileCubit.resetState();
       medicalCubit.resetState();
       contactsCubit.resetState();
+      medicationCubit.resetState();
       seizureCubit.resetState();
 
     } catch (e) {
@@ -313,6 +318,7 @@ class AuthCubit extends Cubit<AuthStates> {
     profileCubit.resetState();
     await medicalCubit.clearMedicalInfo();
     await contactsCubit.clearEmergencyContacts();
+    await medicationCubit.clearMedications();
     await seizureCubit.clearSeizures();
     
     await supabase.auth.signOut();
