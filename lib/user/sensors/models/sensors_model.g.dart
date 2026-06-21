@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'sensor_model.dart';
+part of 'sensors_model.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator

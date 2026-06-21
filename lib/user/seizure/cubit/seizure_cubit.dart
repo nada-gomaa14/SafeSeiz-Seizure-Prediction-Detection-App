@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:safeseiz/user/sensors/cubit/sensors_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import 'package:safeseiz/user/seizure/cubit/seizure_states.dart';
@@ -6,11 +7,13 @@ import 'package:safeseiz/user/seizure/models/seizure_model.dart';
 import 'package:safeseiz/user/seizure/repository/seizure_local_repo.dart';
 
 class SeizureCubit extends Cubit<SeizureStates> {
-  SeizureCubit() : super(SeizureInitialState());
+  final SensorsCubit sensorsCubit;
   final SeizureLocalRepo seizureLocalRepo = SeizureLocalRepo();
   final supabase = Supabase.instance.client;
   final uuid = const Uuid();
 
+  SeizureCubit(this.sensorsCubit) : super(SeizureInitialState());
+  
   // Cached Seizure Logs
   List<SeizureModel> seizuresLogs = [];
 

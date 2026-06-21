@@ -1,6 +1,6 @@
 import 'package:hive/hive.dart';
 
-part 'sensor_model.g.dart';
+part 'sensors_model.g.dart';
 
 @HiveType(typeId: 4)
 class SensorReadingModel extends HiveObject {

@@ -21,10 +21,11 @@ import 'package:safeseiz/user/medical/medication/repository/medication_local_rep
 import 'package:safeseiz/user/profile/cubit/profile_cubit.dart';
 import 'package:safeseiz/user/seizure/cubit/seizure_cubit.dart';
 import 'package:safeseiz/user/seizure/models/seizure_model.dart';
+import 'package:safeseiz/user/sensors/cubit/sensors_cubit.dart';
 import 'package:safeseiz/user/sos/cubit/sos_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:safeseiz/services/notification_service.dart';
-import 'package:safeseiz/user/sensors/models/sensor_model.dart';
+import 'package:safeseiz/user/sensors/models/sensors_model.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -51,11 +52,18 @@ Future<void> main() async {
   await Hive.openBox('emergency_contacts_box');
   await Hive.openBox('seizures_box');
   await Hive.openBox<List>('medication_box');
-  await Hive.openBox<SensorReadingModel>('sensor_readings_box');
+  await Hive.openBox<SensorReadingModel>('sensors_box');
 
   // Watch service — start listening for sensor data and SOS from smartwatch
   final watchService = WatchService();
   watchService.startListening();
+
+  // Wire SensorsCubit to WatchService after providers are ready
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    final context = navigatorKey.currentContext;
+    if (context == null) return;
+    watchService.setSensorsCubit(context.read<SensorsCubit>());
+  });
 
   // Trigger SOS alert when watch SOS button is pressed
   watchService.sosStream.listen((_) async {
@@ -132,7 +140,8 @@ class _SafeSeizState extends State<SafeSeiz> {
         BlocProvider(create: (context) => MedicalCubit(MedicalLocalRepo())),
         BlocProvider(create: (context) => EmergencyContactsCubit(EmergencyContactsLocalRepo())),
         BlocProvider(create: (context) => MedicationCubit(MedicationLocalRepo())),
-        BlocProvider(create: (context) => SeizureCubit()),
+        BlocProvider(create: (context) => SensorsCubit()),
+        BlocProvider(create: (context) => SeizureCubit(context.read<SensorsCubit>())),
         BlocProvider(create: (context) => SOSCubit()),
         BlocProvider(create: (context) => AuthCubit(
           context.read<ProfileCubit>(), 
