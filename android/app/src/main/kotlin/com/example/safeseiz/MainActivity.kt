@@ -179,7 +179,7 @@ class MainActivity : FlutterActivity() {
                             "gyro_z"    to (intent.getStringExtra("gyro_z")    ?: ""),
                             "ppg"       to (intent.getStringExtra("ppg")       ?: ""),
                             "rri"       to (intent.getStringExtra("rri")       ?: ""),
-                            "timestamp" to intent.getLongExtra("timestamp", 0L).toString()
+                            "timestamp" to (intent.getStringExtra("timestamp") ?: "")
                         )
                         watchEventSink?.success(data)
                     }
