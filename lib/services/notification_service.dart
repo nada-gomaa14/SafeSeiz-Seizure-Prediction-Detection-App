@@ -67,4 +67,31 @@ class NotificationService {
       details,
     );
   }
+
+  Future<void> showMedicationNotification({
+    required String name,
+    required String dosage,
+  }) async {
+    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+      'medication_reminders',
+      'Medication Reminders',
+      channelDescription: 'Notifications for medication dose reminders',
+      importance: Importance.max,
+      priority: Priority.high,
+      color: Color(0xFF25148E),
+      enableVibration: true,
+      visibility: NotificationVisibility.public,
+    );
+
+    const NotificationDetails details = NotificationDetails(
+      android: androidDetails,
+    );
+
+    await _plugin.show(
+      3,
+      'Medication Reminder',
+      'Time to take $name — $dosage',
+      details,
+    );
+  }
 }
