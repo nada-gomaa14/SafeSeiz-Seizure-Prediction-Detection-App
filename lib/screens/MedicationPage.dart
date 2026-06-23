@@ -84,7 +84,6 @@ class _MedicationPageState extends State<MedicationPage> {
     }
   }
 
-  // ← ADDED: shows the alert dialog
   void _showMedicationAlert(MedicationModel med, int doseIndex) {
     NotificationService().showMedicationNotification(  // ← ADD
       name: med.name,
@@ -98,22 +97,45 @@ class _MedicationPageState extends State<MedicationPage> {
         title: Row(
           children: [
             Icon(Icons.medication, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(width: 8),
-            const Text('Medication Reminder'),
+            SizedBox(width: 5.w * Responsive.scale(context)),
+            Text(
+              'Medication Reminder',
+              style: TextStyle(
+                fontSize: 20.sp * Responsive.scale(context),
+              ),
+            ),
           ],
         ),
-        content: Text('Time to take ${med.name} — ${med.dosage}'),
+        content: SizedBox(
+          width: Responsive.isTablet(context) ? 500.w : 300.w,
+          child: Text(
+            'Time to take ${med.name} — ${med.dosage}',
+            style: TextStyle(
+              fontSize: 12.sp * Responsive.scale(context),
+            ),
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               context.read<MedicationCubit>().toggleTaken(med.id, doseIndex);
             },
-            child: const Text('Mark as Taken'),
+            child: Text(
+              'Mark As Taken',
+              style: TextStyle(
+                fontSize: 12.sp * Responsive.scale(context),
+              ),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Dismiss'),
+            child: Text(
+              'Dismiss',
+              style: TextStyle(
+                fontSize: 12.sp * Responsive.scale(context),
+              ),
+            ),
           ),
         ],
       ),
