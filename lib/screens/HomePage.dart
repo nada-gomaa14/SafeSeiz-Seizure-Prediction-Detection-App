@@ -17,6 +17,8 @@ import 'package:safeseiz/widgets/CalendarWidget.dart';
 import 'package:safeseiz/widgets/CustomButton.dart';
 import 'package:safeseiz/widgets/CustomListItem.dart';
 
+import '../user/seizure/cubit/seizure_cubit.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -63,6 +65,9 @@ class _HomePageState extends State<HomePage> {
               final todayStatus = medication.takenStatus[today] ?? {};
               takenCount += todayStatus.values.where((taken) => taken).length;
             }
+
+            final seizureCubit = context.read<SeizureCubit>();
+            final stats = seizureCubit.getSummaryStats();
 
             return Padding(
               padding: EdgeInsets.symmetric(
@@ -346,7 +351,7 @@ class _HomePageState extends State<HomePage> {
                             title: 'Last seizure',
                             color: Theme.of(context).colorScheme.primary,
                             trailing: Text(
-                              '3 days ago',
+                              '${stats.lastSeizure} ${stats.lastSeizureMetric}',
                               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                 color: Theme.of(context).colorScheme.tertiary,
                                 fontSize: 12.sp * Responsive.scale(context),
