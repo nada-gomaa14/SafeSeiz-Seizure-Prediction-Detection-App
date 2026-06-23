@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:safeseiz/user/seizure/models/summary_model.dart';
 import 'package:safeseiz/user/sensors/cubit/sensors_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -212,14 +213,9 @@ class SeizureCubit extends Cubit<SeizureStates> {
   }
 
   // Summary Stats
-  SummaryModel getSummaryStats() {       
-    final now = DateTime.now();
-
-    final period = reportType == 'week'
-      ? now.subtract(const Duration(days: 7))
-      : now.subtract(const Duration(days: 30));
-
-    final filteredSeizures = seizuresLogs.where((s) => s.seizureDateTime.isAfter(period)).toList();
+  SummaryModel getSummaryStats() {   
+    final now = DateTime.now();    
+    final filteredSeizures = getFilteredSeizures();
     final hasSeizures = filteredSeizures.isNotEmpty;
 
     final totalSeizures = hasSeizures
@@ -236,7 +232,7 @@ class SeizureCubit extends Cubit<SeizureStates> {
     final averageDuration = hasSeizures
       ? '${avgMinutes}m ${avgSeconds.toString().padLeft(2, '0')}s'
       : '--';
-
+    
     final latestSeizure = seizuresLogs.isEmpty
       ? null
       : seizuresLogs.reduce(
@@ -248,6 +244,10 @@ class SeizureCubit extends Cubit<SeizureStates> {
     final difference = latestSeizure == null
       ? null
       : now.difference(latestSeizure.seizureDateTime);
+
+    final seizureFreeStreak = difference == null
+      ? '--'
+      : difference.inDays.toString();
 
     final lastSeizure = difference == null
       ? '--'
@@ -265,24 +265,48 @@ class SeizureCubit extends Cubit<SeizureStates> {
     List<int> chartValues;
 
     if (reportType == 'week') {
-      chartLabels = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
-      chartValues = List.filled(7, 0);
+      const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      chartLabels = [];
+      chartValues = [];
 
-      for (final seizure in filteredSeizures) {
-        chartValues[seizure.seizureDateTime.weekday - 1]++;
+      for (int i = 6; i >= 0; i--) {
+        final day = DateTime(now.year, now.month, now.day).subtract(Duration(days: i));
+        chartLabels.add(weekdays[day.weekday % 7]);
+
+        final count = filteredSeizures.where((s) {
+          return s.seizureDateTime.year == day.year && s.seizureDateTime.month == day.month && s.seizureDateTime.day == day.day;
+        }).length;
+
+        chartValues.add(count);
       }
-    } else {
-      chartLabels = ['W1', 'W2', 'W3', 'W4', 'W5'];
-      chartValues = List.filled(5, 0);
+    } else if (reportType == 'month') {
+      chartLabels = ['4w ago', '3w ago', '2w ago', 'This week'];
+      chartValues = List.filled(4, 0);
 
       for (final seizure in filteredSeizures) {
         final daysAgo = now.difference(seizure.seizureDateTime).inDays;
-        final index = (daysAgo ~/ 7).clamp(0, 4);
-        chartValues[index]++;
-        chartValues[daysAgo ~/ 7]++;
+        final index = 3 - (daysAgo ~/ 7);
+
+        if (index >= 0 && index < 4) {
+          chartValues[index]++;
+        }
+      }
+    } else {
+      chartLabels = [];
+      chartValues = List.filled(6, 0);
+
+      for (int i = 5; i >= 0; i--) {
+        final month = DateTime(now.year, now.month -i);
+        chartLabels.add(DateFormat('MMM').format(month));
       }
 
-      chartValues = chartValues.reversed.toList();
+      for (final seizure in filteredSeizures) {
+        final diff = (now.year - seizure.seizureDateTime.year) * 12 + now.month - seizure.seizureDateTime.month;
+
+        if (diff >= 0 && diff < 6) {
+          chartValues[5 - diff]++;
+        }
+      }
     }
 
     return SummaryModel(
@@ -290,12 +314,31 @@ class SeizureCubit extends Cubit<SeizureStates> {
       averageDuration: averageDuration,
       lastSeizure: lastSeizure,
       lastSeizureMetric: lastSeizureMetric,
+      seizureFreeStreak: seizureFreeStreak,
       hasSeizures: hasSeizures,
       chartLabels: chartLabels,
       chartValues: chartValues,
       chartMetric: reportType == 'week'
         ? 'Past 7 days'
-        : 'Past 30 days',
+        : reportType == 'month'
+          ? 'Past 4 weeks'
+          : 'Past 6 months',
     );
+  }
+
+  // Seizure Filter
+  List<SeizureModel> getFilteredSeizures() {
+    final now = DateTime.now();
+    late final DateTime period;
+
+    if (reportType == 'week') {
+      period = DateTime(now.year, now.month, now.day).subtract(const Duration(days: 6));
+    } else if (reportType == 'month') {
+      period = DateTime(now.year, now.month, now.day).subtract(const Duration(days: 30));
+    } else {
+      period = DateTime(now.year, now.month - 5, now.day);
+    }
+
+    return seizuresLogs.where((s) => !s.seizureDateTime.isBefore(period)).toList();
   }
 }

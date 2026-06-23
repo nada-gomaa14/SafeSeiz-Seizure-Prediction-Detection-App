@@ -3,6 +3,7 @@ class SummaryModel {
   final String averageDuration;
   final String lastSeizure;
   final String lastSeizureMetric;
+  final String seizureFreeStreak;
   final bool hasSeizures;
   final List<String> chartLabels;
   final List<int> chartValues;
@@ -13,6 +14,7 @@ class SummaryModel {
     required this.averageDuration,
     required this.lastSeizure,
     required this.lastSeizureMetric,
+    required this.seizureFreeStreak,
     required this.hasSeizures,
     required this.chartLabels,
     required this.chartValues,

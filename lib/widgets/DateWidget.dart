@@ -21,7 +21,7 @@ class DateWidget extends StatelessWidget {
   Future<void> _pickDate(BuildContext context) async {
     final now = DateTime.now();
 
-    final initialDate = this.initialDate ?? DateTime(now.year - 20, now.month, now.day);
+    final initialDate = now;
     final firstDate = DateTime(1900, 1, 1);
     final lastDate = now;
 

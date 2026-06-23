@@ -158,7 +158,7 @@ class _HomePageState extends State<HomePage> {
                       thickness: 1,
                     ),
                     SizedBox(height: 5.h * Responsive.scale(context)),
-                    CalendarWidget(), 
+                    CalendarWidget(seizures: seizureCubit.seizuresLogs), 
                     SizedBox(height: 20.h * Responsive.scale(context)),
                     Text(
                       'QUICK ACTIONS',
@@ -169,76 +169,17 @@ class _HomePageState extends State<HomePage> {
                       )
                     ), 
                     SizedBox(height: 10.h * Responsive.scale(context)),
-                    IntrinsicHeight(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            child: CustomButton(
-                              height: double.infinity,
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => const LogSeizurePage(),
-                                  ),
-                                );
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(5.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.add, color: Theme.of(context).colorScheme.secondary),
-                                    SizedBox(width: 10.w * Responsive.scale(context)),
-                                    Text(
-                                      'Log\nSeizure',
-                                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                        fontSize: 16.sp * Responsive.scale(context),
-                                        fontWeight: FontWeight.bold,
-                                        color: Theme.of(context).colorScheme.secondary
-                                      )
-                                    )
-                                  ],
-                                ),
-                              )
-                            ),
+                    CustomButton(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const LogSeizurePage(),
                           ),
-                          SizedBox(width: 10.w * Responsive.scale(context)),
-                          Expanded(
-                            child: CustomButton(
-                              height: double.infinity,
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
-                              border: Theme.of(context).colorScheme.primary,
-                              onTap: () {
-                                notify(context, 'Symptoms logged!');
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(5.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
-                                    SizedBox(width: 10.w * Responsive.scale(context)),
-                                    Text(
-                                      'Log\nSymptoms',
-                                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                        fontSize: 16.sp * Responsive.scale(context),
-                                        fontWeight: FontWeight.bold,
-                                        color: Theme.of(context).colorScheme.primary
-                                      )
-                                    )
-                                  ],
-                                )
-                              )  
-                            ),
-                          ),    
-                        ],
-                      ),
+                        );
+                      },
+                      text: '+ Log Seizure',
                     ),
-                    SizedBox(height: 10.h * Responsive.scale(context)),
+                    SizedBox(height: 20.h * Responsive.scale(context)),
                     CustomButton(
                       color: Theme.of(context).colorScheme.error.withValues(alpha: 0.15),
                       border: Theme.of(context).colorScheme.error,
@@ -369,7 +310,9 @@ class _HomePageState extends State<HomePage> {
                             title: 'Seizure-free streak',
                             color: Theme.of(context).colorScheme.primary,
                             trailing:Text(
-                              '3 days',
+                              stats.seizureFreeStreak == '--'
+                                ? '--'
+                                : '${stats.seizureFreeStreak} days',
                               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                 color: Theme.of(context).colorScheme.primary,
                                 fontSize: 12.sp * Responsive.scale(context),

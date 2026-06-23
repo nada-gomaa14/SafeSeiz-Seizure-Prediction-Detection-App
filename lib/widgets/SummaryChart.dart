@@ -10,9 +10,20 @@ class SummaryChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final maxValue = summary.chartValues.isEmpty
-      ? 1.0
-      : (summary.chartValues.reduce((a, b) => a > b ? a : b) + 1).toDouble();
+    final highestValue = summary.chartValues.isEmpty
+      ? 0.0
+      : (summary.chartValues.reduce((a, b) => a > b ? a : b)).toDouble();
+
+    final maxY = highestValue + 1;
+    final interval = highestValue <= 5 ? 1.0 :
+      highestValue <= 10 ? 2.0 :
+      highestValue <= 20 ? 5.0 :
+      10.0;
+
+    final nonZeroValues = summary.chartValues.where((v) => v > 0).toList();
+    final average = nonZeroValues.isEmpty
+      ? 0.0
+      : nonZeroValues.reduce((a, b) => a + b) / nonZeroValues.length;
 
     return Container(
       width: double.infinity,
@@ -45,22 +56,28 @@ class SummaryChart extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 10.h * Responsive.scale(context)),
+          SizedBox(height: 20.h * Responsive.scale(context)),
           SizedBox(
-            height: 200.h * Responsive.scale(context),
+            height: 250.h * Responsive.scale(context),
             child: BarChart(
               BarChartData(
-                maxY: maxValue,
+                maxY: maxY,
                 gridData: FlGridData(
                   show: true,
                   drawVerticalLine: false,
-                  horizontalInterval: 1,
-                  getDrawingHorizontalLine: (_) {
+                  drawHorizontalLine: true,
+                  horizontalInterval: interval,
+                  getDrawingHorizontalLine: (value) {
+                    if (value == 0) {
+                      return FlLine(color: Colors.transparent);
+                    }
+
                     return FlLine(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                      color: Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.5),
                       strokeWidth: 1,
+                      dashArray: [6, 4],
                     );
-                  },
+                  }
                 ),
                 borderData: FlBorderData(show: false),
                 titlesData: FlTitlesData(
@@ -70,8 +87,26 @@ class SummaryChart extends StatelessWidget {
                   rightTitles: const AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
                   ),
-                  leftTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 30,
+                      interval: interval,
+                      getTitlesWidget: (value, meta) {
+                        if (value == 0) return const SizedBox();
+
+                        return SideTitleWidget(
+                          meta: meta,
+                          child: Text(
+                            value.toInt().toString(),
+                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontSize: 12.sp * Responsive.scale(context),
+                              color: Theme.of(context).colorScheme.tertiary
+                            ),
+                          ),
+                        );
+                      }
+                    ),
                   ),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
@@ -115,13 +150,54 @@ class SummaryChart extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10.r * Responsive.scale(context),
                           ),
             
-                          color: value == 0
-                            ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12)
+                          color: value < average
+                            ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.75)
                             : Theme.of(context).colorScheme.primary,
                         ),
                       ],
                     );
                   },
+                ),
+                extraLinesData: ExtraLinesData(
+                  horizontalLines: [
+                    HorizontalLine(
+                      y: average,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                      strokeWidth: 2,
+                      dashArray: [6, 4],
+                      label: HorizontalLineLabel(
+                        show: average > 0,
+                        alignment: Alignment.topRight,
+                        padding: EdgeInsets.only(left: 5.w * Responsive.scale(context)),                
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontSize: 12.sp * Responsive.scale(context),
+                          color: Theme.of(context).colorScheme.primary,
+                          backgroundColor: Theme.of(context).colorScheme.onSecondary.withValues(alpha: 0.5),
+                          fontWeight: FontWeight.bold
+                        ),
+                        labelResolver: (_) => 'Avg: ${average.toStringAsFixed(1)}',
+                      )
+                    ),
+                    HorizontalLine(
+                      y: highestValue,
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+                      strokeWidth: 2,
+                      label: HorizontalLineLabel(
+                        show: highestValue > 0,
+                        alignment: (highestValue - average).abs() < 0.5
+                          ? Alignment.topLeft
+                          : Alignment.topRight,        
+                        padding: EdgeInsets.only(left: 5.w * Responsive.scale(context)),                
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontSize: 12.sp * Responsive.scale(context),
+                          color: Theme.of(context).colorScheme.primary,
+                          backgroundColor: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5),
+                          fontWeight: FontWeight.bold
+                        ),
+                        labelResolver: (_) => 'Max: ${highestValue.toInt()}',
+                      ),
+                    )
+                  ],
                 ),
               ),
             ),

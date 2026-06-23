@@ -4,6 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:safeseiz/functions/notify.dart';
 import 'package:safeseiz/functions/responsive.dart';
+import 'package:safeseiz/report.dart';
+import 'package:safeseiz/user/medical/information/cubit/medical_cubit.dart';
+import 'package:safeseiz/user/medical/medication/cubit/medication_cubit.dart';
+import 'package:safeseiz/user/profile/cubit/profile_cubit.dart';
 import 'package:safeseiz/user/seizure/cubit/seizure_cubit.dart';
 import 'package:safeseiz/user/seizure/cubit/seizure_states.dart';
 import 'package:safeseiz/widgets/CustomButton.dart';
@@ -56,9 +60,12 @@ class SummaryPage extends StatelessWidget {
                 ),
               );
             }
-
+            final profileCubit = context.read<ProfileCubit>();
+            final medicalCubit = context.read<MedicalCubit>();
+            final medicationCubit = context.read<MedicationCubit>();
             final seizureCubit = context.read<SeizureCubit>();
             final stats = seizureCubit.getSummaryStats();
+            final filteredSeizures = seizureCubit.getFilteredSeizures();
 
             return Padding(
               padding: EdgeInsets.symmetric(
@@ -131,6 +138,17 @@ class SummaryPage extends StatelessWidget {
                               ),
                             ),
                           ),
+                          ButtonSegment(
+                            value: 'sixMonths',
+                            label: Text(
+                              '6 Months',
+                              style: TextStyle(
+                                fontWeight: seizureCubit.reportType == 'sixMonths'
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              ),
+                            ),
+                          ),
                         ], 
                         selected: {seizureCubit.reportType},
                         onSelectionChanged: (selection) {
@@ -153,7 +171,9 @@ class SummaryPage extends StatelessWidget {
                               metric: stats.hasSeizures
                                 ? (seizureCubit.reportType == 'week'
                                   ? 'this week'
-                                  : 'this month')
+                                  : seizureCubit.reportType == 'month'
+                                    ? 'this month'
+                                    : 'last 6 months')
                                 : '',
                             ),
                           ),
@@ -185,7 +205,45 @@ class SummaryPage extends StatelessWidget {
                     SizedBox(height: 20.0.h * Responsive.scale(context)),
                     CustomButton(
                       text: 'Export Report',
-                      onTap: () {}, 
+                      onTap: () async {
+                        try {
+                          if (profileCubit.profile == null || medicalCubit.medical == null) {
+                            notify(context, 'Unable to generate report. Try again later.');
+                            return;
+                          }
+                          late final SeizureReportData report;
+
+                          if (seizureCubit.reportType == 'week') {
+                            report = ReportBuilder.weekly(
+                              profile: profileCubit.profile!,
+                              medical: medicalCubit.medical!,
+                              medications: medicationCubit.medications,
+                              seizures: filteredSeizures,
+                              summary: stats,
+                            );
+                          } else if (seizureCubit.reportType == 'month') {
+                            report = ReportBuilder.monthly(
+                              profile: profileCubit.profile!,
+                              medical: medicalCubit.medical!,
+                              medications: medicationCubit.medications,
+                              seizures: filteredSeizures,
+                              summary: stats,
+                            );
+                          } else {
+                            report = ReportBuilder.multiMonth(
+                              profile: profileCubit.profile!,
+                              medical: medicalCubit.medical!,
+                              medications: medicationCubit.medications,
+                              seizures: filteredSeizures,
+                              summary: stats,
+                            );
+                          }
+
+                          await shareSeizureReport(report);
+                        } catch (e) {
+                          notify(context, 'Failed to export report.');
+                        }
+                      }, 
                     ),
                   ],
                 ),
@@ -218,26 +276,34 @@ class SummaryPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(15.0.r * Responsive.scale(context)),
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             title,
+            maxLines: 2,
+            textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
               fontSize: 14.sp * Responsive.scale(context),
               color: textColor,
             ),
           ),
+          SizedBox(height: 10.h *Responsive.scale(context)),
           Text(
             data,
+            maxLines: 1,
+            textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-              fontSize: 20.sp * Responsive.scale(context),
+              fontSize: 16.sp * Responsive.scale(context),
               color: dataColor,
               fontWeight: FontWeight.bold,
             ),
           ),
+          SizedBox(height: 10.h *Responsive.scale(context)),
           Text(
             metric,
+            maxLines: 2,
+            textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
               fontSize: 14.sp * Responsive.scale(context),
               color: textColor,
