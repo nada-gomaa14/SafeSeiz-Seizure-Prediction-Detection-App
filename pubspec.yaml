@@ -51,6 +51,7 @@ dependencies:
   flutter_local_notifications: ^17.2.3
   connectivity_plus: ^6.0.0
   shared_preferences: ^2.2.2
+  fl_chart: ^0.71.0
 
 dev_dependencies:
   flutter_test:

@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:safeseiz/user/seizure/models/summary_model.dart';
 import 'package:safeseiz/user/sensors/cubit/sensors_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
@@ -26,6 +27,9 @@ class SeizureCubit extends Cubit<SeizureStates> {
 
   // Validation Errors
   String? seizureTypesError;
+
+  // Summary Report
+  String reportType = 'week';
 
   // Update Date & Time
   void updateSeizureDateTime(DateTime value) {
@@ -55,6 +59,12 @@ class SeizureCubit extends Cubit<SeizureStates> {
   // Update Notes
   void updateNotes(String value) {
     notes = value;
+    emit(SeizureUpdateState());
+  }
+
+  // Update Report Type
+  void updateReportType(String value) {
+    reportType = value;
     emit(SeizureUpdateState());
   }
 
@@ -175,6 +185,7 @@ class SeizureCubit extends Cubit<SeizureStates> {
   void resetState() {
     seizuresLogs = [];
     clearForm();
+    reportType = 'week';
 
     emit(SeizureInitialState());
   }
@@ -198,5 +209,93 @@ class SeizureCubit extends Cubit<SeizureStates> {
     } catch (e) {
       emit(SeizureErrorState(error: e.toString()));
     }
+  }
+
+  // Summary Stats
+  SummaryModel getSummaryStats() {       
+    final now = DateTime.now();
+
+    final period = reportType == 'week'
+      ? now.subtract(const Duration(days: 7))
+      : now.subtract(const Duration(days: 30));
+
+    final filteredSeizures = seizuresLogs.where((s) => s.seizureDateTime.isAfter(period)).toList();
+    final hasSeizures = filteredSeizures.isNotEmpty;
+
+    final totalSeizures = hasSeizures
+      ? filteredSeizures.length.toString()
+      : '--';
+
+    final avgDuration = filteredSeizures.isEmpty
+      ? 0
+      : filteredSeizures.map((s) => s.durationMinutes * 60 + s.durationSeconds).reduce((a, b) => a + b) ~/ filteredSeizures.length;
+
+    final avgMinutes = avgDuration ~/ 60;
+    final avgSeconds = avgDuration % 60;
+
+    final averageDuration = hasSeizures
+      ? '${avgMinutes}m ${avgSeconds.toString().padLeft(2, '0')}s'
+      : '--';
+
+    final latestSeizure = seizuresLogs.isEmpty
+      ? null
+      : seizuresLogs.reduce(
+        (a, b) => a.seizureDateTime.isAfter(b.seizureDateTime)
+          ? a
+          : b,
+      );
+
+    final difference = latestSeizure == null
+      ? null
+      : now.difference(latestSeizure.seizureDateTime);
+
+    final lastSeizure = difference == null
+      ? '--'
+      : difference.inDays > 0
+        ? '${difference.inDays}'
+        : '${difference.inHours}';
+
+    final lastSeizureMetric = difference == null
+      ? ''
+      : difference.inDays > 0
+        ? 'days ago'
+        : 'hours ago';
+
+    List<String> chartLabels;
+    List<int> chartValues;
+
+    if (reportType == 'week') {
+      chartLabels = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+      chartValues = List.filled(7, 0);
+
+      for (final seizure in filteredSeizures) {
+        chartValues[seizure.seizureDateTime.weekday - 1]++;
+      }
+    } else {
+      chartLabels = ['W1', 'W2', 'W3', 'W4', 'W5'];
+      chartValues = List.filled(5, 0);
+
+      for (final seizure in filteredSeizures) {
+        final daysAgo = now.difference(seizure.seizureDateTime).inDays;
+        final index = (daysAgo ~/ 7).clamp(0, 4);
+        chartValues[index]++;
+        chartValues[daysAgo ~/ 7]++;
+      }
+
+      chartValues = chartValues.reversed.toList();
+    }
+
+    return SummaryModel(
+      totalSeizures: totalSeizures,
+      averageDuration: averageDuration,
+      lastSeizure: lastSeizure,
+      lastSeizureMetric: lastSeizureMetric,
+      hasSeizures: hasSeizures,
+      chartLabels: chartLabels,
+      chartValues: chartValues,
+      chartMetric: reportType == 'week'
+        ? 'Past 7 days'
+        : 'Past 30 days',
+    );
   }
 }
