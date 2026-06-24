@@ -83,52 +83,56 @@ class _SafeSeizState extends State<SafeSeiz> {
       watchService.setSensorsCubit(context.read<SensorsCubit>());
       watchService.setSeizureCubit(context.read<SeizureCubit>());
       watchService.setMedicalCubit(context.read<MedicalCubit>());
-    });
 
-    // Trigger SOS alert when watch SOS button is pressed
-    watchService.sosStream.listen((_) async {
-      final context = navigatorKey.currentContext;
-      if (context == null) return;
+      // Trigger SOS alert when watch SOS button is pressed
+      watchService.sosStream.listen((_) async {
+        final context = navigatorKey.currentContext;
+        if (context == null) {
+          debugPrint('SOS: context is null');
+          return;
+        }  
 
-      final sosCubit = context.read<SOSCubit>();
-      final contactsCubit = context.read<EmergencyContactsCubit>();
-      final profileCubit = context.read<ProfileCubit>();
-      final seizureCubit = context.read<SeizureCubit>();
-      final medicalCubit = context.read<MedicalCubit>();
+        final sosCubit = context.read<SOSCubit>();
+        final contactsCubit = context.read<EmergencyContactsCubit>();
+        final profileCubit = context.read<ProfileCubit>();
+        final seizureCubit = context.read<SeizureCubit>();
+        final medicalCubit = context.read<MedicalCubit>();
 
-      final contacts = contactsCubit.contacts;
-      final firstName = profileCubit.profile?.firstName ?? '';
-      final lastName = profileCubit.profile?.lastName ?? '';
-      final patientName = '$firstName $lastName'.trim().isEmpty ? 'Patient' : '${firstName} ${lastName}'.trim();
+        final contacts = contactsCubit.contacts;
+        final firstName = profileCubit.profile?.firstName ?? '';
+        final lastName = profileCubit.profile?.lastName ?? '';
+        final patientName = '$firstName $lastName'.trim().isEmpty ? 'Patient' : '${firstName} ${lastName}'.trim();
 
-      if (contacts.isEmpty) return;
+        if (contacts.isEmpty) return;
 
-      // Default seizure types from medical profile
-      final defaultTypes = medicalCubit.medical?.seizureTypes ?? ['Unknown'];
-      seizureCubit.seizureTypes = defaultTypes.isNotEmpty ? defaultTypes : ['Unknown'];
+        // Default seizure types from medical profile
+        final defaultTypes = medicalCubit.medical?.seizureTypes ?? ['Unknown'];
+        seizureCubit.seizureTypes = defaultTypes.isNotEmpty ? defaultTypes : ['Unknown'];
 
-      // Log as manual — user pressed SOS button
-      final seizureId = await seizureCubit.addSeizure(isAutoDetected: false);
+        // Log as manual — user pressed SOS button
+        final seizureId = await seizureCubit.addSeizure(isAutoDetected: false);
+        debugPrint('SOS seizure logged: $seizureId');
 
-      sosCubit.startCountdown(contacts: contacts, patientName: patientName, seizureId: seizureId, seizureTime: DateTime.now());
-    });
+        sosCubit.startCountdown(contacts: contacts, patientName: patientName, seizureId: seizureId, seizureTime: DateTime.now());
+      });
 
-    // AI detected seizure → trigger SOS
-    watchService.seizureDetectedStream.listen((_) async {
-      final context = navigatorKey.currentContext;
-      if (context == null) return;
-      final sosCubit = context.read<SOSCubit>();
-      final contactsCubit = context.read<EmergencyContactsCubit>();
-      final profileCubit = context.read<ProfileCubit>();
+      // AI detected seizure → trigger SOS
+      watchService.seizureDetectedStream.listen((_) async {
+        final context = navigatorKey.currentContext;
+        if (context == null) return;
+        final sosCubit = context.read<SOSCubit>();
+        final contactsCubit = context.read<EmergencyContactsCubit>();
+        final profileCubit = context.read<ProfileCubit>();
 
-      final contacts = contactsCubit.contacts;
-      final firstName = profileCubit.profile?.firstName ?? '';
-      final lastName = profileCubit.profile?.lastName ?? '';
-      final patientName = '$firstName $lastName'.trim().isEmpty ? 'Patient' : '$firstName $lastName'.trim();
+        final contacts = contactsCubit.contacts;
+        final firstName = profileCubit.profile?.firstName ?? '';
+        final lastName = profileCubit.profile?.lastName ?? '';
+        final patientName = '$firstName $lastName'.trim().isEmpty ? 'Patient' : '$firstName $lastName'.trim();
 
-      if (contacts.isEmpty) return;
+        if (contacts.isEmpty) return;
 
-      sosCubit.startCountdown(contacts: contacts, patientName: patientName, seizureId: watchService.lastSeizureId, seizureTime: watchService.lastSeizureTime);
+        sosCubit.startCountdown(contacts: contacts, patientName: patientName, seizureId: watchService.lastSeizureId, seizureTime: watchService.lastSeizureTime);
+      });
     });
 
     // Sync on app resume
