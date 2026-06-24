@@ -214,6 +214,8 @@ class _SummaryPageState extends State<SummaryPage> {
                             SizedBox(width: 10.0.w * Responsive.scale(context)),
                             Expanded(
                               child: Column(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     'No internet connection.',
@@ -227,7 +229,6 @@ class _SummaryPageState extends State<SummaryPage> {
                                     'Please connect to the internet to view summary.',
                                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                       fontSize: 14.sp * Responsive.scale(context),
-                                      fontWeight: FontWeight.bold,
                                       color: Theme.of(context).colorScheme.error,
                                     ),
                                   ),
