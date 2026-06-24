@@ -11,6 +11,7 @@ import 'package:safeseiz/user/seizure/cubit/seizure_cubit.dart';
 import 'package:safeseiz/widgets/CustomButton.dart';
 import 'package:safeseiz/widgets/ReturnButton.dart';
 import '../user/contacts/cubit/emergency_contacts_cubit.dart';
+import '../user/contacts/models/emergency_contacts_model.dart';
 import '../user/sos/cubit/sos_cubit.dart';
 import '../user/seizure/seizure_detector.dart';
 import '../screens/SOSPage.dart';
@@ -18,20 +19,15 @@ import '../services/notification_service.dart';
 
 class WatchPage extends StatefulWidget {
   final String patientName;
-
-  const WatchPage({
-    super.key,
-    required this.patientName,
-  });
+  const WatchPage({super.key, required this.patientName});
 
   @override
   State<WatchPage> createState() => _WatchPageState();
-}
 
+}
 class _WatchPageState extends State<WatchPage> {
   static const _watchChannel = EventChannel('com.example.safeseiz/watch_events');
   StreamSubscription? _watchSubscription;
-
   String hr        = '--';
   String spo2      = '--';
   String accelX    = '--', accelY = '--', accelZ = '--';
@@ -41,7 +37,6 @@ class _WatchPageState extends State<WatchPage> {
   String seizureStatus = 'Monitoring...';
   bool _isTesting = false;
   int _currentEventType = 0; // 0=normal, 1=pre-seizure, 2=seizure
-
   final SeizureDetector _detector = SeizureDetector();
   bool _detectorInitialized = false;
 
@@ -51,86 +46,103 @@ class _WatchPageState extends State<WatchPage> {
     _initDetector();
     _listenToWatch();
   }
-
   Future<void> _initDetector() async {
     await _detector.initialize();
     setState(() => _detectorInitialized = true);
   }
 
-  Future<void> _runSyntheticTest() async {
-    if (_isTesting) return;
-    setState(() {
-      _isTesting = true;
-      seizureStatus = '⏳ Running test...';
-      _currentEventType = 0;
-    });
+  List<EmergencyContactsModel> _getContacts() {
+    return context.read<EmergencyContactsCubit>().contacts;
+  }
 
-    _detector.reset();
+  void _triggerPreSeizureAlert() {
+    context.read<SOSCubit>().sendAlert(
+      contacts: _getContacts(),
+      patientName: widget.patientName,
+      isSeizure: false,
+    );
+  }
 
-    try {
-      final String jsonStr = await rootBundle.loadString('assets/seizure_test_data.json');
-      final Map<String, dynamic> data = json.decode(jsonStr);
-      final List<double> ecg  = List<double>.from(data['ecg']);
-      final List<double> accX = List<double>.from(data['acc_x']);
-      final List<double> accY = List<double>.from(data['acc_y']);
-      final List<double> accZ = List<double>.from(data['acc_z']);
+  // Use this for seizure detection
+  void _triggerSeizureCountdown() {
+    final sosCubit = context.read<SOSCubit>();
+    final seizureCubit = context.read<SeizureCubit>();
+    final medicalCubit = context.read<MedicalCubit>();
+    final contactsCubit = context.read<EmergencyContactsCubit>();
+    final profileCubit = context.read<ProfileCubit>();
 
-      debugPrint('Loaded seizure test data: ${ecg.length} samples');
+    final contacts = contactsCubit.contacts;
+    final firstName = profileCubit.profile?.firstName ?? '';
+    final lastName = profileCubit.profile?.lastName ?? '';
+    final patientName = '$firstName $lastName'.trim().isEmpty ? 'Patient' : '$firstName $lastName'.trim();
 
-      for (int i = 0; i < ecg.length; i++) {
-        final int prediction = await _detector.addReading(
-          ppg:    ecg[i],
-          accelX: accX[i],
-          accelY: accY[i],
-          accelZ: accZ[i],
-          gyroX:  0.0,
-          gyroY:  0.0,
-          gyroZ:  0.0,
-        ); 
+    if (contacts.isEmpty) return;
 
-        if (!mounted) return;
+    sosCubit.startCountdown(
+      contacts: contacts,
+      patientName: patientName,
+      seizureTime: DateTime.now(),
+      onAlertConfirmed: () async {
+        final defaultTypes = medicalCubit.medical?.seizureTypes ?? ['Unknown'];
+        seizureCubit.seizureTypes = defaultTypes.isNotEmpty ? defaultTypes : ['Unknown'];
+        return await seizureCubit.addSeizure(isAutoDetected: true);
+      },
+    );
+  }
 
-        if (prediction == 1 || prediction == 2) {
-          final isSeizure = prediction == 2;
-          setState(() => seizureStatus = isSeizure ? '🚨 Seizure Detected!' : '⚠️ Pre-seizure Warning');
+Future<void> _runSyntheticTest() async {
+  if (_isTesting) return;
+  setState(() {
+    _isTesting = true;
+    seizureStatus = '⏳ Running test...';
+    _currentEventType = 0;
+  });
 
-          if (_currentEventType != prediction) {
-            NotificationService().showSeizureNotification(isSeizure: isSeizure);
-            _currentEventType = prediction;
-   
-            if (isSeizure) {
-              // Go through proper flow — SOSCubit from provider tree
-              final sosCubit = context.read<SOSCubit>();
-              final seizureCubit = context.read<SeizureCubit>();
-              final medicalCubit = context.read<MedicalCubit>();
-              final contactsCubit = context.read<EmergencyContactsCubit>();
-              final profileCubit = context.read<ProfileCubit>();
+  _detector.reset();
+  try {
+    // Load real seizure data from assets
+    final String jsonStr = await rootBundle.loadString('assets/seizure_test_data.json');
+    final Map<String, dynamic> data = json.decode(jsonStr);
+    final List<double> ecg  = List<double>.from(data['ecg']);
+    final List<double> accX = List<double>.from(data['acc_x']);
+    final List<double> accY = List<double>.from(data['acc_y']);
+    final List<double> accZ = List<double>.from(data['acc_z']);
 
-              final contacts = contactsCubit.contacts;
-              final firstName = profileCubit.profile?.firstName ?? '';
-              final lastName = profileCubit.profile?.lastName ?? '';
-              final patientName = '$firstName $lastName'.trim().isEmpty ? 'Patient' : '$firstName $lastName'.trim();
+    debugPrint('Loaded seizure test data: ${ecg.length} samples');
 
-              if (contacts.isNotEmpty) {
-                sosCubit.startCountdown(
-                  contacts: contacts,
-                  patientName: patientName,
-                  seizureTime: DateTime.now(),
-                  onAlertConfirmed: () async {
-                    final defaultTypes = medicalCubit.medical?.seizureTypes ?? ['Unknown'];
-                    seizureCubit.seizureTypes = defaultTypes.isNotEmpty ? defaultTypes : ['Unknown'];
-                    return await seizureCubit.addSeizure(isAutoDetected: true);
-                  },
-                );
+    for (int i = 0; i < ecg.length; i++) {
+      final int prediction = await _detector.addReading(
+        ppg:    ecg[i],
+        accelX: accX[i],
+        accelY: accY[i],
+        accelZ: accZ[i],
+        gyroX:  0.0,
+        gyroY:  0.0,
+        gyroZ:  0.0,
+      );
 
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const SOSPage()),
-                );
-              }
-              break;
-            }
+      if (!mounted) return;
+
+      if (prediction == 2) {
+        setState(() => seizureStatus = '🚨 Seizure Detected!');
+
+        if (_currentEventType != 2) {
+          NotificationService().showSeizureNotification(isSeizure: true);
+          _triggerSeizureCountdown();
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const SOSPage()),
+          );
+          _currentEventType = 2;
+        }
+        break;
+        } else if (prediction == 1) {
+          setState(() => seizureStatus = '⚠️ Pre-seizure Warning');
+          if (_currentEventType == 0) {
+            NotificationService().showSeizureNotification(isSeizure: false);
+            _triggerPreSeizureAlert();
+            _currentEventType = 1;
           }
-        } else {
+        } else if (prediction == 0) {
           if (_currentEventType == 0) {
             setState(() => seizureStatus = 'Normal Readings ✓');
           }
@@ -140,134 +152,100 @@ class _WatchPageState extends State<WatchPage> {
           await Future.delayed(const Duration(milliseconds: 1));
         }
       }
-    } catch (e) {
-      debugPrint('Test error: $e');
-      setState(() => seizureStatus = 'Test error: $e');
+
+  } catch (e) {
+    debugPrint('Test error: $e');
+    setState(() => seizureStatus = 'Test error: $e');
+  }
+
+  setState(() {
+    _isTesting = false;
+    if (seizureStatus == '⏳ Running test...') {
+      seizureStatus = 'Normal Readings ✓ (test complete)';
     }
+  });
+}
 
-    setState(() {
-      _isTesting = false;
-      if (seizureStatus == '⏳ Running test...') {
-        seizureStatus = 'Normal Readings ✓ (test complete)';
-      }
-    });
-  }
+void _listenToWatch() {_watchSubscription = _watchChannel.receiveBroadcastStream().listen((event) async {
+  if (!mounted) return; 
 
-  void _listenToWatch() {
-    _watchSubscription = _watchChannel.receiveBroadcastStream().listen(
-      (event) async {
-        if (!mounted) return;
-        final data = Map<String, dynamic>.from(event);
-
-        if (data['type'] == 'sos') {
-          // Watch SOS button — go through startCountdown
-          final sosCubit = context.read<SOSCubit>();
-          final seizureCubit = context.read<SeizureCubit>();
-          final medicalCubit = context.read<MedicalCubit>();
-          final contactsCubit = context.read<EmergencyContactsCubit>();
-          final profileCubit = context.read<ProfileCubit>();
-          final contacts = contactsCubit.contacts;
-          final firstName = profileCubit.profile?.firstName ?? '';
-          final lastName = profileCubit.profile?.lastName ?? '';
-          final patientName = '$firstName $lastName'.trim().isEmpty ? 'Patient' : '$firstName $lastName'.trim();
-          if (contacts.isEmpty) return;
-          sosCubit.startCountdown(
-            contacts: contacts,
-            patientName: patientName,
-            onAlertConfirmed: () async {
-              final defaultTypes = medicalCubit.medical?.seizureTypes ?? ['Unknown'];
-              seizureCubit.seizureTypes = defaultTypes.isNotEmpty ? defaultTypes : ['Unknown'];
-              return await seizureCubit.addSeizure(isAutoDetected: false);
-            },
-          );
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const SOSPage()),
-          );
-          return;
-        }
-
-        // Parse PPG
-        final String ppgStr = data['ppg'] ?? '';
-        double ppgValue = 0.0;
-        if (ppgStr.isNotEmpty) {
-          final parts = ppgStr.split(',');
-          if (parts.isNotEmpty) {
-            ppgValue = double.tryParse(parts[0].trim()) ?? 0.0;
-          }
-        }
-
-        // Run inference
-        if (_detectorInitialized && !_isTesting) {
-          final int prediction = await _detector.addReading(
-            ppg:    ppgValue,
-            accelX: double.tryParse(data['accel_x'] ?? '0') ?? 0.0,
-            accelY: double.tryParse(data['accel_y'] ?? '0') ?? 0.0,
-            accelZ: double.tryParse(data['accel_z'] ?? '0') ?? 0.0,
-            gyroX:  double.tryParse(data['gyro_x']  ?? '0') ?? 0.0,
-            gyroY:  double.tryParse(data['gyro_y']  ?? '0') ?? 0.0,
-            gyroZ:  double.tryParse(data['gyro_z']  ?? '0') ?? 0.0,
-          );
-
-          if (!mounted) return;
-
-          if (prediction == 2 && _currentEventType != 2) {
-            setState(() { seizureStatus = '🚨 Seizure Detected!'; _currentEventType = 2; });
-            NotificationService().showSeizureNotification(isSeizure: true);
-
-            final sosCubit = context.read<SOSCubit>();
-            final seizureCubit = context.read<SeizureCubit>();
-            final medicalCubit = context.read<MedicalCubit>();
-            final contactsCubit = context.read<EmergencyContactsCubit>();
-            final profileCubit = context.read<ProfileCubit>();
-            final contacts = contactsCubit.contacts;
-            final firstName = profileCubit.profile?.firstName ?? '';
-            final lastName = profileCubit.profile?.lastName ?? '';
-            final patientName = '$firstName $lastName'.trim().isEmpty ? 'Patient' : '$firstName $lastName'.trim();
-
-            if (contacts.isNotEmpty) {
-              sosCubit.startCountdown(
-                contacts: contacts,
-                patientName: patientName,
-                seizureTime: DateTime.now(),
-                onAlertConfirmed: () async {
-                  final defaultTypes = medicalCubit.medical?.seizureTypes ?? ['Unknown'];
-                  seizureCubit.seizureTypes = defaultTypes.isNotEmpty ? defaultTypes : ['Unknown'];
-                  return await seizureCubit.addSeizure(isAutoDetected: true);
-                },
-              );
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const SOSPage()),
-              );
-            }
-          } else if (prediction == 1 && _currentEventType == 0) {
-            setState(() { seizureStatus = '⚠️ Pre-seizure Warning'; _currentEventType = 1; });
-            NotificationService().showSeizureNotification(isSeizure: false);
-          } else if (prediction == 0) {
-            setState(() { seizureStatus = 'Normal ✓'; _currentEventType = 0; });
-          }
-        }
-
-        setState(() {
-          hr        = data['hr']      ?? '--';
-          spo2      = data['spo2']    ?? '--';
-          accelX    = data['accel_x'] ?? '--';
-          accelY    = data['accel_y'] ?? '--';
-          accelZ    = data['accel_z'] ?? '--';
-          gyroX     = data['gyro_x']  ?? '--';
-          gyroY     = data['gyro_y']  ?? '--';
-          gyroZ     = data['gyro_z']  ?? '--';
-          final ts  = data['timestamp'];
-          timestamp = ts != null ? ts.toString() : '--';
-          status    = 'Receiving data ✓';
-        });
-      },
-      onError: (error) {
-        if (!mounted) return;
-        setState(() => status = 'Error: $error');
-      },
+  final data = Map<String, dynamic>.from(event);
+  if (data['type'] == 'sos') {
+    _triggerSeizureCountdown();
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const SOSPage()),
     );
+    return;
   }
 
+  // Parse PPG — use first value of comma-separated string
+  final String ppgStr = data['ppg'] ?? '';
+  double ppgValue = 0.0;
+  if (ppgStr.isNotEmpty) {
+    final parts = ppgStr.split(',');
+    if (parts.isNotEmpty) {
+      ppgValue = double.tryParse(parts[0].trim()) ?? 0.0;
+    }
+  }
+
+  // Run inference
+  if (_detectorInitialized && !_isTesting) {
+    final int prediction = await _detector.addReading(
+      ppg:    ppgValue,
+      accelX: double.tryParse(data['accel_x'] ?? '0') ?? 0.0,
+      accelY: double.tryParse(data['accel_y'] ?? '0') ?? 0.0,
+      accelZ: double.tryParse(data['accel_z'] ?? '0') ?? 0.0,
+      gyroX:  double.tryParse(data['gyro_x']  ?? '0') ?? 0.0,
+      gyroY:  double.tryParse(data['gyro_y']  ?? '0') ?? 0.0,
+      gyroZ:  double.tryParse(data['gyro_z']  ?? '0') ?? 0.0,
+    );
+
+    if (!mounted) return;
+
+    if (prediction == 2) {
+      setState(() => seizureStatus = '🚨 Seizure Detected!');
+
+      if (_currentEventType != 2) {
+        NotificationService().showSeizureNotification(isSeizure: true);
+        _triggerSeizureCountdown();
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const SOSPage()),
+        );
+        _currentEventType = 2;
+      }
+    } else if (prediction == 1) {
+      setState(() => seizureStatus = '⚠️ Pre-seizure Warning');
+      
+      if (_currentEventType == 0) {
+        NotificationService().showSeizureNotification(isSeizure: false);
+        _triggerPreSeizureAlert();
+        _currentEventType = 1;
+      }
+    } else if (prediction == 0) {
+      setState(() => seizureStatus = 'Normal ✓');
+      _currentEventType = 0;
+    }
+  }
+
+  setState(() {
+    hr        = data['hr']        ?? '--';
+    spo2      = data['spo2']      ?? '--';
+    accelX    = data['accel_x']   ?? '--';
+    accelY    = data['accel_y']   ?? '--';
+    accelZ    = data['accel_z']   ?? '--';
+    gyroX     = data['gyro_x']    ?? '--';
+    gyroY     = data['gyro_y']    ?? '--';
+    gyroZ     = data['gyro_z']    ?? '--';
+    final ts = data['timestamp'];
+    timestamp = ts != null ? ts.toString() : '--';          
+    status    = 'Receiving data ✓';
+  });
+  },
+  onError: (error) {
+    if (!mounted) return;
+    setState(() => status = 'Error: $error');
+  });
+}
   @override
   void dispose() {
     _watchSubscription?.cancel();
@@ -328,8 +306,8 @@ class _WatchPageState extends State<WatchPage> {
                     borderRadius: BorderRadius.circular(15.0.r * Responsive.scale(context)),
                     border: Border.all(
                       color: status.contains('✓')
-                      ? const Color(0xFF22A45D)
-                      : Theme.of(context).colorScheme.primary
+                        ? const Color(0xFF22A45D)
+                        : Theme.of(context).colorScheme.primary
                     ),
                   ),
                   child: Text(
@@ -358,12 +336,12 @@ class _WatchPageState extends State<WatchPage> {
                     borderRadius: BorderRadius.circular(15.0.r * Responsive.scale(context)),
                     border: Border.all(
                       color: seizureStatus.contains('🚨')
-                      ? Theme.of(context).colorScheme.error
-                      : seizureStatus.contains('⚠️')
-                      ? Colors.orange
-                      : seizureStatus.contains('✓')
-                      ? const Color(0xFF22A45D)
-                      : Theme.of(context).colorScheme.onSurface
+                        ? Theme.of(context).colorScheme.error
+                        : seizureStatus.contains('⚠️')
+                        ? Colors.orange
+                        : seizureStatus.contains('✓')
+                        ? const Color(0xFF22A45D)
+                        : Theme.of(context).colorScheme.onSurface
                     ),
                   ),
                   child: Text(
@@ -381,7 +359,6 @@ class _WatchPageState extends State<WatchPage> {
                   ),
                 ),
                 SizedBox(height: 20.h * Responsive.scale(context)),
-                    
                 // Vitals card
                 _buildCard(
                   title: 'Vitals',
@@ -392,9 +369,7 @@ class _WatchPageState extends State<WatchPage> {
                     _buildRow('SpO2', '$spo2 %'),
                   ],
                 ),
-                    
                 const SizedBox(height: 12),
-                    
                 // Accelerometer card
                 _buildCard(
                   title: 'Accelerometer',
@@ -406,9 +381,7 @@ class _WatchPageState extends State<WatchPage> {
                     _buildRow('Z', accelZ),
                   ],
                 ),
-                    
                 const SizedBox(height: 12),
-                    
                 // Gyroscope card
                 _buildCard(
                   title: 'Gyroscope',
@@ -420,7 +393,6 @@ class _WatchPageState extends State<WatchPage> {
                     _buildRow('Z', gyroZ),
                   ],
                 ),
-                    
                 SizedBox(height: 20.h * Responsive.scale(context)),
                 // Test Seizure Detection button
                 CustomButton(
@@ -432,7 +404,7 @@ class _WatchPageState extends State<WatchPage> {
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
                         valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.secondary),
-                      )
+                      ),
                     )
                     : null
                 ),
@@ -454,32 +426,30 @@ class _WatchPageState extends State<WatchPage> {
     );
   }
 
-  Widget _buildCard({
-    required String title,
-    required IconData icon,
-    required Color color,
-    required List<Widget> children,
-  }) {
+  Widget _buildCard({required String title, required IconData icon, required Color color, required List<Widget> children}) {
     return Card(
       elevation: 2,
-      shape:
-      RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(children: [
-              Icon(icon, color: color, size: 20),
-              const SizedBox(width: 8),
-              Text(title,
+            Row(
+              children: [
+                Icon(icon, color: color, size: 20),
+                const SizedBox(width: 8),
+                Text(title,
                   style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: color)),
-            ]),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: color
+                  ),
+                ),
+              ]
+            ),
             const Divider(height: 16),
-            ...children,
+              ...children,
           ],
         ),
       ),
@@ -493,9 +463,12 @@ class _WatchPageState extends State<WatchPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: const TextStyle(color: Colors.grey)),
-          Text(value,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w600, fontSize: 15)),
+          Text(
+            value,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600, fontSize: 15
+            ),
+          ),
         ],
       ),
     );
