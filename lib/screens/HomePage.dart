@@ -14,7 +14,6 @@ import 'package:safeseiz/user/medical/information/cubit/medical_cubit.dart';
 import 'package:safeseiz/user/medical/medication/cubit/medication_cubit.dart';
 import 'package:safeseiz/user/profile/cubit/profile_cubit.dart';
 import 'package:safeseiz/user/profile/cubit/profile_states.dart';
-import 'package:safeseiz/user/sensors/cubit/sensors_cubit.dart';
 import 'package:safeseiz/user/sos/cubit/sos_cubit.dart';
 import 'package:safeseiz/widgets/CalendarWidget.dart';
 import 'package:safeseiz/widgets/CustomButton.dart';
