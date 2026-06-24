@@ -5,10 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:safeseiz/functions/responsive.dart';
-import 'package:safeseiz/main.dart';
-import 'package:safeseiz/user/medical/information/cubit/medical_cubit.dart';
-import 'package:safeseiz/user/profile/cubit/profile_cubit.dart';
-import 'package:safeseiz/user/seizure/cubit/seizure_cubit.dart';
+import 'package:safeseiz/user/sensors/cubit/sensors_cubit.dart';
 import 'package:safeseiz/widgets/CustomButton.dart';
 import 'package:safeseiz/widgets/ReturnButton.dart';
 import '../user/contacts/cubit/emergency_contacts_cubit.dart';
@@ -28,9 +25,7 @@ class WatchPage extends StatefulWidget {
 }
 class _WatchPageState extends State<WatchPage> {
   static const _watchChannel = EventChannel('com.example.safeseiz/watch_events');
-  
   StreamSubscription? _watchSubscription;
-  
   String hr        = '--';
   String spo2      = '--';
   String accelX    = '--', accelY = '--', accelZ = '--';
@@ -40,11 +35,8 @@ class _WatchPageState extends State<WatchPage> {
   String seizureStatus = 'Monitoring...';
   bool _isTesting = false;
   int _currentEventType = 0; // 0=normal, 1=pre-seizure, 2=seizure
-  
   final SeizureDetector _detector = SeizureDetector();
   bool _detectorInitialized = false;
-  
-  String _initError = '';
 
   @override
   void initState() {
@@ -52,66 +44,37 @@ class _WatchPageState extends State<WatchPage> {
     _initDetector();
     _listenToWatch();
   }
-
   Future<void> _initDetector() async {
-    try {
-      await _detector.initialize();
-      setState(() => _detectorInitialized = true);
-    } catch (e) {
-      setState(() => _initError = 'Detector init error: $e');
-    }  
+    await _detector.initialize();
+    setState(() => _detectorInitialized = true);
   }
 
   List<EmergencyContactsModel> _getContacts() {
     return context.read<EmergencyContactsCubit>().contacts;
   }
 
-  void _triggerPreSeizureAlert() {
+  void _triggerAlert({bool isSeizure = true}) {
     context.read<SOSCubit>().sendAlert(
       contacts: _getContacts(),
       patientName: widget.patientName,
-      isSeizure: false,
+      isSeizure: isSeizure,
     );
   }
 
-  // Use this for seizure detection
-  void _triggerSeizureCountdown() {
-    final sosCubit = context.read<SOSCubit>();
-    final seizureCubit = context.read<SeizureCubit>();
-    final medicalCubit = context.read<MedicalCubit>();
-    final contactsCubit = context.read<EmergencyContactsCubit>();
-    final profileCubit = context.read<ProfileCubit>();
-
-    final contacts = contactsCubit.contacts;
-    final firstName = profileCubit.profile?.firstName ?? '';
-    final lastName = profileCubit.profile?.lastName ?? '';
-    final patientName = '$firstName $lastName'.trim().isEmpty ? 'Patient' : '$firstName $lastName'.trim();
-
-    if (contacts.isEmpty) return;
-
-    sosCubit.startCountdown(
-      contacts: contacts,
-      patientName: patientName,
-      seizureTime: DateTime.now(),
-      onAlertConfirmed: () async {
-        final defaultTypes = medicalCubit.medical?.seizureTypes ?? ['Unknown'];
-        seizureCubit.seizureTypes = defaultTypes.isNotEmpty ? defaultTypes : ['Unknown'];
-        return await seizureCubit.addSeizure(isAutoDetected: true);
-      },
+  void _navigateToSOSScreen() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => BlocProvider(
+          lazy: false,
+          create: (_) => SOSCubit(context.read<SensorsCubit>())..fetchLocation(),
+          child: const SOSPage(),
+        ),
+      ),
     );
   }
 
 Future<void> _runSyntheticTest() async {
-  if (!_detectorInitialized) {
-    setState(() => seizureStatus = 'Error: detector not ready — $_initError');
-    return;
-  }
-
   if (_isTesting) return;
-
-  // Pause WatchService inference during test
-  watchService.pauseInference();
-
   setState(() {
     _isTesting = true;
     seizureStatus = '⏳ Running test...';
@@ -121,16 +84,7 @@ Future<void> _runSyntheticTest() async {
   _detector.reset();
   try {
     // Load real seizure data from assets
-    late String jsonStr;
-
-    try {
-      jsonStr = await rootBundle.loadString('assets/seizure_test_data.json');
-    } catch (e) {
-      setState(() => seizureStatus = 'Error loading test data: $e');
-      setState(() => _isTesting = false);
-      return;
-    }
-    
+    final String jsonStr = await rootBundle.loadString('assets/seizure_test_data.json');
     final Map<String, dynamic> data = json.decode(jsonStr);
     final List<double> ecg  = List<double>.from(data['ecg']);
     final List<double> accX = List<double>.from(data['acc_x']);
@@ -157,10 +111,7 @@ Future<void> _runSyntheticTest() async {
 
         if (_currentEventType != 2) {
           NotificationService().showSeizureNotification(isSeizure: true);
-          _triggerSeizureCountdown();
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const SOSPage()),
-          );
+          _navigateToSOSScreen();
           _currentEventType = 2;
         }
         break;
@@ -168,7 +119,7 @@ Future<void> _runSyntheticTest() async {
           setState(() => seizureStatus = '⚠️ Pre-seizure Warning');
           if (_currentEventType == 0) {
             NotificationService().showSeizureNotification(isSeizure: false);
-            _triggerPreSeizureAlert();
+            _triggerAlert(isSeizure: false);
             _currentEventType = 1;
           }
         } else if (prediction == 0) {
@@ -193,9 +144,6 @@ Future<void> _runSyntheticTest() async {
       seizureStatus = 'Normal Readings ✓ (test complete)';
     }
   });
-
-  // Resume WatchService inference after test
-  watchService.resumeInference();
 }
 
 void _listenToWatch() {_watchSubscription = _watchChannel.receiveBroadcastStream().listen((event) async {
@@ -203,10 +151,7 @@ void _listenToWatch() {_watchSubscription = _watchChannel.receiveBroadcastStream
 
   final data = Map<String, dynamic>.from(event);
   if (data['type'] == 'sos') {
-    _triggerSeizureCountdown();
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const SOSPage()),
-    );
+    _triggerAlert();
     return;
   }
 
@@ -239,10 +184,7 @@ void _listenToWatch() {_watchSubscription = _watchChannel.receiveBroadcastStream
 
       if (_currentEventType != 2) {
         NotificationService().showSeizureNotification(isSeizure: true);
-        _triggerSeizureCountdown();
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const SOSPage()),
-        );
+        _navigateToSOSScreen();
         _currentEventType = 2;
       }
     } else if (prediction == 1) {
@@ -250,7 +192,7 @@ void _listenToWatch() {_watchSubscription = _watchChannel.receiveBroadcastStream
       
       if (_currentEventType == 0) {
         NotificationService().showSeizureNotification(isSeizure: false);
-        _triggerPreSeizureAlert();
+        _triggerAlert(isSeizure: false);
         _currentEventType = 1;
       }
     } else if (prediction == 0) {

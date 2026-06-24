@@ -42,14 +42,6 @@ class WatchService {
     _medicalCubit = cubit;
   }
 
-  void pauseInference() {
-    _detectorInitialized = false;
-  }
-
-  void resumeInference() {
-    _detectorInitialized = true;
-  }
-
   Future<void> startListening() async {
     debugPrint('WatchService: startListening called');
 
@@ -57,7 +49,7 @@ class WatchService {
     await _seizureDetector.initialize();
     _detectorInitialized = true;
     debugPrint('WatchService: SeizureDetector initialized');
-    
+
     try {
       _subscription = _eventChannel.receiveBroadcastStream().listen((event) async {
           debugPrint('Watch event received: $event');
