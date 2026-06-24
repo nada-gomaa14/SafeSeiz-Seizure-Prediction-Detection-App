@@ -112,7 +112,35 @@ class _LogSeizurePageState extends State<LogSeizurePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Date & Time
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(15.r * Responsive.scale(context)),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.error.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(15.0.r * Responsive.scale(context)),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.warning_rounded,
+                            color: Theme.of(context).colorScheme.error,
+                            size: 40.0.sp * Responsive.scale(context),
+                          ),
+                          SizedBox(width: 10.0.w * Responsive.scale(context)),
+                          Expanded(
+                            child: Text(
+                              'You can only log seizures that happened within the last 48 hours.',
+                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                fontSize: 16.sp * Responsive.scale(context),
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.error,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),   
+                    SizedBox(height: 20.h * Responsive.scale(context)),                   // Date & Time
                     Text(
                       'DATE & TIME',
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -129,6 +157,7 @@ class _LogSeizurePageState extends State<LogSeizurePage> {
                             label: 'Date',
                             dateController: dateController,
                             initialDate: seizureCubit.seizureDateTime,
+                            firstDate: DateTime.now().subtract(const Duration(hours: 48)),
                             onDateSelected: (selectedDate) {
                               final current = seizureCubit.seizureDateTime ?? DateTime.now();
 

@@ -6,11 +6,14 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:safeseiz/user/contacts/models/emergency_contacts_model.dart';
+import 'package:safeseiz/user/sensors/cubit/sensors_cubit.dart';
 import 'package:safeseiz/user/sos/cubit/sos_states.dart';
 import 'package:safeseiz/user/sos/service/sos_service.dart';
 
 class SOSCubit extends Cubit<SOSStates> {
-  SOSCubit() : super(SOSLoadedState(
+  final SensorsCubit sensorsCubit;
+
+  SOSCubit(this.sensorsCubit) : super(SOSLoadedState(
     secondsRemaining: 5,
     countdownStarted: false,
     alertSent: false,
@@ -27,7 +30,7 @@ class SOSCubit extends Cubit<SOSStates> {
 
   // Countdown
   Timer? countdownTimer;
-  int secondsRemaining = 10;
+  int secondsRemaining = 5;
   bool countdownStarted = false;
 
   // SOS
@@ -50,8 +53,12 @@ class SOSCubit extends Cubit<SOSStates> {
     'Log this seizure when able': false,
   };
 
+  // Track the seizure ID and time that triggered the current SOS
+  String? currentSeizureId;
+  DateTime? currentSeizureTime;
+
   // Start Countdown
-  Future<void> startCountdown({required List<EmergencyContactsModel> contacts, required String patientName}) async {
+  Future<void> startCountdown({required List<EmergencyContactsModel> contacts, required String patientName, String? seizureId, DateTime? seizureTime}) async {
     if (isSending) return;
 
     final hasPermission = await sosService.requestSMSPermission();
@@ -61,13 +68,16 @@ class SOSCubit extends Cubit<SOSStates> {
       return;
     }
 
+    // Store seizure context for false alarm labeling
+    currentSeizureId = seizureId;
+    currentSeizureTime = seizureTime ?? DateTime.now();
+
     // Reset
     secondsRemaining = 5;
     countdownStarted = true;
     alertCancelled = false;
     alertSent = false;
     isSending = false;
-
     notifiedContacts.clear();
 
     for (final contact in contacts) {
@@ -92,6 +102,27 @@ class SOSCubit extends Cubit<SOSStates> {
         }
       },
     );
+  }
+
+  // Cancel Alert — label as false alarm if AI triggered
+  void cancelAlert() {
+    countdownTimer?.cancel();
+    countdownTimer = null;
+    countdownStarted = false;
+    alertCancelled = true;
+    isSending = false;
+
+    // Label sensor readings as false alarm if this was AI detected
+    if (currentSeizureId != null) {
+      sensorsCubit.labelFalseAlarmReadings(
+        alarmTime: currentSeizureTime ?? DateTime.now(),
+        seizureId: currentSeizureId!,
+      );
+      currentSeizureId = null;
+      currentSeizureTime = null;
+    }
+
+    emitLoadedState();
   }
 
   // Fetch Location
@@ -141,9 +172,7 @@ class SOSCubit extends Cubit<SOSStates> {
         emitLoadedState();
       } else {
         locationText = 'Location permission unavailable.';
-
         if (isClosed) return;
-
         emitLoadedState();
       }
     } catch (e) {
@@ -154,7 +183,8 @@ class SOSCubit extends Cubit<SOSStates> {
   }
 
   // Send Alert
-  Future<void> sendAlert({required List<EmergencyContactsModel> contacts, required String patientName, bool isSeizure = true}) async {    if (alertCancelled || isSending) return;
+  Future<void> sendAlert({required List<EmergencyContactsModel> contacts, required String patientName, bool isSeizure = true}) async {    
+    if (alertCancelled || isSending) return;
 
     isSending = true;
     emitLoadedState();
@@ -208,17 +238,6 @@ class SOSCubit extends Cubit<SOSStates> {
     }
   }
 
-  // Cancel Alert
-  void cancelAlert() {
-    countdownTimer?.cancel();
-    countdownTimer = null;
-    countdownStarted = false;
-    alertCancelled = true;
-    isSending = false;
-
-    emitLoadedState();
-  }
-
   // Checklist
   void toggleChecklist(String key) {
     afterSeizureChecklist[key] = !(afterSeizureChecklist[key] ?? false);
@@ -242,6 +261,9 @@ class SOSCubit extends Cubit<SOSStates> {
     notifiedContacts.clear();
     afterSeizureChecklist.updateAll((key, value) => false);
 
+    currentSeizureId = null;
+    currentSeizureTime = null;
+
     emitLoadedState();
   }
 
@@ -250,8 +272,8 @@ class SOSCubit extends Cubit<SOSStates> {
     final time = DateFormat('h:mm a').format(DateTime.now());
 
     final String alertLabel = isSeizure
-        ? 'is having a seizure and needs immediate assistance'
-        : 'is showing pre-seizure warning signs and may need attention soon';
+      ? 'is having a seizure and needs immediate assistance'
+      : 'is showing pre-seizure warning signs and may need attention soon';
 
     if (currentPosition == null) {
       return '$patientName $alertLabel at $time. Location unavailable.';

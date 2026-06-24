@@ -27,6 +27,13 @@ class SeizureLocalRepo {
     }
   }
 
+  Future<void> purgeOldSeizures(String userId) async {
+    final seizures = getSeizures(userId);
+    final cutoff = DateTime.now().subtract(const Duration(days: 7));
+    final filtered = seizures.where((s) => s.seizureDateTime.isAfter(cutoff)).toList();
+    await saveSeizures(userId, filtered);
+  }
+
   Future<void> clearSeizures(String userId) async {
     await seizuresBox.delete(userId);
   }

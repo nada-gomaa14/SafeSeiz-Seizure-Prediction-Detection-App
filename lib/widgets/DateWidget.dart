@@ -9,7 +9,8 @@ class DateWidget extends StatelessWidget {
     required this.label,
     this.initialDate,
     required this.onDateSelected,
-    this.enabled = true
+    this.enabled = true,
+    this.firstDate,
   });
 
   final TextEditingController dateController;
@@ -17,18 +18,18 @@ class DateWidget extends StatelessWidget {
   final DateTime? initialDate;
   final Function(DateTime) onDateSelected;
   final bool enabled;
+  final DateTime? firstDate;
 
   Future<void> _pickDate(BuildContext context) async {
     final now = DateTime.now();
 
     final initialDate = now;
-    final firstDate = DateTime(1900, 1, 1);
     final lastDate = now;
 
     final selectedDate = await showDatePicker(
       context: context,
       initialDate: initialDate,
-      firstDate: firstDate,
+      firstDate: firstDate ?? DateTime(1900, 1, 1),
       lastDate: lastDate,
       builder: (context, child) {
         return Theme(

@@ -2,10 +2,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:safeseiz/user/sensors/cubit/sensors_states.dart';
 import 'package:safeseiz/user/sensors/models/sensors_model.dart';
 import 'package:safeseiz/user/sensors/repository/sensors_local_repo.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SensorsCubit extends Cubit<SensorsStates> {
   SensorsCubit() : super(SensorsInitialState());
+
   final SensorsLocalRepo sensorsLocalRepo = SensorsLocalRepo();
+  final supabase = Supabase.instance.client;
   List<SensorReadingModel> readings = [];
 
   // Save a single incoming reading from the watch
@@ -29,19 +32,72 @@ class SensorsCubit extends Cubit<SensorsStates> {
     }
   }
 
-  // Get readings around a seizure time — used for labelling and retraining
-  List<SensorReadingModel> getReadingsAround(DateTime seizureTime) {
-    return sensorsLocalRepo.getReadingsAround(seizureTime);
-  }
-
-  // Label readings around a seizure — called after seizure is confirmed
-  Future<void> labelSeizureReadings(DateTime seizureTime) async {
+  // Label readings around a seizure time — seizure confirmed
+  Future<void> labelSeizureReadings({
+    required DateTime seizureTime,
+    required String seizureId,
+  }) async {
     try {
       final window = sensorsLocalRepo.getReadingsAround(seizureTime);
       if (window.isEmpty) return;
-      await sensorsLocalRepo.labelReadings(window, 'seizure');
+      await sensorsLocalRepo.labelReadings(
+        readings: window,
+        label: 'seizure',
+        seizureId: seizureId,
+      );
     } catch (e) {
       emit(SensorsErrorState(error: e.toString()));
+    }
+  }
+
+  // Label readings around a false alarm time — user cancelled SOS
+  Future<void> labelFalseAlarmReadings({
+    required DateTime alarmTime,
+    required String seizureId,
+  }) async {
+    try {
+      final window = sensorsLocalRepo.getReadingsAround(alarmTime);
+      if (window.isEmpty) return;
+      await sensorsLocalRepo.labelReadings(
+        readings: window,
+        label: 'false_alarm',
+        seizureId: seizureId,
+      );
+    } catch (e) {
+      emit(SensorsErrorState(error: e.toString()));
+    }
+  }
+
+  // Sync labeled readings to Supabase
+  Future<void> syncToSupabase() async {
+    final user = supabase.auth.currentUser;
+    if (user == null) return;
+
+    final unsynced = sensorsLocalRepo.getUnsyncedLabeledReadings();
+    if (unsynced.isEmpty) return;
+
+    for (final reading in unsynced) {
+      try {
+        await supabase.from('sensor_readings').insert({
+          'seizure_id': reading.seizureId,
+          'user_id': user.id,
+          'timestamp': reading.timestamp,
+          'ppg': reading.ppg,
+          'hr': reading.hr,
+          'rri': reading.rri,
+          'accel_x': reading.accelX,
+          'accel_y': reading.accelY,
+          'accel_z': reading.accelZ,
+          'gyro_x': reading.gyroX,
+          'gyro_y': reading.gyroY,
+          'gyro_z': reading.gyroZ,
+          'label': reading.label,
+          'created_at': DateTime.now().toIso8601String(),
+        });
+        await sensorsLocalRepo.markAsSynced(reading);
+      } catch (_) {
+        // Stays unsynced — will retry on next syncToSupabase() call
+      }
     }
   }
 

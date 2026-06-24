@@ -4,18 +4,47 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:safeseiz/functions/notify.dart';
 import 'package:safeseiz/functions/responsive.dart';
-import 'package:safeseiz/report.dart';
+import 'package:safeseiz/services/export_report.dart';
 import 'package:safeseiz/user/medical/information/cubit/medical_cubit.dart';
 import 'package:safeseiz/user/medical/medication/cubit/medication_cubit.dart';
 import 'package:safeseiz/user/profile/cubit/profile_cubit.dart';
 import 'package:safeseiz/user/seizure/cubit/seizure_cubit.dart';
 import 'package:safeseiz/user/seizure/cubit/seizure_states.dart';
+import 'package:safeseiz/user/seizure/models/seizure_model.dart';
 import 'package:safeseiz/widgets/CustomButton.dart';
 import 'package:safeseiz/widgets/SummaryChart.dart';
 
-class SummaryPage extends StatelessWidget {
+class SummaryPage extends StatefulWidget {
   const SummaryPage({super.key});
 
+  @override
+  State<SummaryPage> createState() => _SummaryPageState();
+}
+
+class _SummaryPageState extends State<SummaryPage> {
+  List<SeizureModel>? _remoteSeizures;
+  bool _isFetchingRemote = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final reportType = context.read<SeizureCubit>().reportType;
+    if (reportType == 'month' || reportType == 'sixMonths') {
+      _fetchRemote();
+    }
+  }
+
+  Future<void> _fetchRemote() async {
+    setState(() => _isFetchingRemote = true);
+    final seizures = await context.read<SeizureCubit>().fetchSeizuresFromSupabase();
+    if (mounted) {
+      setState(() {
+        _remoteSeizures = seizures;
+        _isFetchingRemote = false;
+      });
+    }
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,9 +79,14 @@ class SummaryPage extends StatelessWidget {
               log(state.error);
               notify(context, state.error);
             }
+
+            if (state is SeizureOfflineState) {
+              notify(context, 'Connect to the internet to view this report.');
+              setState(() => _isFetchingRemote = false);
+            }
           },
           builder: (context, state) {
-            if (state is SeizureLoadingState) {
+            if (state is SeizureLoadingState || _isFetchingRemote) {
               return Center(
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
@@ -64,8 +98,8 @@ class SummaryPage extends StatelessWidget {
             final medicalCubit = context.read<MedicalCubit>();
             final medicationCubit = context.read<MedicationCubit>();
             final seizureCubit = context.read<SeizureCubit>();
-            final stats = seizureCubit.getSummaryStats();
-            final filteredSeizures = seizureCubit.getFilteredSeizures();
+            final stats = seizureCubit.getSummaryStats(remoteSeizures: _remoteSeizures);
+            final filteredSeizures = seizureCubit.getFilteredSeizures(source: _remoteSeizures);
 
             return Padding(
               padding: EdgeInsets.symmetric(
@@ -153,98 +187,155 @@ class SummaryPage extends StatelessWidget {
                         selected: {seizureCubit.reportType},
                         onSelectionChanged: (selection) {
                           seizureCubit.updateReportType(selection.first);
+                          if (selection.first == 'month' || selection.first == 'sixMonths') {
+                            _fetchRemote();
+                          } else {
+                            setState(() => _remoteSeizures = null);
+                          }
                         },
                       ),
                     ),
                     SizedBox(height: 20.0.h * Responsive.scale(context)),
-                    IntrinsicHeight(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: _buildSummaryCard(
-                              context, 
-                              isPrimary: true, 
-                              title: 'Total', 
-                              data: stats.totalSeizures, 
-                              metric: stats.hasSeizures
-                                ? (seizureCubit.reportType == 'week'
-                                  ? 'this week'
-                                  : seizureCubit.reportType == 'month'
-                                    ? 'this month'
-                                    : 'last 6 months')
-                                : '',
+                    if ((seizureCubit.reportType == 'month' || seizureCubit.reportType == 'sixMonths') && _remoteSeizures == null) ...[
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(15.r * Responsive.scale(context)),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(15.0.r * Responsive.scale(context)),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.wifi_off,
+                              color: Theme.of(context).colorScheme.error,
+                              size: 40.0.sp * Responsive.scale(context),
                             ),
-                          ),
-                          SizedBox(width: 10.0.w * Responsive.scale(context)),
-                          Expanded(
-                            child: _buildSummaryCard(
-                              context, 
-                              title: 'Avg Duration', 
-                              data: stats.averageDuration, 
-                              metric: stats.hasSeizures
-                                ? 'per event'
-                                : '',
+                            SizedBox(width: 10.0.w * Responsive.scale(context)),
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  Text(
+                                    'No internet connection.',
+                                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                      fontSize: 16.sp * Responsive.scale(context),
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).colorScheme.error,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Please connect to the internet to view summary.',
+                                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                      fontSize: 14.sp * Responsive.scale(context),
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).colorScheme.error,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          SizedBox(width: 10.0.w * Responsive.scale(context)),
-                          Expanded(
-                            child: _buildSummaryCard(
-                              context, 
-                              title: 'Last seizure', 
-                              data: stats.lastSeizure, 
-                              metric: stats.lastSeizureMetric,
+                          ],
+                        ),
+                      ), 
+                      SizedBox(height: 20.h * Responsive.scale(context)),
+                    ] else ...[
+                      IntrinsicHeight(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: _buildSummaryCard(
+                                context, 
+                                isPrimary: true, 
+                                title: 'Total', 
+                                data: stats.totalSeizures, 
+                                metric: stats.hasSeizures
+                                  ? (seizureCubit.reportType == 'week'
+                                    ? 'this week'
+                                    : seizureCubit.reportType == 'month'
+                                      ? 'this month'
+                                      : 'last 6 months')
+                                  : '',
+                              ),
                             ),
-                          ),
-                        ],
+                            SizedBox(width: 10.0.w * Responsive.scale(context)),
+                            Expanded(
+                              child: _buildSummaryCard(
+                                context, 
+                                title: 'Avg Duration', 
+                                data: stats.averageDuration, 
+                                metric: stats.hasSeizures
+                                  ? 'per event'
+                                  : '',
+                              ),
+                            ),
+                            SizedBox(width: 10.0.w * Responsive.scale(context)),
+                            Expanded(
+                              child: _buildSummaryCard(
+                                context, 
+                                title: 'Last seizure', 
+                                data: stats.lastSeizure, 
+                                metric: stats.lastSeizureMetric,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 10.0.h * Responsive.scale(context)),
-                    SummaryChart(summary: stats),
-                    SizedBox(height: 20.0.h * Responsive.scale(context)),
-                    CustomButton(
-                      text: 'Export Report',
-                      onTap: () async {
-                        try {
-                          if (profileCubit.profile == null || medicalCubit.medical == null) {
-                            notify(context, 'Unable to generate report. Try again later.');
-                            return;
-                          }
-                          late final SeizureReportData report;
+                      SizedBox(height: 10.0.h * Responsive.scale(context)),
+                      SummaryChart(summary: stats),
+                      SizedBox(height: 20.0.h * Responsive.scale(context)),
+                      CustomButton(
+                        text: 'Export Report',
+                        onTap: () async {
+                          try {
+                            if (profileCubit.profile == null || medicalCubit.medical == null) {
+                              notify(context, 'Unable to generate report. Try again later.');
+                              return;
+                            }
+                            late final SeizureReportData report;
 
-                          if (seizureCubit.reportType == 'week') {
-                            report = ReportBuilder.weekly(
-                              profile: profileCubit.profile!,
-                              medical: medicalCubit.medical!,
-                              medications: medicationCubit.medications,
-                              seizures: filteredSeizures,
-                              summary: stats,
-                            );
-                          } else if (seizureCubit.reportType == 'month') {
-                            report = ReportBuilder.monthly(
-                              profile: profileCubit.profile!,
-                              medical: medicalCubit.medical!,
-                              medications: medicationCubit.medications,
-                              seizures: filteredSeizures,
-                              summary: stats,
-                            );
-                          } else {
-                            report = ReportBuilder.multiMonth(
-                              profile: profileCubit.profile!,
-                              medical: medicalCubit.medical!,
-                              medications: medicationCubit.medications,
-                              seizures: filteredSeizures,
-                              summary: stats,
-                            );
-                          }
+                            if (seizureCubit.reportType == 'week') {
+                              report = ReportBuilder.weekly(
+                                profile: profileCubit.profile!,
+                                medical: medicalCubit.medical!,
+                                medications: medicationCubit.medications,
+                                seizures: filteredSeizures,
+                                summary: stats,
+                              );
+                            } else if (seizureCubit.reportType == 'month') {
+                              if (_remoteSeizures == null) {
+                                notify(context, 'Connect to the internet to export this report.');
+                                return;
+                              }
+                              report = ReportBuilder.monthly(
+                                profile: profileCubit.profile!,
+                                medical: medicalCubit.medical!,
+                                medications: medicationCubit.medications,
+                                seizures: filteredSeizures,
+                                summary: stats,
+                              );
+                            } else {
+                              if (_remoteSeizures == null) {
+                                notify(context, 'Connect to the internet to export this report.');
+                                return;
+                              }
+                              report = ReportBuilder.multiMonth(
+                                profile: profileCubit.profile!,
+                                medical: medicalCubit.medical!,
+                                medications: medicationCubit.medications,
+                                seizures: filteredSeizures,
+                                summary: stats,
+                              );
+                            }
 
-                          await shareSeizureReport(report);
-                        } catch (e) {
-                          notify(context, 'Failed to export report.');
-                        }
-                      }, 
-                    ),
+                            await shareSeizureReport(report);
+                          } catch (e) {
+                            notify(context, 'Failed to export report.');
+                          }
+                        }, 
+                      ),
+                    ],
                   ],
                 ),
               ),

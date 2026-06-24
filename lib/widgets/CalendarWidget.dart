@@ -4,14 +4,21 @@ import 'package:safeseiz/functions/responsive.dart';
 import 'package:safeseiz/user/seizure/models/seizure_model.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-class CalendarWidget extends StatelessWidget {
+class CalendarWidget extends StatefulWidget {
   final List<SeizureModel> seizures;
   const CalendarWidget({super.key, required this.seizures});
 
   @override
+  State<CalendarWidget> createState() => _CalendarWidgetState();
+}
+
+class _CalendarWidgetState extends State<CalendarWidget> {
+  DateTime _focusedDay = DateTime.now();
+
+  @override
   Widget build(BuildContext context) {
     List<SeizureModel> getSeizuresForDay(DateTime day) {
-      return seizures.where((seizure) {
+      return widget.seizures.where((seizure) {
         return seizure.seizureDateTime.year == day.year &&
           seizure.seizureDateTime.month == day.month &&
           seizure.seizureDateTime.day == day.day;
@@ -32,7 +39,10 @@ class CalendarWidget extends StatelessWidget {
             TableCalendar(
               firstDay: DateTime.utc(2020, 1, 1),
               lastDay: DateTime.utc(2030, 12, 31),
-              focusedDay: DateTime.now(),
+              focusedDay: _focusedDay,
+              onPageChanged: (focusedDay) {
+                _focusedDay = focusedDay;
+              },
               eventLoader: getSeizuresForDay,
               calendarFormat: CalendarFormat.week,
               daysOfWeekVisible: true,
@@ -70,6 +80,10 @@ class CalendarWidget extends StatelessWidget {
                   fontSize: 14.sp * Responsive.scale(context),
                 ),  
                 weekendTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: Theme.of(context).colorScheme.tertiary,
+                  fontSize: 14.sp * Responsive.scale(context),
+                ),
+                outsideTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   color: Theme.of(context).colorScheme.tertiary,
                   fontSize: 14.sp * Responsive.scale(context),
                 ),

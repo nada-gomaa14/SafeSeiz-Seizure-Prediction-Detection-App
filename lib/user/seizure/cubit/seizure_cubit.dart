@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:safeseiz/user/seizure/models/summary_model.dart';
@@ -71,20 +72,19 @@ class SeizureCubit extends Cubit<SeizureStates> {
 
   // Validate Seizure Type
   bool validateSeizureTypes() {
-    seizureTypesError = null;
-
     if (seizureTypes.isEmpty) {
       seizureTypesError = 'Select at least one seizure type.';
       emit(SeizureUpdateState());
       return false;
     }
-
+    
+    seizureTypesError = null;
     emit(SeizureUpdateState());
     return true;
   }
 
   // Add Seizure
-  Future<bool> addSeizure({required bool isAutoDetected}) async {
+  Future<String?> addSeizure({required bool isAutoDetected}) async {
     emit(SeizureLoadingState());
 
     try {
@@ -92,7 +92,7 @@ class SeizureCubit extends Cubit<SeizureStates> {
 
       if (user == null) {
         emit(SeizureErrorState(error: 'User not logged in.'));
-        return false;
+        return null;
       }
 
       final seizure = SeizureModel(
@@ -110,15 +110,27 @@ class SeizureCubit extends Cubit<SeizureStates> {
       seizures.add(seizure);
       await seizureLocalRepo.saveSeizures(user.id, seizures);
 
+      final seizureTime = seizureDateTime ?? DateTime.now();
+      final cutoff = DateTime.now().subtract(const Duration(hours: 48));
+
+
+      // Label sensor readings linked to this seizure
+      if (seizureTime.isAfter(cutoff)) {
+        await sensorsCubit.labelSeizureReadings(
+          seizureTime: seizureTime,
+          seizureId: seizure.id,
+        );
+      }
+
       clearForm();
       await loadSeizures();
       syncToSupabase();
 
       emit(SeizureSuccessState());
-      return true;
+      return seizure.id;
     } catch (e) {
       emit(SeizureErrorState(error: e.toString()));
-      return false;
+      return null;
     }
   }
 
@@ -151,6 +163,41 @@ class SeizureCubit extends Cubit<SeizureStates> {
     }
   }
 
+  // Fetch from Supabase for monthly and 6-month reports
+  Future<List<SeizureModel>?> fetchSeizuresFromSupabase() async {
+    final user = supabase.auth.currentUser;
+    if (user == null) return [];
+
+    // Check connectivity first
+    final connectivity = await Connectivity().checkConnectivity();
+    if (connectivity.every((r) => r == ConnectivityResult.none)) {
+      emit(SeizureOfflineState());
+      return null;
+    }
+
+    try {
+      final response = await supabase
+          .from('seizures')
+          .select()
+          .eq('user_id', user.id)
+          .order('seizure_date_time', ascending: false);
+
+      return (response as List).map((json) => SeizureModel(
+        id: json['id'],
+        seizureDateTime: DateTime.parse(json['seizure_date_time']),
+        seizureTypes: List<String>.from(json['seizure_types']),
+        durationMinutes: json['duration_minutes'],
+        durationSeconds: json['duration_seconds'],
+        notes: json['notes'],
+        isAutoDetected: json['is_auto_detected'],
+        createdAt: DateTime.parse(json['created_at']),
+      )).toList();
+    } catch (e) {
+      emit(SeizureErrorState(error: e.toString()));
+      return null;
+    }
+  }
+
   // Load Seizures
   Future<void> loadSeizures() async {
     emit(SeizureLoadingState());
@@ -161,6 +208,9 @@ class SeizureCubit extends Cubit<SeizureStates> {
         emit(SeizureErrorState(error: 'User not logged in.'));
         return;
       }
+
+      // Auto-purge seizures older than 7 days
+      await seizureLocalRepo.purgeOldSeizures(user.id);
 
       seizuresLogs = seizureLocalRepo.getSeizures(user.id);
       seizuresLogs.sort((a, b) => b.seizureDateTime.compareTo(a.seizureDateTime));
@@ -213,9 +263,10 @@ class SeizureCubit extends Cubit<SeizureStates> {
   }
 
   // Summary Stats
-  SummaryModel getSummaryStats() {   
-    final now = DateTime.now();    
-    final filteredSeizures = getFilteredSeizures();
+  SummaryModel getSummaryStats({List<SeizureModel>? remoteSeizures}) {   
+    final now = DateTime.now();
+    final source = remoteSeizures ?? seizuresLogs;
+    final filteredSeizures = getFilteredSeizures(source: source);
     final hasSeizures = filteredSeizures.isNotEmpty;
 
     final totalSeizures = hasSeizures
@@ -233,9 +284,9 @@ class SeizureCubit extends Cubit<SeizureStates> {
       ? '${avgMinutes}m ${avgSeconds.toString().padLeft(2, '0')}s'
       : '--';
     
-    final latestSeizure = seizuresLogs.isEmpty
+    final latestSeizure = source.isEmpty
       ? null
-      : seizuresLogs.reduce(
+      : source.reduce(
         (a, b) => a.seizureDateTime.isAfter(b.seizureDateTime)
           ? a
           : b,
@@ -327,7 +378,8 @@ class SeizureCubit extends Cubit<SeizureStates> {
   }
 
   // Seizure Filter
-  List<SeizureModel> getFilteredSeizures() {
+  List<SeizureModel> getFilteredSeizures({List<SeizureModel>? source}) {
+    final data = source ?? seizuresLogs;
     final now = DateTime.now();
     late final DateTime period;
 
@@ -339,6 +391,6 @@ class SeizureCubit extends Cubit<SeizureStates> {
       period = DateTime(now.year, now.month - 5, now.day);
     }
 
-    return seizuresLogs.where((s) => !s.seizureDateTime.isBefore(period)).toList();
+    return data.where((s) => !s.seizureDateTime.isBefore(period)).toList();
   }
 }

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:safeseiz/functions/responsive.dart';
+import 'package:safeseiz/user/sensors/cubit/sensors_cubit.dart';
 import 'package:safeseiz/widgets/CustomButton.dart';
 import 'package:safeseiz/widgets/ReturnButton.dart';
 import '../user/contacts/cubit/emergency_contacts_cubit.dart';
@@ -72,7 +73,7 @@ class _WatchPageState extends State<WatchPage> {
       MaterialPageRoute(
         builder: (_) => BlocProvider(
           lazy: false,
-          create: (_) => SOSCubit()..fetchLocation(),
+          create: (_) => SOSCubit(context.read<SensorsCubit>())..fetchLocation(),
           child: const SOSPage(),
         ),
       ),

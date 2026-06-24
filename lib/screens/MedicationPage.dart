@@ -6,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:safeseiz/functions/notify.dart';
 import 'package:safeseiz/functions/responsive.dart';
-import 'package:safeseiz/functions/settings_prefs.dart';
+import 'package:safeseiz/services/settings_preferences.dart';
 import 'package:safeseiz/functions/showPopup.dart';
 import 'package:safeseiz/user/medical/medication/cubit/medication_cubit.dart';
 import 'package:safeseiz/user/medical/medication/cubit/medication_states.dart';

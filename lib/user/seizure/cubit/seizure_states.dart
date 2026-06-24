@@ -6,6 +6,7 @@ class SeizureInitialState extends SeizureStates {}
 class SeizureUpdateState extends SeizureStates {}
 class SeizureLoadingState extends SeizureStates {}
 class SeizureSuccessState extends SeizureStates {}
+class SeizureOfflineState extends SeizureStates {}
 
 class SeizureLoadedState extends SeizureStates {
   final List<SeizureModel> seizures;

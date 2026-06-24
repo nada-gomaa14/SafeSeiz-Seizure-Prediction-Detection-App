@@ -28,6 +28,7 @@ import 'package:safeseiz/services/notification_service.dart';
 import 'package:safeseiz/user/sensors/models/sensors_model.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+final watchService = WatchService();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,18 +53,7 @@ Future<void> main() async {
   await Hive.openBox('emergency_contacts_box');
   await Hive.openBox('seizures_box');
   await Hive.openBox<List>('medication_box');
-  await Hive.openBox<SensorReadingModel>('sensors_box');
-
-  // Watch service — start listening for sensor data and SOS from smartwatch
-  final watchService = WatchService();
-  watchService.startListening();
-
-  // Wire SensorsCubit to WatchService after providers are ready
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    final context = navigatorKey.currentContext;
-    if (context == null) return;
-    watchService.setSensorsCubit(context.read<SensorsCubit>());
-  });
+  await Hive.openBox<SensorReadingModel>('sensors_box');  
 
   // Trigger SOS alert when watch SOS button is pressed
   watchService.sosStream.listen((_) async {
@@ -81,11 +71,26 @@ Future<void> main() async {
 
     if (contacts.isEmpty) return;
 
-    sosCubit.startCountdown(
-      contacts: contacts,
-      patientName: patientName,
-    );
+    sosCubit.startCountdown(contacts: contacts, patientName: patientName);
   });
+
+   // AI detected seizure → trigger SOS
+    watchService.seizureDetectedStream.listen((_) async {
+      final context = navigatorKey.currentContext;
+      if (context == null) return;
+      final sosCubit = context.read<SOSCubit>();
+      final contactsCubit = context.read<EmergencyContactsCubit>();
+      final profileCubit = context.read<ProfileCubit>();
+      final contacts = contactsCubit.contacts;
+      final firstName = profileCubit.profile?.firstName ?? '';
+      final lastName = profileCubit.profile?.lastName ?? '';
+      final patientName = '$firstName $lastName'.trim().isEmpty ? 'Patient' : '$firstName $lastName'.trim();
+      if (contacts.isEmpty) return;
+      sosCubit.startCountdown(contacts: contacts, patientName: patientName, seizureId: watchService.lastSeizureId, seizureTime: watchService.lastSeizureTime);
+    });
+
+    // Start listening for sensor data and SOS from smartwatch
+    await watchService.startListening();
 
   runApp(const SafeSeiz());
 }
@@ -105,12 +110,21 @@ class _SafeSeizState extends State<SafeSeiz> {
   void initState() {
     super.initState();
 
+    // Wire SensorsCubit to WatchService after providers are ready
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+    final context = navigatorKey.currentContext;
+    if (context == null) return;
+    watchService.setSensorsCubit(context.read<SensorsCubit>());
+    watchService.setSeizureCubit(context.read<SeizureCubit>());
+  });
+
     // Sync on app resume
     _lifecycleListener = AppLifecycleListener(
       onResume: () {
         final context = navigatorKey.currentContext;
         if (context == null) return;
         context.read<SeizureCubit>().syncToSupabase();
+        context.read<SensorsCubit>().syncToSupabase();
       },
     );
 
@@ -122,6 +136,7 @@ class _SafeSeizState extends State<SafeSeiz> {
       final context = navigatorKey.currentContext;
       if (context == null) return;
       context.read<SeizureCubit>().syncToSupabase();
+      context.read<SensorsCubit>().syncToSupabase(); 
     });
   }
 
@@ -142,7 +157,7 @@ class _SafeSeizState extends State<SafeSeiz> {
         BlocProvider(create: (context) => MedicationCubit(MedicationLocalRepo())),
         BlocProvider(create: (context) => SensorsCubit()),
         BlocProvider(create: (context) => SeizureCubit(context.read<SensorsCubit>())),
-        BlocProvider(create: (context) => SOSCubit()),
+        BlocProvider(create: (context) => SOSCubit(context.read<SensorsCubit>())),
         BlocProvider(create: (context) => AuthCubit(
           context.read<ProfileCubit>(), 
           context.read<MedicalCubit>(),

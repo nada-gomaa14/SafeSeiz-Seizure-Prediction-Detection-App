@@ -9,10 +9,10 @@ class SensorReadingModel extends HiveObject {
   final String timestamp;
 
   @HiveField(1)
-  final double hr;
+  final double ppg;
 
   @HiveField(2)
-  final double spo2;
+  final double hr;
 
   @HiveField(3)
   final double rri;
@@ -36,12 +36,18 @@ class SensorReadingModel extends HiveObject {
   final double gyroZ;
 
   @HiveField(10)
-  String label; // normal / pre_seizure / seizure
+  String label;
+
+  @HiveField(11)
+  String? seizureId;
+
+  @HiveField(12)
+  bool isSynced;
 
   SensorReadingModel({
     required this.timestamp,
+    required this.ppg,
     required this.hr,
-    required this.spo2,
     required this.rri,
     required this.accelX,
     required this.accelY,
@@ -50,5 +56,7 @@ class SensorReadingModel extends HiveObject {
     required this.gyroY,
     required this.gyroZ,
     this.label = 'normal',
+    this.seizureId,
+    this.isSynced = false,
   });
 }

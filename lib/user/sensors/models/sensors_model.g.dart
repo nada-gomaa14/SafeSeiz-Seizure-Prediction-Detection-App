@@ -18,8 +18,8 @@ class SensorReadingModelAdapter extends TypeAdapter<SensorReadingModel> {
     };
     return SensorReadingModel(
       timestamp: fields[0] as String,
-      hr: fields[1] as double,
-      spo2: fields[2] as double,
+      ppg: fields[1] as double,
+      hr: fields[2] as double,
       rri: fields[3] as double,
       accelX: fields[4] as double,
       accelY: fields[5] as double,
@@ -28,19 +28,21 @@ class SensorReadingModelAdapter extends TypeAdapter<SensorReadingModel> {
       gyroY: fields[8] as double,
       gyroZ: fields[9] as double,
       label: fields[10] as String,
+      seizureId: fields[11] as String?,
+      isSynced: fields[12] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, SensorReadingModel obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(13)
       ..writeByte(0)
       ..write(obj.timestamp)
       ..writeByte(1)
-      ..write(obj.hr)
+      ..write(obj.ppg)
       ..writeByte(2)
-      ..write(obj.spo2)
+      ..write(obj.hr)
       ..writeByte(3)
       ..write(obj.rri)
       ..writeByte(4)
@@ -56,7 +58,11 @@ class SensorReadingModelAdapter extends TypeAdapter<SensorReadingModel> {
       ..writeByte(9)
       ..write(obj.gyroZ)
       ..writeByte(10)
-      ..write(obj.label);
+      ..write(obj.label)
+      ..writeByte(11)
+      ..write(obj.seizureId)
+      ..writeByte(12)
+      ..write(obj.isSynced);
   }
 
   @override

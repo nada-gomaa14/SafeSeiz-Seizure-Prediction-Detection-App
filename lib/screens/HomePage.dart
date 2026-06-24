@@ -12,6 +12,7 @@ import 'package:safeseiz/screens/WatchPage.dart';
 import 'package:safeseiz/user/medical/medication/cubit/medication_cubit.dart';
 import 'package:safeseiz/user/profile/cubit/profile_cubit.dart';
 import 'package:safeseiz/user/profile/cubit/profile_states.dart';
+import 'package:safeseiz/user/sensors/cubit/sensors_cubit.dart';
 import 'package:safeseiz/user/sos/cubit/sos_cubit.dart';
 import 'package:safeseiz/widgets/CalendarWidget.dart';
 import 'package:safeseiz/widgets/CustomButton.dart';
@@ -190,7 +191,7 @@ class _HomePageState extends State<HomePage> {
                           MaterialPageRoute(
                             builder: (_) => BlocProvider(
                               lazy: false,
-                              create: (_) => SOSCubit()..fetchLocation(),
+                              create: (_) => SOSCubit(context.read<SensorsCubit>())..fetchLocation(),
                               child: const SOSPage(),
                             ),
                           ),

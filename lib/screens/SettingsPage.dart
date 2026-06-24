@@ -10,7 +10,7 @@ import 'package:safeseiz/user/authentication/auth_states.dart';
 import 'package:safeseiz/widgets/CustomButton.dart';
 import 'package:safeseiz/widgets/CustomListItem.dart';
 import 'package:safeseiz/widgets/ReturnButton.dart';
-import 'package:safeseiz/functions/settings_prefs.dart';
+import 'package:safeseiz/services/settings_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
