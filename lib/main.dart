@@ -55,9 +55,6 @@ Future<void> main() async {
   await Hive.openBox<List>('medication_box');
   await Hive.openBox<SensorReadingModel>('sensors_box');  
 
-  // Start listening for sensor data and SOS from smartwatch
-  await watchService.startListening();
-
   runApp(const SafeSeiz());
 }
 
@@ -77,7 +74,7 @@ class _SafeSeizState extends State<SafeSeiz> {
     super.initState();
 
     // Wire SensorsCubit to WatchService after providers are ready
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final context = navigatorKey.currentContext;
       if (context == null) return;
       watchService.setSensorsCubit(context.read<SensorsCubit>());
@@ -133,6 +130,9 @@ class _SafeSeizState extends State<SafeSeiz> {
 
         sosCubit.startCountdown(contacts: contacts, patientName: patientName, seizureId: watchService.lastSeizureId, seizureTime: watchService.lastSeizureTime);
       });
+
+      // Start listening for sensor data and SOS from smartwatch
+      await watchService.startListening();
     });
 
     // Sync on app resume
