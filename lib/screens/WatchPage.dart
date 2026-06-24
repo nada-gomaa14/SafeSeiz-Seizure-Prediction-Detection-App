@@ -27,7 +27,9 @@ class WatchPage extends StatefulWidget {
 }
 class _WatchPageState extends State<WatchPage> {
   static const _watchChannel = EventChannel('com.example.safeseiz/watch_events');
+  
   StreamSubscription? _watchSubscription;
+  
   String hr        = '--';
   String spo2      = '--';
   String accelX    = '--', accelY = '--', accelZ = '--';
@@ -37,8 +39,11 @@ class _WatchPageState extends State<WatchPage> {
   String seizureStatus = 'Monitoring...';
   bool _isTesting = false;
   int _currentEventType = 0; // 0=normal, 1=pre-seizure, 2=seizure
+  
   final SeizureDetector _detector = SeizureDetector();
   bool _detectorInitialized = false;
+  
+  String _initError = '';
 
   @override
   void initState() {
@@ -46,9 +51,14 @@ class _WatchPageState extends State<WatchPage> {
     _initDetector();
     _listenToWatch();
   }
+
   Future<void> _initDetector() async {
-    await _detector.initialize();
-    setState(() => _detectorInitialized = true);
+    try {
+      await _detector.initialize();
+      setState(() => _detectorInitialized = true);
+    } catch (e) {
+      setState(() => _initError = 'Detector init error: $e');
+    }  
   }
 
   List<EmergencyContactsModel> _getContacts() {
@@ -91,6 +101,11 @@ class _WatchPageState extends State<WatchPage> {
   }
 
 Future<void> _runSyntheticTest() async {
+  if (!_detectorInitialized) {
+    setState(() => seizureStatus = 'Error: detector not ready — $_initError');
+    return;
+  }
+
   if (_isTesting) return;
   setState(() {
     _isTesting = true;
@@ -101,7 +116,16 @@ Future<void> _runSyntheticTest() async {
   _detector.reset();
   try {
     // Load real seizure data from assets
-    final String jsonStr = await rootBundle.loadString('assets/seizure_test_data.json');
+    late String jsonStr;
+
+    try {
+      jsonStr = await rootBundle.loadString('assets/seizure_test_data.json');
+    } catch (e) {
+      setState(() => seizureStatus = 'Error loading test data: $e');
+      setState(() => _isTesting = false);
+      return;
+    }
+    
     final Map<String, dynamic> data = json.decode(jsonStr);
     final List<double> ecg  = List<double>.from(data['ecg']);
     final List<double> accX = List<double>.from(data['acc_x']);

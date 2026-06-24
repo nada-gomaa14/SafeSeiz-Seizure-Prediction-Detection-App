@@ -46,10 +46,14 @@ class WatchService {
     debugPrint('WatchService: startListening called');
 
     // Initialize SeizureDetector
-    await _seizureDetector.initialize();
-    _detectorInitialized = true;
-    debugPrint('WatchService: SeizureDetector initialized');
-
+    try {
+      await _seizureDetector.initialize();
+      _detectorInitialized = true;
+      debugPrint('WatchService: SeizureDetector initialized');
+    } catch (e) {
+      debugPrint('WatchService: detector init failed: $e');
+    }
+    
     try {
       _subscription = _eventChannel.receiveBroadcastStream().listen((event) async {
           debugPrint('Watch event received: $event');
