@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:safeseiz/user/sensors/cubit/sensors_states.dart';
 import 'package:safeseiz/user/sensors/models/sensors_model.dart';
@@ -39,9 +40,11 @@ class SensorsCubit extends Cubit<SensorsStates> {
   }) async {
     try {
       final window = sensorsLocalRepo.getReadingsAround(seizureTime);
+      debugPrint('Label seizure: found ${window.length} readings around $seizureTime');
       if (window.isEmpty) return;
 
       await sensorsLocalRepo.labelReadings(readings: window, label: 'seizure', seizureId: seizureId);
+      debugPrint('Label seizure: labeled ${window.length} readings');
       syncToSupabase();
     } catch (e) {
       emit(SensorsErrorState(error: e.toString()));
