@@ -3,9 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:safeseiz/functions/responsive.dart';
-import 'package:safeseiz/user/contacts/cubit/emergency_contacts_cubit.dart';
-import 'package:safeseiz/user/contacts/cubit/emergency_contacts_states.dart';
-import 'package:safeseiz/user/contacts/models/emergency_contacts_model.dart';
+import 'package:safeseiz/user/contact/cubit/emergency_contact_cubit.dart';
+import 'package:safeseiz/user/contact/cubit/emergency_contact_states.dart';
+import 'package:safeseiz/user/contact/models/emergency_contact_model.dart';
 import 'package:safeseiz/widgets/CustomButton.dart';
 
 class AddEmergencyContact extends StatefulWidget {
@@ -133,7 +133,7 @@ class _AddEmergencyContactState extends State<AddEmergencyContact> {
                 )
               ),
             ),
-            items: EmergencyContactsModel.relationships.map((type) {
+            items: EmergencyContactModel.relationships.map((type) {
               return DropdownMenuItem(
                 value: type,
                 child: Text(

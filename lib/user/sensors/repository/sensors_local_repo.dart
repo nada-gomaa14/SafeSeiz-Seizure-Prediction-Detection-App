@@ -1,17 +1,26 @@
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:safeseiz/user/sensors/models/sensors_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SensorsLocalRepo {
-  final Box<SensorReadingModel> sensorsBox = Hive.box<SensorReadingModel>('sensors_box');
+  Box<SensorReadingModel> get sensorsBox {
+    final userId = Supabase.instance.client.auth.currentUser!.id;
+    return Hive.box<SensorReadingModel>('sensors_box_$userId');
+  }
 
   // Save a single reading
   Future<void> saveReading(SensorReadingModel reading) async {
+    debugPrint('SAVING SENSOR TO HIVE');
     await sensorsBox.add(reading);
+    debugPrint('SENSOR SAVED TO HIVE');
   }
 
   // Get all readings
   List<SensorReadingModel> getAllReadings() {
-    return sensorsBox.values.toList();
+    final data = sensorsBox.values.toList();
+    debugPrint('READING SENSOR: $data');
+    return data;
   }
 
   // Get readings around a seizure time (2 min before, 30 sec after)
@@ -44,9 +53,7 @@ class SensorsLocalRepo {
 
   // Get all unsynced labeled readings (non-normal)
   List<SensorReadingModel> getUnsyncedLabeledReadings() {
-    return sensorsBox.values
-      .where((r) => r.label != 'normal' && !r.isSynced)
-      .toList();
+    return sensorsBox.values.where((r) => r.label != 'normal' && !r.isSynced).toList();
   }
 
   // Mark a reading as synced

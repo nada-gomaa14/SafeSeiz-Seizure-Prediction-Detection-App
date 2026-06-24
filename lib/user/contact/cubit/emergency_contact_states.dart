@@ -1,5 +1,5 @@
 
-import 'package:safeseiz/user/contacts/models/emergency_contacts_model.dart';
+import 'package:safeseiz/user/contact/models/emergency_contact_model.dart';
 
 abstract class EmergencyContactsStates {}
 
@@ -8,7 +8,7 @@ class EmergencyContactsLoadingState extends EmergencyContactsStates {}
 class EmergencyContactsSuccessState extends EmergencyContactsStates {}
 
 class EmergencyContactsLoadedState extends EmergencyContactsStates {
-  final List<EmergencyContactsModel> contacts;
+  final List<EmergencyContactModel> contacts;
   final bool hasMinimumContacts;
 
   EmergencyContactsLoadedState({

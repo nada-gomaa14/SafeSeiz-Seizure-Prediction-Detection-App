@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:safeseiz/functions/notify.dart';
 import 'package:safeseiz/functions/responsive.dart';
-import 'package:safeseiz/user/contacts/cubit/emergency_contacts_cubit.dart';
-import 'package:safeseiz/user/contacts/models/emergency_contacts_model.dart';
+import 'package:safeseiz/user/contact/cubit/emergency_contact_cubit.dart';
+import 'package:safeseiz/user/contact/models/emergency_contact_model.dart';
 import 'package:safeseiz/user/profile/cubit/profile_cubit.dart';
 import 'package:safeseiz/user/sos/cubit/sos_cubit.dart';
 import 'package:safeseiz/user/sos/cubit/sos_states.dart';
@@ -20,7 +20,7 @@ class SOSPage extends StatefulWidget {
 }
 
 class _SOSPageState extends State<SOSPage> {
-  late final List<EmergencyContactsModel> contacts;
+  late final List<EmergencyContactModel> contacts;
   late final String patientName;
   late final SOSCubit sosCubit;
 

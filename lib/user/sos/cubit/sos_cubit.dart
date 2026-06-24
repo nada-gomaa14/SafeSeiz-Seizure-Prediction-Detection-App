@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
-import 'package:safeseiz/user/contacts/models/emergency_contacts_model.dart';
+import 'package:safeseiz/user/contact/models/emergency_contact_model.dart';
 import 'package:safeseiz/user/sensors/cubit/sensors_cubit.dart';
 import 'package:safeseiz/user/sos/cubit/sos_states.dart';
 import 'package:safeseiz/user/sos/service/sos_service.dart';
@@ -59,7 +59,7 @@ class SOSCubit extends Cubit<SOSStates> {
   DateTime? currentSeizureTime;
 
   // Start Countdown
-  Future<void> startCountdown({required List<EmergencyContactsModel> contacts, required String patientName, String? seizureId, DateTime? seizureTime, Future<String?> Function()? onAlertConfirmed}) async {
+  Future<void> startCountdown({required List<EmergencyContactModel> contacts, required String patientName, String? seizureId, DateTime? seizureTime, Future<String?> Function()? onAlertConfirmed}) async {
     if (isSending) return;
 
     final hasPermission = await sosService.requestSMSPermission();
@@ -186,7 +186,7 @@ class SOSCubit extends Cubit<SOSStates> {
   }
 
   // Send Alert
-  Future<void> sendAlert({required List<EmergencyContactsModel> contacts, required String patientName, bool isSeizure = true}) async {    
+  Future<void> sendAlert({required List<EmergencyContactModel> contacts, required String patientName, bool isSeizure = true}) async {    
     if (alertCancelled || isSending) return;
 
     isSending = true;

@@ -1,33 +1,29 @@
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/medication_model.dart';
 
 class MedicationLocalRepo {
+  static const _medicationsKey = 'medications';
 
-  Future<Box<List>> get medicationBox async {
-    if (!Hive.isBoxOpen('medication_box')) {
-      return await Hive.openBox<List>('medication_box');
-    }
-
-    return Hive.box<List>('medication_box');
+  Box get medicationBox {
+    final userId = Supabase.instance.client.auth.currentUser!.id;
+    return Hive.box('medication_box_$userId');
   }
 
-  Future<void> saveMedications(String userId, List<MedicationModel> medications) async {
-    final box = await medicationBox;
-    await box.put('medication_$userId', medications);
+  Future<void> saveMedications(List<MedicationModel> medications) async {
+    debugPrint('SAVING MEDICATION TO HIVE');
+    await medicationBox.put(_medicationsKey, medications);
+    debugPrint('MEDICATION SAVED TO HIVE');
   }
 
-  Future<List<MedicationModel>?> getMedications(String userId) async {
-    final box = await medicationBox;
-    final data = box.get('medication_$userId');
-
-    if (data == null) return null;
-
-    return List<MedicationModel>.from(data);
+  List<MedicationModel>? getMedications() {
+    final data = medicationBox.get(_medicationsKey);
+    debugPrint('READING MEDICATION: $data');
+    return data?.cast<MedicationModel>();
   }
 
-  Future<void> clearMedications(String userId) async {
-    final box = await medicationBox;
-
-    await box.delete('medication_$userId');
+  Future<void> clearMedications() async {
+    await medicationBox.delete(_medicationsKey);
   }
 }

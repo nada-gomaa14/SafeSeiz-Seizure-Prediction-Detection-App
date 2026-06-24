@@ -7,7 +7,7 @@ import 'package:safeseiz/functions/showPopup.dart';
 import 'package:safeseiz/functions/notify.dart';
 import 'package:safeseiz/navigation/navigation_layout.dart';
 import 'package:safeseiz/screens/SettingsPage.dart';
-import 'package:safeseiz/user/contacts/cubit/emergency_contacts_cubit.dart';
+import 'package:safeseiz/user/contact/cubit/emergency_contact_cubit.dart';
 import 'package:safeseiz/user/medical/information/cubit/medical_cubit.dart';
 import 'package:safeseiz/user/profile/cubit/profile_cubit.dart';
 import 'package:safeseiz/user/profile/cubit/profile_states.dart';

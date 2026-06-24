@@ -1,9 +1,9 @@
 import 'package:hive/hive.dart';
 
-part 'emergency_contacts_model.g.dart';
+part 'emergency_contact_model.g.dart';
 
 @HiveType(typeId: 1)
-class EmergencyContactsModel {
+class EmergencyContactModel {
 
   @HiveField(0)
   final String id;
@@ -17,7 +17,7 @@ class EmergencyContactsModel {
   @HiveField(3)
   final String phone;
 
-  EmergencyContactsModel({
+  EmergencyContactModel({
     required this.id,
     required this.name,
     required this.relationship,

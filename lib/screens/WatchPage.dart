@@ -8,8 +8,8 @@ import 'package:safeseiz/functions/responsive.dart';
 import 'package:safeseiz/user/sensors/cubit/sensors_cubit.dart';
 import 'package:safeseiz/widgets/CustomButton.dart';
 import 'package:safeseiz/widgets/ReturnButton.dart';
-import '../user/contacts/cubit/emergency_contacts_cubit.dart';
-import '../user/contacts/models/emergency_contacts_model.dart';
+import '../user/contact/cubit/emergency_contact_cubit.dart';
+import '../user/contact/models/emergency_contact_model.dart';
 import '../user/sos/cubit/sos_cubit.dart';
 import '../user/seizure/seizure_detector.dart';
 import '../screens/SOSPage.dart';
@@ -49,7 +49,7 @@ class _WatchPageState extends State<WatchPage> {
     setState(() => _detectorInitialized = true);
   }
 
-  List<EmergencyContactsModel> _getContacts() {
+  List<EmergencyContactModel> _getContacts() {
     return context.read<EmergencyContactsCubit>().contacts;
   }
 

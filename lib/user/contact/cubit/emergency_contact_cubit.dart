@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:safeseiz/user/contacts/cubit/emergency_contacts_states.dart';
-import 'package:safeseiz/user/contacts/models/emergency_contacts_model.dart';
-import 'package:safeseiz/user/contacts/repository/emergency_contacts_local_repo.dart';
+import 'package:safeseiz/user/contact/cubit/emergency_contact_states.dart';
+import 'package:safeseiz/user/contact/models/emergency_contact_model.dart';
+import 'package:safeseiz/user/contact/repository/emergency_contact_local_repo.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
@@ -14,7 +14,7 @@ class EmergencyContactsCubit extends Cubit<EmergencyContactsStates> {
   final supabase = Supabase.instance.client;
   final uuid = const Uuid();
 
-  List<EmergencyContactsModel> contacts = [];
+  List<EmergencyContactModel> contacts = [];
   bool get hasMinimumContacts => contacts.length >= 2;
 
   // Phone Number Validation
@@ -52,7 +52,7 @@ class EmergencyContactsCubit extends Cubit<EmergencyContactsStates> {
     }
 
     contacts.add(
-      EmergencyContactsModel(
+      EmergencyContactModel(
         id: uuid.v4(),
         name: name,
         relationship: relationship,
@@ -101,7 +101,7 @@ class EmergencyContactsCubit extends Cubit<EmergencyContactsStates> {
       return false;
     }
 
-    contacts[index] = EmergencyContactsModel(
+    contacts[index] = EmergencyContactModel(
       id: id,
       name: name,
       relationship: relationship,
@@ -124,10 +124,7 @@ class EmergencyContactsCubit extends Cubit<EmergencyContactsStates> {
         return false;
       }
 
-      await contactsLocalRepo.saveEmergencyContacts(
-        user.id,
-        List.from(contacts),
-      );
+      await contactsLocalRepo.saveEmergencyContacts(List.from(contacts));
 
       emit(EmergencyContactsSuccessState());
       return true;
@@ -153,7 +150,7 @@ class EmergencyContactsCubit extends Cubit<EmergencyContactsStates> {
         return;
       }
 
-      final data = contactsLocalRepo.getEmergencyContacts(user.id);
+      final data = contactsLocalRepo.getEmergencyContacts();
 
       debugPrint(
         'CONTACTS FETCH => '
@@ -178,7 +175,7 @@ class EmergencyContactsCubit extends Cubit<EmergencyContactsStates> {
       final user = supabase.auth.currentUser;
 
       if (user != null) {
-        await contactsLocalRepo.clearEmergencyContacts(user.id);
+        await contactsLocalRepo.clearEmergencyContacts();
       }
 
       contacts.clear();

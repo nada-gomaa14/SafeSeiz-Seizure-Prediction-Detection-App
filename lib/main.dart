@@ -9,9 +9,9 @@ import 'package:safeseiz/services/watch_service.dart';
 import 'package:safeseiz/user/authentication/auth_cubit.dart';
 import 'package:safeseiz/core/observer.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:safeseiz/user/contacts/cubit/emergency_contacts_cubit.dart';
-import 'package:safeseiz/user/contacts/models/emergency_contacts_model.dart';
-import 'package:safeseiz/user/contacts/repository/emergency_contacts_local_repo.dart';
+import 'package:safeseiz/user/contact/cubit/emergency_contact_cubit.dart';
+import 'package:safeseiz/user/contact/models/emergency_contact_model.dart';
+import 'package:safeseiz/user/contact/repository/emergency_contact_local_repo.dart';
 import 'package:safeseiz/user/medical/information/cubit/medical_cubit.dart';
 import 'package:safeseiz/user/medical/information/models/medical_model.dart';
 import 'package:safeseiz/user/medical/information/repository/medical_local_repo.dart';
@@ -44,16 +44,10 @@ Future<void> main() async {
   await Hive.initFlutter();
   
   Hive.registerAdapter(MedicalModelAdapter());
-  Hive.registerAdapter(EmergencyContactsModelAdapter());
+  Hive.registerAdapter(EmergencyContactModelAdapter());
   Hive.registerAdapter(SeizureModelAdapter());
   Hive.registerAdapter(MedicationModelAdapter());
   Hive.registerAdapter(SensorReadingModelAdapter());
-
-  await Hive.openBox<MedicalModel>('medical_info_box');
-  await Hive.openBox('emergency_contacts_box');
-  await Hive.openBox('seizures_box');
-  await Hive.openBox<List>('medication_box');
-  await Hive.openBox<SensorReadingModel>('sensors_box');  
 
   runApp(const SafeSeiz());
 }

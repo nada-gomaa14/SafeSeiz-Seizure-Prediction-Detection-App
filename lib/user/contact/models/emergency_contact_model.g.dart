@@ -1,23 +1,22 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'emergency_contacts_model.dart';
+part of 'emergency_contact_model.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class EmergencyContactsModelAdapter
-    extends TypeAdapter<EmergencyContactsModel> {
+class EmergencyContactModelAdapter extends TypeAdapter<EmergencyContactModel> {
   @override
   final int typeId = 1;
 
   @override
-  EmergencyContactsModel read(BinaryReader reader) {
+  EmergencyContactModel read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return EmergencyContactsModel(
+    return EmergencyContactModel(
       id: fields[0] as String,
       name: fields[1] as String,
       relationship: fields[2] as String,
@@ -26,7 +25,7 @@ class EmergencyContactsModelAdapter
   }
 
   @override
-  void write(BinaryWriter writer, EmergencyContactsModel obj) {
+  void write(BinaryWriter writer, EmergencyContactModel obj) {
     writer
       ..writeByte(4)
       ..writeByte(0)
@@ -45,7 +44,7 @@ class EmergencyContactsModelAdapter
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is EmergencyContactsModelAdapter &&
+      other is EmergencyContactModelAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

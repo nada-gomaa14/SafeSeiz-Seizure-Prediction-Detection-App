@@ -9,7 +9,7 @@ import 'package:safeseiz/screens/LogSeizurePage.dart';
 import 'package:safeseiz/screens/ProfilePage.dart';
 import 'package:safeseiz/screens/SOSPage.dart';
 import 'package:safeseiz/screens/WatchPage.dart';
-import 'package:safeseiz/user/contacts/cubit/emergency_contacts_cubit.dart';
+import 'package:safeseiz/user/contact/cubit/emergency_contact_cubit.dart';
 import 'package:safeseiz/user/medical/information/cubit/medical_cubit.dart';
 import 'package:safeseiz/user/medical/medication/cubit/medication_cubit.dart';
 import 'package:safeseiz/user/profile/cubit/profile_cubit.dart';

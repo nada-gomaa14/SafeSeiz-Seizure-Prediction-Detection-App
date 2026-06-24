@@ -116,9 +116,9 @@ class MedicalCubit extends Cubit<MedicalStates> {
 
       debugPrint('SAVING medical for user: ${user.id}');
 
-      await medicalLocalRepo.saveMedicalInfo(user.id, medicalModel);
+      await medicalLocalRepo.saveMedicalInfo(medicalModel);
 
-      final test = await medicalLocalRepo.getMedicalInfo(user.id);
+      final test = medicalLocalRepo.getMedicalInfo();
       debugPrint('AFTER SAVE: $test');
 
       medical = medicalModel;
@@ -148,7 +148,7 @@ class MedicalCubit extends Cubit<MedicalStates> {
 
       debugPrint('FETCHING medical for user: ${user.id}');
 
-      final data = await medicalLocalRepo.getMedicalInfo(user.id);
+      final data = medicalLocalRepo.getMedicalInfo();
       debugPrint('FETCHED DATA: $data');
 
       if (data == null) {
@@ -198,7 +198,7 @@ class MedicalCubit extends Cubit<MedicalStates> {
     try {
       final user = supabase.auth.currentUser;
       if (user != null) {
-        await medicalLocalRepo.clearMedicalInfo(user.id);
+        await medicalLocalRepo.clearMedicalInfo();
       }
 
       medical = null;

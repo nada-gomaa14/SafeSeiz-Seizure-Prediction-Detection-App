@@ -42,7 +42,7 @@ class MedicationCubit extends Cubit<MedicationStates> {
       medications.add(medication);
       debugPrint('SAVING medications for user: ${user.id}');
 
-      await medicationLocalRepo.saveMedications(user.id, medications);
+      await medicationLocalRepo.saveMedications(medications);
 
       emit(MedicationLoadedState(medications));
       return true;
@@ -76,7 +76,7 @@ class MedicationCubit extends Cubit<MedicationStates> {
 
       medications[index] = updatedMedication;
 
-      await medicationLocalRepo.saveMedications(user.id, medications);
+      await medicationLocalRepo.saveMedications(medications);
 
       emit(MedicationLoadedState(medications));
       return true;
@@ -104,7 +104,7 @@ class MedicationCubit extends Cubit<MedicationStates> {
 
       medications.removeAt(index);
 
-      await medicationLocalRepo.saveMedications(user.id, medications);
+      await medicationLocalRepo.saveMedications(medications);
 
       emit(MedicationLoadedState(medications));
       return true;
@@ -143,7 +143,7 @@ class MedicationCubit extends Cubit<MedicationStates> {
 
       medications[index] = current.copyWith(takenStatus: allStatuses);
 
-      await medicationLocalRepo.saveMedications(user.id, medications);
+      await medicationLocalRepo.saveMedications(medications);
 
       emit(MedicationLoadedState(medications));
     } catch (e) {
@@ -167,7 +167,7 @@ class MedicationCubit extends Cubit<MedicationStates> {
 
       debugPrint('FETCHING medications for user: ${user.id}');
 
-      final data = await medicationLocalRepo.getMedications(user.id);
+      final data = medicationLocalRepo.getMedications();
 
       if (data == null) {
         medications = [];
@@ -191,7 +191,7 @@ class MedicationCubit extends Cubit<MedicationStates> {
       final user = supabase.auth.currentUser;
 
       if (user != null) {
-        await medicationLocalRepo.clearMedications(user.id);
+        await medicationLocalRepo.clearMedications();
       }
 
       medications = [];

@@ -5,8 +5,8 @@ import 'package:safeseiz/screens/ProfilePage.dart';
 import 'package:safeseiz/screens/StartPage.dart';
 import 'package:safeseiz/user/authentication/auth_cubit.dart';
 import 'package:safeseiz/user/authentication/auth_states.dart';
-import 'package:safeseiz/user/contacts/cubit/emergency_contacts_cubit.dart';
-import 'package:safeseiz/user/contacts/cubit/emergency_contacts_states.dart';
+import 'package:safeseiz/user/contact/cubit/emergency_contact_cubit.dart';
+import 'package:safeseiz/user/contact/cubit/emergency_contact_states.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});

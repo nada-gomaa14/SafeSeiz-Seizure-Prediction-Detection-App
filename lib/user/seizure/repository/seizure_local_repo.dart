@@ -1,40 +1,59 @@
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:safeseiz/user/seizure/models/seizure_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SeizureLocalRepo {
-  final Box seizuresBox = Hive.box('seizures_box');
+  static const _seizuresKey = 'seizures';
 
-  Future<void> saveSeizures(String userId, List<SeizureModel> seizures) async {
-    await seizuresBox.put(userId, seizures);
+  Box get seizuresBox {
+    final userId = Supabase.instance.client.auth.currentUser!.id;
+    return Hive.box('seizures_box_$userId');
   }
 
-  List<SeizureModel> getSeizures(String userId) {
-    final data = seizuresBox.get(userId);
-    if (data == null) return [];
-    return List<SeizureModel>.from(data);
+  Future<void> saveSeizures(List<SeizureModel> seizures) async {
+    debugPrint('SAVING SEIZURE TO HIVE');
+    await seizuresBox.put(_seizuresKey, seizures);
+    debugPrint('SEIZURE SAVED TO HIVE');
   }
 
-  List<SeizureModel> getUnsyncedSeizures(String userId) {
-    return getSeizures(userId).where((s) => !s.isSynced).toList();
+  List<SeizureModel> getSeizures() {
+    final data = seizuresBox.get(_seizuresKey);
+    debugPrint('READING SEIZURE: $data');
+
+    return data == null
+      ? []
+      : data.cast<SeizureModel>();
   }
 
-  Future<void> markAsSynced(String userId, String seizureId) async {
-    final seizures = getSeizures(userId);
+  List<SeizureModel> getUnsyncedSeizures() {
+    final data = getSeizures().where((s) => !s.isSynced).toList();
+    debugPrint('READING SEIZURE: $data');
+    return data;
+  }
+
+  Future<void> markAsSynced(String seizureId) async {
+    final seizures = getSeizures();
+
     final index = seizures.indexWhere((s) => s.id == seizureId);
     if (index != -1) {
       seizures[index] = seizures[index].copyWith(isSynced: true);
-      await saveSeizures(userId, seizures);
+
+      await saveSeizures(seizures);
     }
   }
 
-  Future<void> purgeOldSeizures(String userId) async {
-    final seizures = getSeizures(userId);
+  Future<void> purgeOldSeizures() async {
+    final seizures = getSeizures();
+
     final cutoff = DateTime.now().subtract(const Duration(days: 7));
+
     final filtered = seizures.where((s) => s.seizureDateTime.isAfter(cutoff)).toList();
-    await saveSeizures(userId, filtered);
+
+    await saveSeizures(filtered);
   }
 
-  Future<void> clearSeizures(String userId) async {
-    await seizuresBox.delete(userId);
+  Future<void> clearSeizures() async {
+    await seizuresBox.delete(_seizuresKey);
   }
 }

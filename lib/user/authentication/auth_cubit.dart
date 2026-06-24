@@ -2,8 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:safeseiz/core/app_exceptions.dart';
+import 'package:safeseiz/services/hive_manager.dart';
 import 'package:safeseiz/services/watch_service.dart';
-import 'package:safeseiz/user/contacts/cubit/emergency_contacts_cubit.dart';
+import 'package:safeseiz/user/contact/cubit/emergency_contact_cubit.dart';
 import 'package:safeseiz/user/medical/information/cubit/medical_cubit.dart';
 import 'package:safeseiz/user/medical/medication/cubit/medication_cubit.dart';
 import 'package:safeseiz/user/profile/cubit/profile_cubit.dart';
@@ -19,8 +20,12 @@ class AuthCubit extends Cubit<AuthStates> {
   final MedicationCubit medicationCubit;
   final SeizureCubit seizureCubit;
   final SensorsCubit sensorsCubit;
+
+  String? _currentUserId;
+  
   final supabase = Supabase.instance.client;
   final WatchService watchService;
+
   StreamSubscription<AuthState>? authSubscription;
 
   AuthCubit(this.profileCubit, this.medicalCubit, this.contactsCubit, this.medicationCubit, this.seizureCubit, this.sensorsCubit, this.watchService) : super(AuthInitialState()){
@@ -45,6 +50,10 @@ class AuthCubit extends Cubit<AuthStates> {
       final session = data.session;
 
       if (session == null) {
+        if (_currentUserId != null) {
+          await HiveManager.closeUserBoxes(_currentUserId!);
+          _currentUserId = null;
+        }
         emit(AuthUnauthenticatedState());
         return;
       }
@@ -68,11 +77,16 @@ class AuthCubit extends Cubit<AuthStates> {
 
   // Load Data Helper
   Future<void> _loadUserData(String userId) async {
+    _currentUserId = userId;
+
+    await HiveManager.openUserBoxes(userId);
+
     await profileCubit.fetchProfile(userId);
     await medicalCubit.fetchMedicalInfo();
     await contactsCubit.fetchEmergencyContacts();
     await medicationCubit.fetchMedications();
     await seizureCubit.loadSeizures();
+
     await watchService.startListening();
   }
 
@@ -137,11 +151,7 @@ class AuthCubit extends Cubit<AuthStates> {
   }
 
   // User Registration
-  Future<void> register({
-    required String email,
-    required String password,
-    required String username
-  }) async {
+  Future<void> register({required String email, required String password, required String username}) async {
     emit(RegisterLoadingState());
 
     profileCubit.resetState();
@@ -177,6 +187,8 @@ class AuthCubit extends Cubit<AuthStates> {
         return;
       }  
 
+      await _loadUserData(user.id);
+
       emit(RegisterSuccessState());
       emit(AuthAuthenticatedState());
 
@@ -194,10 +206,7 @@ class AuthCubit extends Cubit<AuthStates> {
   }
 
   // Retry Profile Creation
-  Future<void> retryCreateProfile({
-    required String userID,
-    required String email,
-  }) async {
+  Future<void> retryCreateProfile({required String userID, required String email}) async {
     const maxAttempts = 3;
     int attempt = 0;
 
@@ -221,10 +230,7 @@ class AuthCubit extends Cubit<AuthStates> {
   }
 
   // User Login
-  Future<void> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> login({required String email, required String password}) async {
     emit(LoginLoadingState());
 
     try {
@@ -257,13 +263,13 @@ class AuthCubit extends Cubit<AuthStates> {
     emit(LogoutLoadingState());
 
     try {
-      await supabase.auth.signOut();
-      
       profileCubit.resetState();
       medicalCubit.resetState();
       contactsCubit.resetState();
       medicationCubit.resetState();
       seizureCubit.resetState();
+
+      await supabase.auth.signOut();
 
     } catch (e) {
       emit(LogoutErrorState(error: 'Log out failed. Please try again.'));
@@ -287,6 +293,7 @@ class AuthCubit extends Cubit<AuthStates> {
 
     try {
       final currentUser = supabase.auth.currentUser;
+      debugPrint('Current user: &{currentUser?.id}');
 
       // No session
       if (currentUser == null) {
@@ -326,6 +333,11 @@ class AuthCubit extends Cubit<AuthStates> {
     await medicationCubit.clearMedications();
     await seizureCubit.clearSeizures();
     await sensorsCubit.clearReadings();
+
+    final user = supabase.auth.currentUser;
+    if (user != null) {
+      await HiveManager.closeUserBoxes(user.id);
+    }
     
     await supabase.auth.signOut();
 

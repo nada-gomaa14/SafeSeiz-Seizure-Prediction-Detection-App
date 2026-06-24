@@ -106,9 +106,9 @@ class SeizureCubit extends Cubit<SeizureStates> {
         createdAt: DateTime.now(),
       );
 
-      final seizures = seizureLocalRepo.getSeizures(user.id);
+      final seizures = seizureLocalRepo.getSeizures();
       seizures.add(seizure);
-      await seizureLocalRepo.saveSeizures(user.id, seizures);
+      await seizureLocalRepo.saveSeizures(seizures);
 
       final seizureTime = seizureDateTime ?? DateTime.now();
       final cutoff = DateTime.now().subtract(const Duration(hours: 48));
@@ -139,7 +139,7 @@ class SeizureCubit extends Cubit<SeizureStates> {
     final user = supabase.auth.currentUser;
     if (user == null) return;
 
-    final unsynced = seizureLocalRepo.getUnsyncedSeizures(user.id);
+    final unsynced = seizureLocalRepo.getUnsyncedSeizures();
     if (unsynced.isEmpty) return;
 
     for (final seizure in unsynced) {
@@ -156,7 +156,7 @@ class SeizureCubit extends Cubit<SeizureStates> {
           'created_at': seizure.createdAt.toIso8601String(),
         });
 
-        await seizureLocalRepo.markAsSynced(user.id, seizure.id);
+        await seizureLocalRepo.markAsSynced(seizure.id);
       } catch (e) {
         // Stays unsynced — will retry on next syncToSupabase() call
       }
@@ -210,9 +210,9 @@ class SeizureCubit extends Cubit<SeizureStates> {
       }
 
       // Auto-purge seizures older than 7 days
-      await seizureLocalRepo.purgeOldSeizures(user.id);
+      await seizureLocalRepo.purgeOldSeizures();
 
-      seizuresLogs = seizureLocalRepo.getSeizures(user.id);
+      seizuresLogs = seizureLocalRepo.getSeizures();
       seizuresLogs.sort((a, b) => b.seizureDateTime.compareTo(a.seizureDateTime));
 
       emit(SeizureLoadedState(seizuresLogs));
@@ -249,7 +249,7 @@ class SeizureCubit extends Cubit<SeizureStates> {
       final user = supabase.auth.currentUser;
 
       if (user != null) {
-        await seizureLocalRepo.clearSeizures(user.id);
+        await seizureLocalRepo.clearSeizures();
       }
 
       seizuresLogs = [];
