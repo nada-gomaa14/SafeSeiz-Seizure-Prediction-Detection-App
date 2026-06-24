@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:safeseiz/core/app_exceptions.dart';
+import 'package:safeseiz/services/watch_service.dart';
 import 'package:safeseiz/user/contacts/cubit/emergency_contacts_cubit.dart';
 import 'package:safeseiz/user/medical/information/cubit/medical_cubit.dart';
 import 'package:safeseiz/user/medical/medication/cubit/medication_cubit.dart';
@@ -19,9 +20,10 @@ class AuthCubit extends Cubit<AuthStates> {
   final SeizureCubit seizureCubit;
   final SensorsCubit sensorsCubit;
   final supabase = Supabase.instance.client;
+  final WatchService watchService;
   StreamSubscription<AuthState>? authSubscription;
 
-  AuthCubit(this.profileCubit, this.medicalCubit, this.contactsCubit, this.medicationCubit, this.seizureCubit, this.sensorsCubit) : super(AuthInitialState()){
+  AuthCubit(this.profileCubit, this.medicalCubit, this.contactsCubit, this.medicationCubit, this.seizureCubit, this.sensorsCubit, this.watchService) : super(AuthInitialState()){
     if (supabase.auth.currentSession != null) {
       validateSession();
     } else {
@@ -71,6 +73,7 @@ class AuthCubit extends Cubit<AuthStates> {
     await contactsCubit.fetchEmergencyContacts();
     await medicationCubit.fetchMedications();
     await seizureCubit.loadSeizures();
+    await watchService.startListening();
   }
 
   // Profile Creation Delay

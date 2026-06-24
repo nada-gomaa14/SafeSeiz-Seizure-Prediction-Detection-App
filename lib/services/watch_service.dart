@@ -22,9 +22,7 @@ class WatchService {
   final SeizureDetector _seizureDetector = SeizureDetector();
   bool _detectorInitialized = false;
 
-  String? _lastSeizureId;
   DateTime? _lastSeizureTime;
-  String? get lastSeizureId => _lastSeizureId;
   DateTime? get lastSeizureTime => _lastSeizureTime;
 
   Stream<Map<String, dynamic>> get sensorDataStream => _sensorDataController.stream;
@@ -125,15 +123,6 @@ class WatchService {
       if (prediction == 1) {
         debugPrint('Seizure detected by AI');
 
-        // Set default seizure types before saving
-        final defaultTypes = _medicalCubit?.medical?.seizureTypes ?? ['Unknown'];
-        _seizureCubit!.seizureTypes = defaultTypes.isNotEmpty ? defaultTypes : ['Unknown'];
-
-        // Save seizure record
-        final seizureId = await _seizureCubit!.addSeizure(isAutoDetected: true);
-      
-        // Store seizure context so SOSCubit can label false alarms
-        _lastSeizureId = seizureId;
         _lastSeizureTime = DateTime.now();
 
         // Notify listeners to trigger SOS

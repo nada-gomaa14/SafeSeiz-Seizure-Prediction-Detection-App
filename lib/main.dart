@@ -102,15 +102,15 @@ class _SafeSeizState extends State<SafeSeiz> {
 
         if (contacts.isEmpty) return;
 
-        // Default seizure types from medical profile
-        final defaultTypes = medicalCubit.medical?.seizureTypes ?? ['Unknown'];
-        seizureCubit.seizureTypes = defaultTypes.isNotEmpty ? defaultTypes : ['Unknown'];
-
-        // Log as manual — user pressed SOS button
-        final seizureId = await seizureCubit.addSeizure(isAutoDetected: false);
-        debugPrint('SOS seizure logged: $seizureId');
-
-        sosCubit.startCountdown(contacts: contacts, patientName: patientName, seizureId: seizureId, seizureTime: DateTime.now());
+        sosCubit.startCountdown(
+          contacts: contacts, 
+          patientName: patientName, 
+          onAlertConfirmed: () async {
+            final defaultTypes = medicalCubit.medical?.seizureTypes ?? ['Unknown'];
+            seizureCubit.seizureTypes = defaultTypes.isNotEmpty ? defaultTypes : ['Unknown'];
+            return await seizureCubit.addSeizure(isAutoDetected: false);
+          }
+        );
       });
 
       // AI detected seizure → trigger SOS
@@ -120,6 +120,8 @@ class _SafeSeizState extends State<SafeSeiz> {
         final sosCubit = context.read<SOSCubit>();
         final contactsCubit = context.read<EmergencyContactsCubit>();
         final profileCubit = context.read<ProfileCubit>();
+        final seizureCubit = context.read<SeizureCubit>();
+        final medicalCubit = context.read<MedicalCubit>();
 
         final contacts = contactsCubit.contacts;
         final firstName = profileCubit.profile?.firstName ?? '';
@@ -128,11 +130,17 @@ class _SafeSeizState extends State<SafeSeiz> {
 
         if (contacts.isEmpty) return;
 
-        sosCubit.startCountdown(contacts: contacts, patientName: patientName, seizureId: watchService.lastSeizureId, seizureTime: watchService.lastSeizureTime);
+        sosCubit.startCountdown(
+          contacts: contacts, 
+          patientName: patientName, 
+          seizureTime: watchService.lastSeizureTime,
+          onAlertConfirmed: () async {
+            final defaultTypes = medicalCubit.medical?.seizureTypes ?? ['Unknown'];
+            seizureCubit.seizureTypes = defaultTypes.isNotEmpty ? defaultTypes : ['Unknown'];
+            return await seizureCubit.addSeizure(isAutoDetected: true);
+          }  
+        );
       });
-
-      // Start listening for sensor data and SOS from smartwatch
-      await watchService.startListening();
     });
 
     // Sync on app resume
@@ -182,6 +190,7 @@ class _SafeSeizState extends State<SafeSeiz> {
           context.read<MedicationCubit>(),
           context.read<SeizureCubit>(),
           context.read<SensorsCubit>(),
+          watchService
         )),
       ],
       child: ScreenUtilInit(

@@ -9,6 +9,8 @@ import 'package:safeseiz/screens/LogSeizurePage.dart';
 import 'package:safeseiz/screens/ProfilePage.dart';
 import 'package:safeseiz/screens/SOSPage.dart';
 import 'package:safeseiz/screens/WatchPage.dart';
+import 'package:safeseiz/user/contacts/cubit/emergency_contacts_cubit.dart';
+import 'package:safeseiz/user/medical/information/cubit/medical_cubit.dart';
 import 'package:safeseiz/user/medical/medication/cubit/medication_cubit.dart';
 import 'package:safeseiz/user/profile/cubit/profile_cubit.dart';
 import 'package:safeseiz/user/profile/cubit/profile_states.dart';
@@ -186,14 +188,31 @@ class _HomePageState extends State<HomePage> {
                       border: Theme.of(context).colorScheme.error,
                       height: 100.h * Responsive.scale(context),
                       width: double.infinity,
-                      onTap: () {
+                      onTap: () async {
+                        final seizureCubit = context.read<SeizureCubit>();
+                        final medicalCubit = context.read<MedicalCubit>();
+                        final sosCubit = context.read<SOSCubit>();
+                        final contactsCubit = context.read<EmergencyContactsCubit>();
+                        final profileCubit = context.read<ProfileCubit>();
+
+                        final contacts = contactsCubit.contacts;
+                        final firstName = profileCubit.profile?.firstName ?? '';
+                        final lastName = profileCubit.profile?.lastName ?? '';
+                        final patientName = '$firstName $lastName'.trim().isEmpty ? 'Patient' : '$firstName $lastName'.trim();
+
+                        sosCubit.startCountdown(
+                          contacts: contacts, 
+                          patientName: patientName,
+                          onAlertConfirmed: () async {
+                            final defaultTypes = medicalCubit.medical?.seizureTypes ?? ['Unknown'];
+                            seizureCubit.seizureTypes = defaultTypes.isNotEmpty ? defaultTypes : ['Unknown'];
+                            return await seizureCubit.addSeizure(isAutoDetected: false);
+                          },
+                        );
+
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => BlocProvider(
-                              lazy: false,
-                              create: (_) => SOSCubit(context.read<SensorsCubit>())..fetchLocation(),
-                              child: const SOSPage(),
-                            ),
+                            builder: (_) => const SOSPage(),
                           ),
                         );
                       },

@@ -34,6 +34,7 @@ class SOSCubit extends Cubit<SOSStates> {
   bool countdownStarted = false;
 
   // SOS
+  Future<String?> Function()? _onAlertConfirmed;
   bool alertSent = false;
   bool alertCancelled = false;
   bool isSending = false;
@@ -58,7 +59,7 @@ class SOSCubit extends Cubit<SOSStates> {
   DateTime? currentSeizureTime;
 
   // Start Countdown
-  Future<void> startCountdown({required List<EmergencyContactsModel> contacts, required String patientName, String? seizureId, DateTime? seizureTime}) async {
+  Future<void> startCountdown({required List<EmergencyContactsModel> contacts, required String patientName, String? seizureId, DateTime? seizureTime, Future<String?> Function()? onAlertConfirmed}) async {
     if (isSending) return;
 
     final hasPermission = await sosService.requestSMSPermission();
@@ -71,6 +72,7 @@ class SOSCubit extends Cubit<SOSStates> {
     // Store seizure context for false alarm labeling
     currentSeizureId = seizureId;
     currentSeizureTime = seizureTime ?? DateTime.now();
+    _onAlertConfirmed = onAlertConfirmed;
 
     // Reset
     secondsRemaining = 5;
@@ -111,17 +113,18 @@ class SOSCubit extends Cubit<SOSStates> {
     countdownStarted = false;
     alertCancelled = true;
     isSending = false;
+    _onAlertConfirmed = null;
 
     // Label sensor readings as false alarm if this was AI detected
-    if (currentSeizureId != null) {
+    if (currentSeizureTime != null) {
       sensorsCubit.labelFalseAlarmReadings(
         alarmTime: currentSeizureTime ?? DateTime.now(),
-        seizureId: currentSeizureId!,
+        seizureId: 'false_alarm_${currentSeizureTime!.millisecondsSinceEpoch}',
       );
-      currentSeizureId = null;
       currentSeizureTime = null;
     }
 
+    currentSeizureId = null;
     emitLoadedState();
   }
 
@@ -224,6 +227,11 @@ class SOSCubit extends Cubit<SOSStates> {
 
       if (!alertCancelled) {
         alertSent = true;
+        if (_onAlertConfirmed != null) {
+          final id = await _onAlertConfirmed!();
+          currentSeizureId = id;
+          _onAlertConfirmed = null;
+        }
       }
       isSending = false;
       if (isClosed) return;
@@ -251,6 +259,7 @@ class SOSCubit extends Cubit<SOSStates> {
     secondsRemaining = 10;
     countdownStarted = false;
 
+    _onAlertConfirmed = null;
     alertSent = false;
     alertCancelled = false;
     isSending = false;
