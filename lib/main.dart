@@ -55,54 +55,8 @@ Future<void> main() async {
   await Hive.openBox<List>('medication_box');
   await Hive.openBox<SensorReadingModel>('sensors_box');  
 
-  // Trigger SOS alert when watch SOS button is pressed
-  watchService.sosStream.listen((_) async {
-    final context = navigatorKey.currentContext;
-    if (context == null) return;
-
-    final sosCubit = context.read<SOSCubit>();
-    final contactsCubit = context.read<EmergencyContactsCubit>();
-    final profileCubit = context.read<ProfileCubit>();
-    final seizureCubit = context.read<SeizureCubit>();
-    final medicalCubit = context.read<MedicalCubit>();
-
-    final contacts = contactsCubit.contacts;
-    final firstName = profileCubit.profile?.firstName ?? '';
-    final lastName = profileCubit.profile?.lastName ?? '';
-    final patientName = '$firstName $lastName'.trim().isEmpty ? 'Patient' : '${firstName} ${lastName}'.trim();
-
-    if (contacts.isEmpty) return;
-
-    // Default seizure types from medical profile
-    final defaultTypes = medicalCubit.medical?.seizureTypes ?? ['Unknown'];
-    seizureCubit.seizureTypes = defaultTypes.isNotEmpty ? defaultTypes : ['Unknown'];
-
-    // Log as manual — user pressed SOS button
-    final seizureId = await seizureCubit.addSeizure(isAutoDetected: false);
-
-    sosCubit.startCountdown(contacts: contacts, patientName: patientName, seizureId: seizureId, seizureTime: DateTime.now());
-  });
-
-   // AI detected seizure → trigger SOS
-    watchService.seizureDetectedStream.listen((_) async {
-      final context = navigatorKey.currentContext;
-      if (context == null) return;
-      final sosCubit = context.read<SOSCubit>();
-      final contactsCubit = context.read<EmergencyContactsCubit>();
-      final profileCubit = context.read<ProfileCubit>();
-
-      final contacts = contactsCubit.contacts;
-      final firstName = profileCubit.profile?.firstName ?? '';
-      final lastName = profileCubit.profile?.lastName ?? '';
-      final patientName = '$firstName $lastName'.trim().isEmpty ? 'Patient' : '$firstName $lastName'.trim();
-
-      if (contacts.isEmpty) return;
-
-      sosCubit.startCountdown(contacts: contacts, patientName: patientName, seizureId: watchService.lastSeizureId, seizureTime: watchService.lastSeizureTime);
-    });
-
-    // Start listening for sensor data and SOS from smartwatch
-    await watchService.startListening();
+  // Start listening for sensor data and SOS from smartwatch
+  await watchService.startListening();
 
   runApp(const SafeSeiz());
 }
@@ -124,12 +78,58 @@ class _SafeSeizState extends State<SafeSeiz> {
 
     // Wire SensorsCubit to WatchService after providers are ready
     WidgetsBinding.instance.addPostFrameCallback((_) {
-    final context = navigatorKey.currentContext;
-    if (context == null) return;
-    watchService.setSensorsCubit(context.read<SensorsCubit>());
-    watchService.setSeizureCubit(context.read<SeizureCubit>());
-    watchService.setMedicalCubit(context.read<MedicalCubit>());
-  });
+      final context = navigatorKey.currentContext;
+      if (context == null) return;
+      watchService.setSensorsCubit(context.read<SensorsCubit>());
+      watchService.setSeizureCubit(context.read<SeizureCubit>());
+      watchService.setMedicalCubit(context.read<MedicalCubit>());
+    });
+
+    // Trigger SOS alert when watch SOS button is pressed
+    watchService.sosStream.listen((_) async {
+      final context = navigatorKey.currentContext;
+      if (context == null) return;
+
+      final sosCubit = context.read<SOSCubit>();
+      final contactsCubit = context.read<EmergencyContactsCubit>();
+      final profileCubit = context.read<ProfileCubit>();
+      final seizureCubit = context.read<SeizureCubit>();
+      final medicalCubit = context.read<MedicalCubit>();
+
+      final contacts = contactsCubit.contacts;
+      final firstName = profileCubit.profile?.firstName ?? '';
+      final lastName = profileCubit.profile?.lastName ?? '';
+      final patientName = '$firstName $lastName'.trim().isEmpty ? 'Patient' : '${firstName} ${lastName}'.trim();
+
+      if (contacts.isEmpty) return;
+
+      // Default seizure types from medical profile
+      final defaultTypes = medicalCubit.medical?.seizureTypes ?? ['Unknown'];
+      seizureCubit.seizureTypes = defaultTypes.isNotEmpty ? defaultTypes : ['Unknown'];
+
+      // Log as manual — user pressed SOS button
+      final seizureId = await seizureCubit.addSeizure(isAutoDetected: false);
+
+      sosCubit.startCountdown(contacts: contacts, patientName: patientName, seizureId: seizureId, seizureTime: DateTime.now());
+    });
+
+    // AI detected seizure → trigger SOS
+    watchService.seizureDetectedStream.listen((_) async {
+      final context = navigatorKey.currentContext;
+      if (context == null) return;
+      final sosCubit = context.read<SOSCubit>();
+      final contactsCubit = context.read<EmergencyContactsCubit>();
+      final profileCubit = context.read<ProfileCubit>();
+
+      final contacts = contactsCubit.contacts;
+      final firstName = profileCubit.profile?.firstName ?? '';
+      final lastName = profileCubit.profile?.lastName ?? '';
+      final patientName = '$firstName $lastName'.trim().isEmpty ? 'Patient' : '$firstName $lastName'.trim();
+
+      if (contacts.isEmpty) return;
+
+      sosCubit.startCountdown(contacts: contacts, patientName: patientName, seizureId: watchService.lastSeizureId, seizureTime: watchService.lastSeizureTime);
+    });
 
     // Sync on app resume
     _lifecycleListener = AppLifecycleListener(

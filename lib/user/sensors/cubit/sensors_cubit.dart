@@ -40,11 +40,9 @@ class SensorsCubit extends Cubit<SensorsStates> {
     try {
       final window = sensorsLocalRepo.getReadingsAround(seizureTime);
       if (window.isEmpty) return;
-      await sensorsLocalRepo.labelReadings(
-        readings: window,
-        label: 'seizure',
-        seizureId: seizureId,
-      );
+
+      await sensorsLocalRepo.labelReadings(readings: window, label: 'seizure', seizureId: seizureId);
+      syncToSupabase();
     } catch (e) {
       emit(SensorsErrorState(error: e.toString()));
     }
@@ -58,11 +56,9 @@ class SensorsCubit extends Cubit<SensorsStates> {
     try {
       final window = sensorsLocalRepo.getReadingsAround(alarmTime);
       if (window.isEmpty) return;
-      await sensorsLocalRepo.labelReadings(
-        readings: window,
-        label: 'false_alarm',
-        seizureId: seizureId,
-      );
+
+      await sensorsLocalRepo.labelReadings(readings: window, label: 'false_alarm', seizureId: seizureId);
+      syncToSupabase();
     } catch (e) {
       emit(SensorsErrorState(error: e.toString()));
     }
