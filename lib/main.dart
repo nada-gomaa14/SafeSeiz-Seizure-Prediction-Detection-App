@@ -177,6 +177,7 @@ class _SafeSeizState extends State<SafeSeiz> {
           context.read<EmergencyContactsCubit>(),
           context.read<MedicationCubit>(),
           context.read<SeizureCubit>(),
+          context.read<SensorsCubit>(),
         )),
       ],
       child: ScreenUtilInit(
