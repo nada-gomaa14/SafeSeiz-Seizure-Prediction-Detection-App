@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:safeseiz/functions/responsive.dart';
+import 'package:safeseiz/main.dart';
 import 'package:safeseiz/user/medical/information/cubit/medical_cubit.dart';
 import 'package:safeseiz/user/profile/cubit/profile_cubit.dart';
 import 'package:safeseiz/user/seizure/cubit/seizure_cubit.dart';
@@ -107,6 +108,10 @@ Future<void> _runSyntheticTest() async {
   }
 
   if (_isTesting) return;
+
+  // Pause WatchService inference during test
+  watchService.pauseInference();
+
   setState(() {
     _isTesting = true;
     seizureStatus = '⏳ Running test...';
@@ -188,6 +193,9 @@ Future<void> _runSyntheticTest() async {
       seizureStatus = 'Normal Readings ✓ (test complete)';
     }
   });
+
+  // Resume WatchService inference after test
+  watchService.resumeInference();
 }
 
 void _listenToWatch() {_watchSubscription = _watchChannel.receiveBroadcastStream().listen((event) async {

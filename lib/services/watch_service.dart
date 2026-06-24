@@ -42,6 +42,14 @@ class WatchService {
     _medicalCubit = cubit;
   }
 
+  void pauseInference() {
+    _detectorInitialized = false;
+  }
+
+  void resumeInference() {
+    _detectorInitialized = true;
+  }
+
   Future<void> startListening() async {
     debugPrint('WatchService: startListening called');
 
