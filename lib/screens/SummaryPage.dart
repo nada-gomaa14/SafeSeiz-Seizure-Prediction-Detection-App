@@ -290,9 +290,14 @@ class _SummaryPageState extends State<SummaryPage> {
                         text: 'Export Report',
                         onTap: () async {
                           try {
-                            if (profileCubit.profile == null || medicalCubit.medical == null) {
+                            if (profileCubit.profile == null) {
                               notify(context, 'Unable to generate report. Try again later.');
                               debugPrint('profile: ${profileCubit.profile}');
+                              return;
+                            }
+
+                            if (medicalCubit.medical == null) {
+                              notify(context, 'Please fill in your medical details first.');
                               debugPrint('medical: ${medicalCubit.medical}');
                               return;
                             }
