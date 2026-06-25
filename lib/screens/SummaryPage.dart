@@ -331,7 +331,9 @@ class _SummaryPageState extends State<SummaryPage> {
                             }
 
                             await shareSeizureReport(report);
-                          } catch (e) {
+                          } catch (e, stack) {
+                            debugPrint('Export error: $e');
+                            debugPrint('Stack: $stack');
                             notify(context, 'Failed to export report.');
                           }
                         }, 
