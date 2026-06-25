@@ -1,5 +1,6 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:safeseiz/user/seizure/models/summary_model.dart';
 import 'package:safeseiz/user/sensors/cubit/sensors_cubit.dart';
@@ -138,6 +139,11 @@ class SeizureCubit extends Cubit<SeizureStates> {
   Future<void> syncToSupabase() async {
     final user = supabase.auth.currentUser;
     if (user == null) return;
+
+    final boxName = 'seizures_box_${user.id}';
+    if (!Hive.isBoxOpen(boxName)) {
+      return;
+    }
 
     final unsynced = seizureLocalRepo.getUnsyncedSeizures();
     if (unsynced.isEmpty) return;

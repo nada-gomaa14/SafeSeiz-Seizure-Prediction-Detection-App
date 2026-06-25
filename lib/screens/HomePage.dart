@@ -14,6 +14,7 @@ import 'package:safeseiz/user/medical/information/cubit/medical_cubit.dart';
 import 'package:safeseiz/user/medical/medication/cubit/medication_cubit.dart';
 import 'package:safeseiz/user/profile/cubit/profile_cubit.dart';
 import 'package:safeseiz/user/profile/cubit/profile_states.dart';
+import 'package:safeseiz/user/seizure/cubit/seizure_states.dart';
 import 'package:safeseiz/user/sos/cubit/sos_cubit.dart';
 import 'package:safeseiz/widgets/CalendarWidget.dart';
 import 'package:safeseiz/widgets/CustomButton.dart';
@@ -160,7 +161,12 @@ class _HomePageState extends State<HomePage> {
                       thickness: 1,
                     ),
                     SizedBox(height: 5.h * Responsive.scale(context)),
-                    CalendarWidget(seizures: seizureCubit.seizuresLogs), 
+                    BlocBuilder<SeizureCubit, SeizureStates>(
+                      builder: (context, state) {
+                        final seizureCubit = context.read<SeizureCubit>();
+                        return CalendarWidget(seizures: seizureCubit.seizuresLogs);
+                      }
+                    ), 
                     SizedBox(height: 20.h * Responsive.scale(context)),
                     Text(
                       'QUICK ACTIONS',

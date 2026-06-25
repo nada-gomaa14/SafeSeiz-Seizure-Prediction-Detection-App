@@ -41,7 +41,9 @@ class _CalendarWidgetState extends State<CalendarWidget> {
               lastDay: DateTime.utc(2030, 12, 31),
               focusedDay: _focusedDay,
               onPageChanged: (focusedDay) {
-                _focusedDay = focusedDay;
+                setState(() {
+                  _focusedDay = focusedDay;
+                });
               },
               eventLoader: getSeizuresForDay,
               calendarFormat: CalendarFormat.week,

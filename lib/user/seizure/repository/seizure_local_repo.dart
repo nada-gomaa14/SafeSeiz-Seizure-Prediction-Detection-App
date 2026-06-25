@@ -6,21 +6,40 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class SeizureLocalRepo {
   static const _seizuresKey = 'seizures';
 
-  Box get seizuresBox {
-    final userId = Supabase.instance.client.auth.currentUser!.id;
-    return Hive.box('seizures_box_$userId');
+  Box? get seizuresBox {
+    final user = Supabase.instance.client.auth.currentUser;
+
+    if (user == null) {
+      return null;
+    }
+
+    final boxName = 'seizures_box_${user.id}';
+    if (!Hive.isBoxOpen(boxName)){
+      return null;
+    }
+
+    return Hive.box(boxName);
   }
 
   Future<void> saveSeizures(List<SeizureModel> seizures) async {
+    final box = seizuresBox;
+    if (box == null) return;
+
     debugPrint('SAVING SEIZURE TO HIVE');
-    await seizuresBox.put(_seizuresKey, seizures);
+    await box.put(_seizuresKey, seizures);
     debugPrint('SEIZURE SAVED TO HIVE');
   }
 
   List<SeizureModel> getSeizures() {
-    final data = seizuresBox.get(_seizuresKey);
-    debugPrint('READING SEIZURE: $data');
+    final box = seizuresBox;
 
+    if (box == null) {
+      return [];
+    }
+
+    final data = box.get(_seizuresKey);
+    debugPrint('READING SEIZURE: $data');
+    
     return data == null
       ? []
       : data.cast<SeizureModel>();
@@ -54,6 +73,8 @@ class SeizureLocalRepo {
   }
 
   Future<void> clearSeizures() async {
-    await seizuresBox.delete(_seizuresKey);
+    final box = seizuresBox;
+    if (box == null) return; 
+    await box.delete(_seizuresKey);
   }
 }

@@ -33,11 +33,11 @@ class MedicationPage extends StatefulWidget {
 }
 
 class _MedicationPageState extends State<MedicationPage> {
-  // ← ADDED: declared at class level so they persist across rebuilds
+  // Declared at class level so they persist across rebuilds
   Timer? _alertTimer;
   final Set<String> _firedAlerts = {};
 
-  // ← ADDED: starts the timer when the page is created
+  // Starts the timer when the page is created
   @override
   void initState() {
     super.initState();
@@ -46,14 +46,14 @@ class _MedicationPageState extends State<MedicationPage> {
     });
   }
 
-  // ← ADDED: cancels the timer when the page is destroyed
+  // Cancels the timer when the page is destroyed
   @override
   void dispose() {
     _alertTimer?.cancel();
     super.dispose();
   }
 
-  // ← ADDED: checks if any dose is due right now
+  // Checks if any dose is due right now
   Future<void> _checkMedicationAlerts() async {
     debugPrint('Timer fired');  // ← ADD
 
@@ -242,7 +242,12 @@ class _MedicationPageState extends State<MedicationPage> {
               }
 
               int minutes(TimeOfDay time) {
-                return time.hour * 60 + time.minute;
+                int total = time.hour * 60 + time.minute;
+
+                if (time.hour < 5) {
+                  total += 24 * 60;
+                }
+                return total;
               }
 
               morning.sort((a, b) => minutes(a.time).compareTo(minutes(b.time)));
