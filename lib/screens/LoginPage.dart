@@ -157,47 +157,6 @@ class _LoginPageState extends State<LoginPage> {
                             )
                           : null
                       ),
-                      SizedBox(height: 20.h * Responsive.scale(context)),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: Divider(
-                              color: Theme.of(context).colorScheme.tertiary, 
-                              thickness: 1
-                            )
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10.0.w),
-                            child: Text(
-                              'or continue with',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.tertiary,
-                                fontSize: 12.sp * Responsive.scale(context),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Divider(
-                              color: Theme.of(context).colorScheme.tertiary, 
-                              thickness: 1
-                            )
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 20.h * Responsive.scale(context)),
-                      // Google Login Button
-                      CustomButton(
-                        text: 'Continue with Google',
-                        textColor: Colors.black,
-                        color: Colors.transparent,
-                        width: double.infinity,
-                        border: Theme.of(context).colorScheme.tertiary,
-                        onTap: () {
-                          //ADD GOOGLE SIGN IN FUNCTIONALITY
-                        },
-                      ),
                       SizedBox(height: 10.h * Responsive.scale(context)),
                       // Register Redirect
                       Row(
