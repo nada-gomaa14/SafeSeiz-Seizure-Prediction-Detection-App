@@ -11,7 +11,7 @@ import 'package:safeseiz/widgets/ReturnButton.dart';
 import '../user/contact/cubit/emergency_contact_cubit.dart';
 import '../user/contact/models/emergency_contact_model.dart';
 import '../user/sos/cubit/sos_cubit.dart';
-import '../user/seizure/seizure_detector.dart';
+import '../services/seizure_detector.dart';
 import '../screens/SOSPage.dart';
 import '../services/notification_service.dart';
 

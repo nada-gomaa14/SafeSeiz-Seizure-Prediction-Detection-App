@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:safeseiz/user/seizure/cubit/seizure_cubit.dart';
-import 'package:safeseiz/user/seizure/seizure_detector.dart';
+import 'package:safeseiz/services/seizure_detector.dart';
 import 'package:safeseiz/user/sensors/cubit/sensors_cubit.dart';
 import 'package:safeseiz/user/sensors/models/sensors_model.dart';
 
