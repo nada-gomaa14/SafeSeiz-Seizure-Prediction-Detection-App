@@ -19,9 +19,12 @@ import 'package:safeseiz/user/medical/medication/cubit/medication_cubit.dart';
 import 'package:safeseiz/user/medical/medication/models/medication_model.dart';
 import 'package:safeseiz/user/medical/medication/repository/medication_local_repo.dart';
 import 'package:safeseiz/user/profile/cubit/profile_cubit.dart';
+import 'package:safeseiz/user/profile/models/profile_model.dart';
+import 'package:safeseiz/user/profile/repository/profile_local_repo.dart';
 import 'package:safeseiz/user/seizure/cubit/seizure_cubit.dart';
 import 'package:safeseiz/user/seizure/models/seizure_model.dart';
 import 'package:safeseiz/user/sensors/cubit/sensors_cubit.dart';
+import 'package:safeseiz/user/sensors/repository/sensors_local_repo.dart';
 import 'package:safeseiz/user/sos/cubit/sos_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:safeseiz/services/notification_service.dart';
@@ -43,6 +46,7 @@ Future<void> main() async {
 
   await Hive.initFlutter();
   
+  Hive.registerAdapter(ProfileModelAdapter());
   Hive.registerAdapter(MedicalModelAdapter());
   Hive.registerAdapter(EmergencyContactModelAdapter());
   Hive.registerAdapter(SeizureModelAdapter());
@@ -170,11 +174,11 @@ class _SafeSeizState extends State<SafeSeiz> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => ProfileCubit()),
+        BlocProvider(create: (context) => ProfileCubit(ProfileLocalRepo())),
         BlocProvider(create: (context) => MedicalCubit(MedicalLocalRepo())),
         BlocProvider(create: (context) => EmergencyContactsCubit(EmergencyContactsLocalRepo())),
         BlocProvider(create: (context) => MedicationCubit(MedicationLocalRepo())),
-        BlocProvider(create: (context) => SensorsCubit()),
+        BlocProvider(create: (context) => SensorsCubit(SensorsLocalRepo())),
         BlocProvider(create: (context) => SeizureCubit(context.read<SensorsCubit>())),
         BlocProvider(create: (context) => SOSCubit(context.read<SensorsCubit>())),
         BlocProvider(create: (context) => AuthCubit(

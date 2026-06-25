@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:safeseiz/services/hive_manager.dart';
 import 'package:safeseiz/user/contact/cubit/emergency_contact_states.dart';
 import 'package:safeseiz/user/contact/models/emergency_contact_model.dart';
 import 'package:safeseiz/user/contact/repository/emergency_contact_local_repo.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 
@@ -11,7 +11,6 @@ class EmergencyContactsCubit extends Cubit<EmergencyContactsStates> {
 
   EmergencyContactsCubit(this.contactsLocalRepo) : super(EmergencyContactsInitialState());
   final EmergencyContactsLocalRepo contactsLocalRepo;
-  final supabase = Supabase.instance.client;
   final uuid = const Uuid();
 
   List<EmergencyContactModel> contacts = [];
@@ -117,9 +116,9 @@ class EmergencyContactsCubit extends Cubit<EmergencyContactsStates> {
     emit(EmergencyContactsLoadingState());
 
     try {
-      final user = supabase.auth.currentUser;
+      final userId = HiveManager.currentUserId;
 
-      if (user == null) {
+      if (userId == null) {
         emit(EmergencyContactsErrorState('User not logged in.'));
         return false;
       }
@@ -143,9 +142,9 @@ class EmergencyContactsCubit extends Cubit<EmergencyContactsStates> {
     emit(EmergencyContactsLoadingState());
 
     try {
-      final user = supabase.auth.currentUser;
+      final userId = HiveManager.currentUserId;
 
-      if (user == null) {
+      if (userId == null) {
         emit(EmergencyContactsErrorState('User not logged in.'));
         return;
       }
@@ -154,7 +153,7 @@ class EmergencyContactsCubit extends Cubit<EmergencyContactsStates> {
 
       debugPrint(
         'CONTACTS FETCH => '
-        'user=${user.id}, '
+        'user=$userId, '
         'count=${data?.length ?? 0}',
       );
 
@@ -172,9 +171,9 @@ class EmergencyContactsCubit extends Cubit<EmergencyContactsStates> {
     emit(EmergencyContactsLoadingState());
 
     try {
-      final user = supabase.auth.currentUser;
+      final userId = HiveManager.currentUserId;
 
-      if (user != null) {
+      if (userId != null) {
         await contactsLocalRepo.clearEmergencyContacts();
       }
 

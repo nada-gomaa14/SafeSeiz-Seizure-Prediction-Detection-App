@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:safeseiz/services/hive_manager.dart';
 import 'package:safeseiz/user/seizure/models/seizure_model.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SeizureLocalRepo {
   static const _seizuresKey = 'seizures';
 
   Box? get seizuresBox {
-    final user = Supabase.instance.client.auth.currentUser;
+    final userId = HiveManager.currentUserId;
 
-    if (user == null) {
-      return null;
-    }
+    if (userId == null) return null;
 
-    final boxName = 'seizures_box_${user.id}';
+    final boxName = 'seizures_box_$userId';
     if (!Hive.isBoxOpen(boxName)){
       return null;
     }

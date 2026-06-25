@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:safeseiz/services/hive_manager.dart';
 import 'package:safeseiz/user/sensors/models/sensors_model.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SensorsLocalRepo {
   Box<SensorReadingModel>? get sensorsBox {
-    final user = Supabase.instance.client.auth.currentUser;
+    final userId = HiveManager.currentUserId;
 
-    if (user == null) {
+    if (userId == null) {
       return null;
     }
 
-    final boxName = 'sensors_box_${user.id}';
+    final boxName = 'sensors_box_$userId';
     if (!Hive.isBoxOpen(boxName)) {
+      debugPrint('Sensors box is not open: $boxName');
       return null;
     }
     return Hive.box<SensorReadingModel>(boxName);

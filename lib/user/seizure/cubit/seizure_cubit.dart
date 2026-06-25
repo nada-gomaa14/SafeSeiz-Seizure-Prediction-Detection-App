@@ -1,7 +1,8 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
+import 'package:safeseiz/services/hive_manager.dart';
 import 'package:safeseiz/user/seizure/models/summary_model.dart';
 import 'package:safeseiz/user/sensors/cubit/sensors_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -101,10 +102,8 @@ class SeizureCubit extends Cubit<SeizureStates> {
     emit(SeizureLoadingState());
 
     try {
-      final user = supabase.auth.currentUser;
-
-      if (user == null) {
-        emit(SeizureErrorState(error: 'User not logged in.'));
+      if (HiveManager.currentUserId == null) {
+        emit(SeizureErrorState(error: 'No active user.'));
         return null;
       }
 
@@ -152,8 +151,7 @@ class SeizureCubit extends Cubit<SeizureStates> {
     final user = supabase.auth.currentUser;
     if (user == null) return;
 
-    final boxName = 'seizures_box_${user.id}';
-    if (!Hive.isBoxOpen(boxName)) {
+    if (seizureLocalRepo.seizuresBox == null) {
       return;
     }
 
@@ -176,7 +174,7 @@ class SeizureCubit extends Cubit<SeizureStates> {
 
         await seizureLocalRepo.markAsSynced(seizure.id);
       } catch (e) {
-        // Stays unsynced — will retry on next syncToSupabase() call
+        debugPrint('Seizure sync failed: $e'); // Stays unsynced — will retry on next syncToSupabase() call
       }
     }
   }
@@ -221,12 +219,6 @@ class SeizureCubit extends Cubit<SeizureStates> {
     emit(SeizureLoadingState());
 
     try {
-      final user = supabase.auth.currentUser;
-      if (user == null) {
-        emit(SeizureErrorState(error: 'User not logged in.'));
-        return;
-      }
-
       // Auto-purge seizures older than 7 days
       await seizureLocalRepo.purgeOldSeizures();
 
@@ -265,11 +257,7 @@ class SeizureCubit extends Cubit<SeizureStates> {
     emit(SeizureLoadingState());
 
     try {
-      final user = supabase.auth.currentUser;
-
-      if (user != null) {
-        await seizureLocalRepo.clearSeizures();
-      }
+      await seizureLocalRepo.clearSeizures();
 
       seizuresLogs = [];
       clearForm();

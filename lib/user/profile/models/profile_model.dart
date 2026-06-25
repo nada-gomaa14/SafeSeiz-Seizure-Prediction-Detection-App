@@ -1,9 +1,25 @@
+import 'package:hive/hive.dart';
+
+part 'profile_model.g.dart';
+
+@HiveType(typeId: 5)
 class ProfileModel {
+  @HiveField(0)
   final String id;
+
+  @HiveField(1)
   final String email;
+
+  @HiveField(2)
   final String? firstName;
+
+  @HiveField(3)
   final String? lastName;
+
+  @HiveField(4)
   final DateTime? dob;
+
+  @HiveField(5)
   final String? gender;
 
   ProfileModel({

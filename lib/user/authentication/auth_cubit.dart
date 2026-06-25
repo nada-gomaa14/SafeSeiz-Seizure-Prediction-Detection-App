@@ -81,13 +81,42 @@ class AuthCubit extends Cubit<AuthStates> {
 
     await HiveManager.openUserBoxes(userId);
 
-    await profileCubit.fetchProfile(userId);
-    await medicalCubit.fetchMedicalInfo();
-    await contactsCubit.fetchEmergencyContacts();
-    await medicationCubit.fetchMedications();
-    await seizureCubit.loadSeizures();
+    try {
+      await profileCubit.fetchProfile(userId);
+    } catch (e) {
+      debugPrint('Profile load failed: $e');
+    }
 
-    await watchService.startListening();
+    try {
+      await medicalCubit.fetchMedicalInfo();
+    } catch (e) {
+      debugPrint('Medical load failed: $e');
+    }
+
+    try {
+      await contactsCubit.fetchEmergencyContacts();
+    } catch (e) {
+      debugPrint('Contacts load failed: $e');
+    }
+    
+    try {
+      await medicationCubit.fetchMedications();
+    } catch (e) {
+      debugPrint('Medication load failed: $e');
+    }
+
+    try {
+      await seizureCubit.loadSeizures();
+    } catch (e) {
+      debugPrint('Seizure load failed: $e');
+    }
+
+    try {
+      await watchService.startListening();
+    } catch (e) {
+      debugPrint('Watch service failed: $e');
+    }
+    
   }
 
   // Profile Creation Delay
@@ -291,29 +320,16 @@ class AuthCubit extends Cubit<AuthStates> {
   Future<void> validateSession() async {
     emit(AuthLoadingState());
 
+    final currentUser = supabase.auth.currentUser;
+    debugPrint('Current user: ${currentUser?.id}');
+
+    // No session
+    if (currentUser == null) {
+      emit(AuthUnauthenticatedState());
+      return;
+    }
+
     try {
-      final currentUser = supabase.auth.currentUser;
-      debugPrint('Current user: &{currentUser?.id}');
-
-      // No session
-      if (currentUser == null) {
-        emit(AuthUnauthenticatedState());
-        return;
-      }
-
-      // Check if user still exists in database
-      final existingUser = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('id', currentUser.id)
-          .maybeSingle();
-
-      // User deleted from database
-      if (existingUser == null) {
-        await handleDeletedAccount();
-        return;
-      }
-
       // User valid
       await _loadUserData(currentUser.id);
 

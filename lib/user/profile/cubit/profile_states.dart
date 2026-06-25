@@ -1,4 +1,4 @@
-import 'package:safeseiz/user/profile/model/profile_model.dart';
+import 'package:safeseiz/user/profile/models/profile_model.dart';
 
 abstract class ProfileStates {}
 

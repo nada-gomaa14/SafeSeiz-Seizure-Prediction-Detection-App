@@ -1,12 +1,16 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:safeseiz/core/app_exceptions.dart';
-import 'package:safeseiz/user/profile/model/profile_model.dart';
+import 'package:safeseiz/user/profile/models/profile_model.dart';
 import 'package:safeseiz/user/profile/cubit/profile_states.dart';
+import 'package:safeseiz/user/profile/repository/profile_local_repo.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:postgrest/postgrest.dart';
 
 class ProfileCubit extends Cubit<ProfileStates> {
-  ProfileCubit() : super(ProfileInitialState());
+  final ProfileLocalRepo profileLocalRepo;
+
+  ProfileCubit(this.profileLocalRepo) : super(ProfileInitialState());
 
   final supabase = Supabase.instance.client;
 
@@ -120,6 +124,7 @@ class ProfileCubit extends Cubit<ProfileStates> {
 
       await supabase.from('profiles').update(updatedProfile.toJson()).eq('id', user.id);
       profile = updatedProfile;   // Update Local Profile
+      await profileLocalRepo.saveProfile(updatedProfile);
 
       firstName = updatedProfile.firstName;
       lastName = updatedProfile.lastName;
@@ -137,28 +142,29 @@ class ProfileCubit extends Cubit<ProfileStates> {
     emit(ProfileLoadingState());
 
     try {
-      final data = await supabase
-          .from('profiles')
-          .select()
-          .eq('id', userID)
-          .maybeSingle();
+      final data = await supabase.from('profiles').select().eq('id', userID).maybeSingle();
 
-      if (data == null) {
-        emit(ProfileErrorState(error: 'Profile not found.'));
-        return;
-      }    
-
-      profile = ProfileModel.fromJson(data);
-
-      firstName = profile!.firstName;
-      lastName = profile!.lastName;
-      dob = profile!.dob;
-      gender = profile!.gender;
-
-      emit(ProfileLoadedState(profile!));    
+      if (data != null) {
+        profile = ProfileModel.fromJson(data);
+        await profileLocalRepo.saveProfile(profile!);
+      }
+      
     } catch (e) {
-      emit(ProfileErrorState(error: mapErrorToMessage(e)));
-    }
+      debugPrint('SUPABASE FAILED: $e');
+      profile = profileLocalRepo.getProfile();
+    }  
+
+    if (profile == null) {
+      emit(ProfileErrorState(error: 'Profile not found.'));
+      return;
+    }    
+
+    firstName = profile!.firstName;
+    lastName = profile!.lastName;
+    dob = profile!.dob;
+    gender = profile!.gender;
+
+    emit(ProfileLoadedState(profile!));    
   }
 
   String mapErrorToMessage(Object e) {
@@ -181,6 +187,26 @@ class ProfileCubit extends Cubit<ProfileStates> {
     }
 
     return 'Something went wrong. Please try again.';
+  }
+
+  // Clear Profile
+  Future<void> clearProfile() async {
+    emit(ProfileLoadingState());
+
+    try {
+      final user = supabase.auth.currentUser;
+      if (user != null) {
+        await profileLocalRepo.clearProfile();
+      }
+
+      profile = null;
+      resetState();
+
+    } catch (e) {
+
+      emit(ProfileErrorState(error: 'Failed to clear profile.'),
+      );
+    }
   }
 
   // Clear Temporary In-Memory Variables

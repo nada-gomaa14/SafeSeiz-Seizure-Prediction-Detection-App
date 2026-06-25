@@ -2,10 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:safeseiz/services/hive_encryption_service.dart';
 import 'package:safeseiz/user/medical/information/models/medical_model.dart';
+import 'package:safeseiz/user/profile/models/profile_model.dart';
 import 'package:safeseiz/user/sensors/models/sensors_model.dart';
 
 class HiveManager {
+  static String? currentUserId;
+
   static Future<void> openUserBoxes(String userId) async {
+    currentUserId = userId;
+
+    try {
+      debugPrint('Opening profile box...');
+      final profileBox = 'profile_box_$userId';
+
+      if (!Hive.isBoxOpen(profileBox)) {
+        final profileKey = await HiveEncryptionService.getKey(userId: userId, boxName: 'profile_box');
+        await Hive.openBox<ProfileModel>(profileBox, encryptionCipher: HiveAesCipher(profileKey));
+      }
+
+      debugPrint('Profile box opened');
+
+    } catch (e, stack) {
+      debugPrint('Profile box failed: $e');
+      debugPrintStack(stackTrace: stack);
+      rethrow;
+    }
+
     try {
       debugPrint('Opening medical box...');
 
@@ -113,5 +135,13 @@ class HiveManager {
     if (Hive.isBoxOpen(sensorsBox)) {
       await Hive.box<SensorReadingModel>(sensorsBox).close();
     }
+
+    final profileBox = 'profile_box_$userId';
+
+    if (Hive.isBoxOpen(profileBox)) {
+      await Hive.box<ProfileModel>(profileBox).close();
+    }
+
+    currentUserId = null;
   }
 }

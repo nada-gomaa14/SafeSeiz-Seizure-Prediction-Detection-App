@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 import 'dart:typed_data';
 import 'package:safeseiz/user/medical/information/models/medical_model.dart';
 import 'package:safeseiz/user/medical/medication/models/medication_model.dart';
-import 'package:safeseiz/user/profile/model/profile_model.dart';
+import 'package:safeseiz/user/profile/models/profile_model.dart';
 import 'package:safeseiz/user/seizure/models/seizure_model.dart';
 import 'package:safeseiz/user/seizure/models/summary_model.dart';
 

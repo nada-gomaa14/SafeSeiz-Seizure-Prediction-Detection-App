@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:safeseiz/services/hive_manager.dart';
 import 'package:safeseiz/user/sensors/cubit/sensors_states.dart';
 import 'package:safeseiz/user/sensors/models/sensors_model.dart';
 import 'package:safeseiz/user/sensors/repository/sensors_local_repo.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SensorsCubit extends Cubit<SensorsStates> {
-  SensorsCubit() : super(SensorsInitialState());
+  SensorsCubit(this.sensorsLocalRepo) : super(SensorsInitialState());
 
-  final SensorsLocalRepo sensorsLocalRepo = SensorsLocalRepo();
+  final SensorsLocalRepo sensorsLocalRepo;
   final supabase = Supabase.instance.client;
   List<SensorReadingModel> readings = [];
 
@@ -69,8 +70,8 @@ class SensorsCubit extends Cubit<SensorsStates> {
 
   // Sync labeled readings to Supabase
   Future<void> syncToSupabase() async {
-    final user = supabase.auth.currentUser;
-    if (user == null) return;
+    final userId = HiveManager.currentUserId;
+    if (userId == null) return;
 
     final unsynced = sensorsLocalRepo.getUnsyncedLabeledReadings();
     if (unsynced.isEmpty) return;
@@ -79,7 +80,7 @@ class SensorsCubit extends Cubit<SensorsStates> {
       try {
         await supabase.from('sensor_readings').insert({
           'seizure_id': reading.seizureId,
-          'user_id': user.id,
+          'user_id': userId,
           'timestamp': reading.timestamp,
           'ppg': reading.ppg,
           'hr': reading.hr,

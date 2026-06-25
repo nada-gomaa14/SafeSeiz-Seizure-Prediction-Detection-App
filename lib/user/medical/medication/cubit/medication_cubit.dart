@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:safeseiz/services/hive_manager.dart';
 import 'package:safeseiz/user/medical/medication/cubit/medication_states.dart';
 import 'package:safeseiz/user/medical/medication/models/medication_model.dart';
 import 'package:safeseiz/user/medical/medication/repository/medication_local_repo.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MedicationCubit extends Cubit<MedicationStates> {
   MedicationCubit(this.medicationLocalRepo) : super(MedicationInitialState());
 
   final MedicationLocalRepo medicationLocalRepo;
-  final supabase = Supabase.instance.client;
 
   List<MedicationModel> medications = [];
 
@@ -25,9 +24,9 @@ class MedicationCubit extends Cubit<MedicationStates> {
     final times = medication.times;
 
     try {
-      final user = supabase.auth.currentUser;
+      final userId = HiveManager.currentUserId;
 
-      if (user == null) {
+      if (userId == null) {
         emit(MedicationErrorState(error: 'User not logged in.'));
         return false;
       }
@@ -40,7 +39,7 @@ class MedicationCubit extends Cubit<MedicationStates> {
       emit(MedicationLoadingState());
 
       medications.add(medication);
-      debugPrint('SAVING medications for user: ${user.id}');
+      debugPrint('SAVING medications for user: $userId');
 
       await medicationLocalRepo.saveMedications(medications);
 
@@ -60,9 +59,9 @@ class MedicationCubit extends Cubit<MedicationStates> {
     emit(MedicationLoadingState());
 
     try {
-      final user = supabase.auth.currentUser;
+      final userId = HiveManager.currentUserId;
 
-      if (user == null) {
+      if (userId == null) {
         emit(MedicationErrorState(error: 'User not logged in.'));
         return false;
       }
@@ -91,9 +90,9 @@ class MedicationCubit extends Cubit<MedicationStates> {
     emit(MedicationLoadingState());
 
     try {
-      final user = supabase.auth.currentUser;
+      final userId = HiveManager.currentUserId;
 
-      if (user == null) {
+      if (userId == null) {
         emit(MedicationErrorState(error: 'User not logged in.'));
         return false;
       }
@@ -117,9 +116,9 @@ class MedicationCubit extends Cubit<MedicationStates> {
   // Toggle Taken Status
   Future<void> toggleTaken(String id, int freqIndex) async {
     try {
-      final user = supabase.auth.currentUser;
+      final userId = HiveManager.currentUserId;
 
-      if (user == null) {
+      if (userId == null) {
         emit(MedicationErrorState(error: 'User not logged in.'));
         return;
       }
@@ -158,26 +157,16 @@ class MedicationCubit extends Cubit<MedicationStates> {
     emit(MedicationLoadingState());
 
     try {
-      final user = supabase.auth.currentUser;
+      debugPrint('FETCHING medications...');
+      medications = medicationLocalRepo.getMedications();
 
-      if (user == null) {
-        emit(MedicationErrorState(error: 'User not logged in.'));
-        return;
-      }
-
-      debugPrint('FETCHING medications for user: ${user.id}');
-
-      final data = medicationLocalRepo.getMedications();
-
-      if (data == null) {
-        medications = [];
+      if (medications.isEmpty) {
         emit(MedicationInitialState());
         return;
       }
 
-      medications = data;
-
       emit(MedicationLoadedState(medications));
+
     } catch (e) {
       emit(MedicationErrorState(error: 'Failed to load medications.'));
     }
@@ -188,12 +177,14 @@ class MedicationCubit extends Cubit<MedicationStates> {
     emit(MedicationLoadingState());
 
     try {
-      final user = supabase.auth.currentUser;
+      final userId = HiveManager.currentUserId;
 
-      if (user != null) {
-        await medicationLocalRepo.clearMedications();
+      if (userId == null) {
+        emit(MedicationErrorState(error: 'No active user.'));
+        return;
       }
 
+      await medicationLocalRepo.clearMedications();
       medications = [];
 
       emit(MedicationInitialState());

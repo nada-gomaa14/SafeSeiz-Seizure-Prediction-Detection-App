@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:safeseiz/services/hive_manager.dart';
 import 'package:safeseiz/user/medical/information/cubit/medical_states.dart';
 import 'package:safeseiz/user/medical/information/models/medical_model.dart';
 import 'package:safeseiz/user/medical/information/repository/medical_local_repo.dart';
@@ -8,7 +9,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class MedicalCubit extends Cubit<MedicalStates> {
   MedicalCubit(this.medicalLocalRepo) : super(MedicalInitialState());
   final MedicalLocalRepo medicalLocalRepo;
-  final supabase = Supabase.instance.client;
 
   // Medical Information
   bool notDiagnosed = false;
@@ -107,14 +107,14 @@ class MedicalCubit extends Cubit<MedicalStates> {
         bloodType: bloodType
       );
 
-      final user = supabase.auth.currentUser;
+      final userId = HiveManager.currentUserId;
 
-      if (user == null) {
+      if (userId == null) {
         emit(MedicalErrorState(error: 'User not logged in.'));
         return false;
       }
 
-      debugPrint('SAVING medical for user: ${user.id}');
+      debugPrint('SAVING medical for user: $userId');
 
       await medicalLocalRepo.saveMedicalInfo(medicalModel);
 
@@ -140,13 +140,13 @@ class MedicalCubit extends Cubit<MedicalStates> {
     emit(MedicalLoadingState());
 
     try {
-      final user = supabase.auth.currentUser;
-      if (user == null) {
+      final userId = HiveManager.currentUserId;
+      if (userId == null) {
         emit(MedicalErrorState(error: 'User not logged in.'));
         return;
       }
 
-      debugPrint('FETCHING medical for user: ${user.id}');
+      debugPrint('FETCHING medical for user: $userId');
 
       final data = medicalLocalRepo.getMedicalInfo();
       debugPrint('FETCHED DATA: $data');
@@ -196,8 +196,8 @@ class MedicalCubit extends Cubit<MedicalStates> {
     emit(MedicalLoadingState());
 
     try {
-      final user = supabase.auth.currentUser;
-      if (user != null) {
+      final userId = HiveManager.currentUserId;
+      if (userId != null) {
         await medicalLocalRepo.clearMedicalInfo();
       }
 
