@@ -292,6 +292,8 @@ class _SummaryPageState extends State<SummaryPage> {
                           try {
                             if (profileCubit.profile == null || medicalCubit.medical == null) {
                               notify(context, 'Unable to generate report. Try again later.');
+                              debugPrint('profile: ${profileCubit.profile}');
+                              debugPrint('medical: ${medicalCubit.medical}');
                               return;
                             }
                             late final SeizureReportData report;
