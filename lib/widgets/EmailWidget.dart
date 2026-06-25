@@ -40,7 +40,10 @@ class EmailWidget extends StatelessWidget {
           color: Theme.of(context).colorScheme.tertiary
         ),
         hintText: 'Enter your email',
-        hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+        hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          fontSize: 16.sp * Responsive.scale(context),
+          color: Theme.of(context).colorScheme.tertiary,
+        ),
         prefixIcon: Icon(
           Icons.mail,
           color: Theme.of(context).colorScheme.tertiary,

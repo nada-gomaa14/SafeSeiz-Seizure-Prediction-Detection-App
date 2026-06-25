@@ -67,7 +67,10 @@ class NameWidget extends StatelessWidget {
           color: Theme.of(context).colorScheme.tertiary
         ),
         hintText: hint,
-        hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.tertiary),
+        hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          fontSize: 16.sp * Responsive.scale(context),
+          color: Theme.of(context).colorScheme.tertiary,
+        ),
         prefixIcon: Icon(
           Icons.person,
           color: Theme.of(context).colorScheme.tertiary,

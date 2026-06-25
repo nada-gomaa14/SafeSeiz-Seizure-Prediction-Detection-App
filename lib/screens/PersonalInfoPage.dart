@@ -7,7 +7,6 @@ import 'package:intl/intl.dart';
 import 'package:safeseiz/functions/notify.dart';
 import 'package:safeseiz/functions/responsive.dart';
 import 'package:safeseiz/screens/MedicalInfoPage.dart';
-import 'package:safeseiz/screens/RegistrationPage.dart';
 import 'package:safeseiz/user/profile/cubit/profile_cubit.dart';
 import 'package:safeseiz/user/profile/cubit/profile_states.dart';
 import 'package:safeseiz/widgets/CustomButton.dart';
@@ -183,35 +182,6 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                               )
                             : null
                         ),
-      
-                        SizedBox(height: 10.h * Responsive.scale(context)),
-                    
-                          /// SKIP (optional)
-                        CustomButton(
-                          text: "BACK",
-                          width: double.infinity,
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => const RegistrationPage(),
-                              ),
-                            );
-                          },
-                        ),    
-      
-                        SizedBox(height: 10.h * Responsive.scale(context)),
-                    
-                          /// SKIP (optional)
-                        CustomButton(
-                          text: "SKIP",
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => const MedicalInfoPage(),
-                              ),
-                            );
-                          },
-                        ),      
                       ],
                     ),
                   )

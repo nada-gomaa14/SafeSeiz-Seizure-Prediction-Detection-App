@@ -23,31 +23,35 @@ class LogSeizurePage extends StatefulWidget {
 }
 
 class _LogSeizurePageState extends State<LogSeizurePage> {
-  @override
-    void initState() {
-      super.initState();
+  late TextEditingController dateController;
+  late TextEditingController timeController;
 
-      final seizureCubit = context.read<SeizureCubit>();
-      final medicalCubit = context.read<MedicalCubit>();
-
-      if (seizureCubit.seizureTypes.isEmpty) {
-        seizureCubit.updateSeizureTypes(List<String>.from(medicalCubit.seizureTypes));
-      }
-    }
-  
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
+
     final seizureCubit = context.read<SeizureCubit>();
-    final dateController = TextEditingController(
+    final medicalCubit = context.read<MedicalCubit>();
+
+    if (seizureCubit.seizureTypes.isEmpty) {
+      seizureCubit.updateSeizureTypes(List<String>.from(medicalCubit.seizureTypes));
+    }
+
+    dateController = TextEditingController(
       text: seizureCubit.seizureDateTime == null
         ? DateFormat('MMM d, yyyy').format(DateTime.now())
         : DateFormat('MMM d, yyyy').format(seizureCubit.seizureDateTime!),
     );
-    final timeController = TextEditingController(
+    timeController = TextEditingController(
       text: seizureCubit.seizureDateTime == null
         ? DateFormat('hh:mm a').format(DateTime.now())
         : DateFormat('hh:mm a').format(seizureCubit.seizureDateTime!),
     );
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    final seizureCubit = context.read<SeizureCubit>();
     
     return Scaffold(
       appBar: AppBar(
@@ -93,15 +97,6 @@ class _LogSeizurePageState extends State<LogSeizurePage> {
             }
           },
           builder: (context, state) {
-            if (state is SeizureLoadingState) {
-              return Center(
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
-                ),
-              );
-            }
-
             return Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: 30.0.w * Responsive.scale(context),
@@ -216,18 +211,6 @@ class _LogSeizurePageState extends State<LogSeizurePage> {
                       initialSelected: seizureCubit.seizureTypes,
                       onChanged: seizureCubit.updateSeizureTypes
                     ),
-                    if (seizureCubit.seizureTypesError != null) ...[
-                      Padding(
-                        padding: EdgeInsets.only(top: 5.h * Responsive.scale(context)),
-                        child: Text(
-                          seizureCubit.seizureTypesError!,
-                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            color: Theme.of(context).colorScheme.error,
-                            fontSize: 12.sp * Responsive.scale(context),
-                          ),
-                        ),
-                      ),
-                    ],
                     SizedBox(height: 20.h * Responsive.scale(context)),
                     // Duration
                     Text(
@@ -321,11 +304,43 @@ class _LogSeizurePageState extends State<LogSeizurePage> {
                         ),
                       ),
                     ),
+                    if (seizureCubit.seizureTypesError != null || seizureCubit.seizureDurationError != null)
+                      Padding(
+                        padding: EdgeInsets.only(
+                          top: 10.h * Responsive.scale(context),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (seizureCubit.seizureTypesError != null)
+                              Text(
+                                seizureCubit.seizureTypesError!,
+                                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                  color: Theme.of(context).colorScheme.error,
+                                  fontSize: 12.sp * Responsive.scale(context),
+                                ),
+                              ),
+
+                            if (seizureCubit.seizureDurationError != null)
+                              Text(
+                                seizureCubit.seizureDurationError!,
+                                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                  color: Theme.of(context).colorScheme.error,
+                                  fontSize: 12.sp * Responsive.scale(context),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
                     SizedBox(height: 20.h * Responsive.scale(context)),
                     CustomButton(
                       text: 'Save Seizure',
                       width: double.infinity,
                       onTap: () async {
+                        final valid = seizureCubit.validateSeizure();
+                        if (!valid) return;
+
                         showDialog(
                           context: context,
                           barrierDismissible: false,
@@ -358,9 +373,6 @@ class _LogSeizurePageState extends State<LogSeizurePage> {
                               TextButton(
                                 onPressed: () async {
                                   try {
-                                    final valid = seizureCubit.validateSeizureTypes();
-                                    if (!valid) return;
-
                                     Navigator.pop(context);
                                     await seizureCubit.addSeizure(isAutoDetected: false);
 
@@ -399,38 +411,42 @@ class _LogSeizurePageState extends State<LogSeizurePage> {
     );
   }
 
-  Widget buildDurationField({
-    required String title,
-    required Function(String) onChanged,
-  }) {
-
+  Widget buildDurationField({required String title, required Function(String) onChanged}) {
     return TextField(
       keyboardType: TextInputType.number,
       onChanged: onChanged,
       decoration: InputDecoration(
-        hintText: '0',
         labelText: title,
-        contentPadding: EdgeInsets.all(18.w),
+        labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          fontSize: 16.sp * Responsive.scale(context),
+          color: Theme.of(context).colorScheme.tertiary
+        ),
+        hintText: '0',
+        hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          fontSize: 16.sp * Responsive.scale(context),
+          color: Theme.of(context).colorScheme.tertiary,
+        ),
+        contentPadding: EdgeInsets.all(10.r),
         enabledBorder: OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(22.r),
-          borderSide: BorderSide(
-            color: Colors.grey.shade300,
-          ),
+          borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.tertiary),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(22.r),
-          borderSide: const BorderSide(
-            color: Color(0xff2D2DB5),
-          ),
+          borderRadius: BorderRadius.circular(15.r * Responsive.scale(context)),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
         ),
       ),
       style: TextStyle(
-        color: const Color(0xff2D2DB5),
-        fontSize: 32.sp,
-        fontWeight: FontWeight.w700,
+        color: Theme.of(context).colorScheme.primary,
+        fontSize: 16.sp * Responsive.scale(context),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    dateController.dispose();
+    timeController.dispose();
+    super.dispose();
   }
 }

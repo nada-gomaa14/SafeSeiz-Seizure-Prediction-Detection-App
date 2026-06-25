@@ -67,7 +67,7 @@ class DateWidget extends StatelessWidget {
       controller: dateController,
       readOnly: true,
       enabled: enabled,
-      style: TextStyle(
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
         color: Theme.of(context).colorScheme.primary,
         fontSize: 16.sp * Responsive.scale(context),
       ),
@@ -78,7 +78,10 @@ class DateWidget extends StatelessWidget {
           color: Theme.of(context).colorScheme.tertiary
         ),
         hintText: 'Select date',
-        hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.tertiary),
+        hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          fontSize: 16.sp * Responsive.scale(context),
+          color: Theme.of(context).colorScheme.tertiary,
+        ),
         suffixIcon: Icon(
           Icons.calendar_today_outlined,
           size: 18.sp * Responsive.scale(context),

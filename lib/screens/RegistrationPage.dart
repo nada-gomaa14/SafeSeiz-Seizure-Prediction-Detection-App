@@ -178,22 +178,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                               ),
                             ),
                           ],
-                        ),
-                    
-                        SizedBox(height: 10.h * Responsive.scale(context)),
-                    
-                          /// SKIP (optional)
-                        CustomButton(
-                          text: "SKIP",
-                          width: double.infinity,
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => const PersonalInfoPage(),
-                              ),
-                            );
-                          },
-                        ),
+                        ),                    
                       ],
                     ),
                   ),

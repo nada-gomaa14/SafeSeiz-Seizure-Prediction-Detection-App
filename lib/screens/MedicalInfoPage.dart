@@ -5,7 +5,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:safeseiz/functions/notify.dart';
 import 'package:safeseiz/functions/responsive.dart';
 import 'package:safeseiz/navigation/auth_gate.dart';
-import 'package:safeseiz/screens/PersonalInfoPage.dart';
 import 'package:safeseiz/user/medical/information/cubit/medical_cubit.dart';
 import 'package:safeseiz/user/medical/information/cubit/medical_states.dart';
 import 'package:safeseiz/widgets/CustomButton.dart';
@@ -203,21 +202,6 @@ class _MedicalInfoPageState extends State<MedicalInfoPage> {
                             ),
                           ),
                         ),
-                        
-                        SizedBox(height: 10.h * Responsive.scale(context)),
-                        
-                        /// SKIP (optional)
-                        CustomButton(
-                          text: "BACK",
-                          width: double.infinity,
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => const PersonalInfoPage(),
-                              ),
-                            );
-                          },
-                        ),          
                       ],
                     ),
                   ),

@@ -22,7 +22,7 @@ class SeizureCubit extends Cubit<SeizureStates> {
   List<SeizureModel> seizuresLogs = [];
 
   // Form Data
-  DateTime? seizureDateTime;
+  DateTime? seizureDateTime = DateTime.now();
   List<String> seizureTypes = [];
   int durationMinutes = 0;
   int durationSeconds = 0;
@@ -30,6 +30,7 @@ class SeizureCubit extends Cubit<SeizureStates> {
 
   // Validation Errors
   String? seizureTypesError;
+  String? seizureDurationError;
 
   // Summary Report
   String reportType = 'week';
@@ -50,12 +51,14 @@ class SeizureCubit extends Cubit<SeizureStates> {
   // Update Duration Minutes
   void updateDurationMinutes(int value) {
     durationMinutes = value;
+    seizureDurationError = null;
     emit(SeizureUpdateState());
   }
 
   // Update Duration Seconds
   void updateDurationSeconds(int value) {
     durationSeconds = value;
+    seizureDurationError = null;
     emit(SeizureUpdateState());
   }
 
@@ -71,17 +74,26 @@ class SeizureCubit extends Cubit<SeizureStates> {
     emit(SeizureUpdateState());
   }
 
-  // Validate Seizure Type
-  bool validateSeizureTypes() {
+  // Validate Fields
+  bool validateSeizure() {
+    bool valid = true;
+
+    seizureTypesError = null;
+    seizureDurationError = null;
+
     if (seizureTypes.isEmpty) {
       seizureTypesError = 'Select at least one seizure type.';
-      emit(SeizureUpdateState());
-      return false;
+      valid = false;
     }
-    
-    seizureTypesError = null;
+
+    if (durationMinutes == 0 && durationSeconds == 0) {
+      seizureDurationError = 'Please enter the seizure duration.';
+      valid = false;
+    }
+
     emit(SeizureUpdateState());
-    return true;
+
+    return valid;
   }
 
   // Add Seizure
@@ -230,12 +242,13 @@ class SeizureCubit extends Cubit<SeizureStates> {
 
   // Clear Form
   void clearForm() {
-    seizureDateTime = null;
+    seizureDateTime = DateTime.now();
     seizureTypes = [];
     durationMinutes = 0;
     durationSeconds = 0;
     notes = null;
     seizureTypesError = null;
+    seizureDurationError = null;
   }
 
   // Clear Temporary In-Memory Variables
