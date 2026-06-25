@@ -57,7 +57,7 @@ class _MedicationPageState extends State<MedicationPage> {
   Future<void> _checkMedicationAlerts() async {
     debugPrint('Timer fired');  // ← ADD
 
-    final enabled = await SettingsPrefs.getMedReminders();
+    final enabled = await SettingsPreferences.getMedReminders();
 
     if (!enabled || !mounted) return;
 

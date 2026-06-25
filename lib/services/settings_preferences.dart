@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SettingsPrefs {
+class SettingsPreferences {
   static const _medReminders = 'med_reminders';
 
   static Future<bool> getMedReminders() async {

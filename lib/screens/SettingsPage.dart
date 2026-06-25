@@ -35,7 +35,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   // ← ADDED: loads saved toggle value from device storage
   Future<void> _loadSettings() async {
-    final val = await SettingsPrefs.getMedReminders();
+    final val = await SettingsPreferences.getMedReminders();
     if (!mounted) return;
     setState(() => medicalReminders = val);
   }
@@ -156,7 +156,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                     // ← CHANGED: now saves to device storage
                                     onChanged: (value) async {
                                       setState(() => medicalReminders = value);
-                                      await SettingsPrefs.setMedReminders(value);
+                                      await SettingsPreferences.setMedReminders(value);
                                     },
                                   ),
                                 ),
