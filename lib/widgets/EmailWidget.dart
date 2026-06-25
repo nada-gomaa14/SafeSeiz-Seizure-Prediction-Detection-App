@@ -29,7 +29,7 @@ class EmailWidget extends StatelessWidget {
       keyboardType: TextInputType.emailAddress,
       textInputAction: TextInputAction.next,
       maxLines: 1,
-      style: TextStyle(
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
         color: Theme.of(context).colorScheme.primary,
         fontSize: 16.sp * Responsive.scale(context)
       ),

@@ -60,7 +60,7 @@ class _PasswordWidgetState extends State<PasswordWidget> {
             context.read<AuthCubit>().showPasswordStrength(value);
             }
           },
-          style: TextStyle(
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: Theme.of(context).colorScheme.primary,
             fontSize: 16.sp * Responsive.scale(context)
           ),

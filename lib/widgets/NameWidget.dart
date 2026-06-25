@@ -56,7 +56,7 @@ class NameWidget extends StatelessWidget {
         }
         onChanged?.call(capitalized);
       },
-      style: TextStyle(
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
         color: Theme.of(context).colorScheme.primary,
         fontSize: 16.sp * Responsive.scale(context)
       ),
