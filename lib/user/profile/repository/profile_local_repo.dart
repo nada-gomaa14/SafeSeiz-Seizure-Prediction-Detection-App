@@ -32,7 +32,9 @@ class ProfileLocalRepo {
     final box = profileBox;
     if (box == null) return null;
 
-    return box.get(_profileKey);
+    final data = box.get(_profileKey);
+    debugPrint('READING PROFILE: $data');
+    return data;
   }
 
   Future<void> clearProfile() async {
