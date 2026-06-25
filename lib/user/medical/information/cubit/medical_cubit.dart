@@ -4,7 +4,6 @@ import 'package:safeseiz/services/hive_manager.dart';
 import 'package:safeseiz/user/medical/information/cubit/medical_states.dart';
 import 'package:safeseiz/user/medical/information/models/medical_model.dart';
 import 'package:safeseiz/user/medical/information/repository/medical_local_repo.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MedicalCubit extends Cubit<MedicalStates> {
   MedicalCubit(this.medicalLocalRepo) : super(MedicalInitialState());

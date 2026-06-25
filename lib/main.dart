@@ -77,7 +77,6 @@ class _SafeSeizState extends State<SafeSeiz> {
       if (context == null) return;
       watchService.setSensorsCubit(context.read<SensorsCubit>());
       watchService.setSeizureCubit(context.read<SeizureCubit>());
-      watchService.setMedicalCubit(context.read<MedicalCubit>());
 
       // Trigger SOS alert when watch SOS button is pressed
       watchService.sosStream.listen((_) async {

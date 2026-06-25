@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:safeseiz/user/medical/information/cubit/medical_cubit.dart';
 import 'package:safeseiz/user/seizure/cubit/seizure_cubit.dart';
 import 'package:safeseiz/user/seizure/seizure_detector.dart';
 import 'package:safeseiz/user/sensors/cubit/sensors_cubit.dart';
@@ -17,7 +16,6 @@ class WatchService {
 
   SensorsCubit? _sensorsCubit;
   SeizureCubit? _seizureCubit;
-  MedicalCubit? _medicalCubit;
 
   final SeizureDetector _seizureDetector = SeizureDetector();
   bool _detectorInitialized = false;
@@ -36,10 +34,6 @@ class WatchService {
 
   void setSeizureCubit(SeizureCubit cubit) {
     _seizureCubit = cubit;
-  }
-
-  void setMedicalCubit(MedicalCubit cubit) {
-    _medicalCubit = cubit;
   }
 
   Future<void> startListening() async {
