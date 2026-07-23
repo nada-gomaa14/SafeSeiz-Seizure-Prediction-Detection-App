@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:safeseiz/services/hive_manager.dart';
+import 'package:safeseiz/services/hive/hive_manager.dart';
 import 'package:safeseiz/user/medical/medication/cubit/medication_states.dart';
 import 'package:safeseiz/user/medical/medication/models/medication_model.dart';
 import 'package:safeseiz/user/medical/medication/repository/medication_local_repo.dart';

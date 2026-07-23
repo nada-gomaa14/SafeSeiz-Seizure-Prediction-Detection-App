@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:safeseiz/services/hive_manager.dart';
+import 'package:safeseiz/services/hive/hive_manager.dart';
 import 'package:safeseiz/user/contact/models/emergency_contact_model.dart';
 
 class EmergencyContactsLocalRepo {

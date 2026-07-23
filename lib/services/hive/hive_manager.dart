@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:safeseiz/services/hive_encryption_service.dart';
+import 'package:safeseiz/services/hive/hive_encryption_service.dart';
 import 'package:safeseiz/user/medical/information/models/medical_model.dart';
 import 'package:safeseiz/user/profile/models/profile_model.dart';
 import 'package:safeseiz/user/sensors/models/sensors_model.dart';

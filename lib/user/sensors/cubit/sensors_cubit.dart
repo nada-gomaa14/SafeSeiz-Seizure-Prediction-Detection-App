@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:safeseiz/services/hive_manager.dart';
+import 'package:safeseiz/services/hive/hive_manager.dart';
 import 'package:safeseiz/user/sensors/cubit/sensors_states.dart';
 import 'package:safeseiz/user/sensors/models/sensors_model.dart';
 import 'package:safeseiz/user/sensors/repository/sensors_local_repo.dart';

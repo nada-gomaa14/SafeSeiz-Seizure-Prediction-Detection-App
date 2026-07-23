@@ -2,7 +2,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:safeseiz/services/hive_manager.dart';
+import 'package:safeseiz/services/hive/hive_manager.dart';
 import 'package:safeseiz/user/seizure/models/summary_model.dart';
 import 'package:safeseiz/user/sensors/cubit/sensors_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

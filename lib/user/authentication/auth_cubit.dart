@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:safeseiz/core/app_exceptions.dart';
-import 'package:safeseiz/services/hive_manager.dart';
+import 'package:safeseiz/services/hive/hive_manager.dart';
 import 'package:safeseiz/services/watch_service.dart';
 import 'package:safeseiz/user/contact/cubit/emergency_contact_cubit.dart';
 import 'package:safeseiz/user/medical/information/cubit/medical_cubit.dart';
